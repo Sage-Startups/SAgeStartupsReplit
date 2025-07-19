@@ -2,11 +2,21 @@
 
 ## Overview
 
-BrandAI Pro is a full-stack web application that provides AI-powered branding automation for startups. The platform features 60+ specialized AI bots organized into six sections (Marketing, Branding, Advertising, Community, Blog, and Growth) to help startups with logo creation, marketing copy, strategy development, and other branding needs.
+BrandAI Pro is a subscription-based full-stack web application that provides AI-powered branding automation for startups. The platform features 60+ specialized AI bots organized into six sections (Marketing, Branding, Advertising, Community, Blog, and Analytics) with tiered access based on subscription plans. Users must authenticate to access the platform and are given access to bots based on their subscription tier.
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+
+## Recent Changes (January 2024)
+
+- ✅ Converted platform to subscription-based model with Replit authentication
+- ✅ Added three subscription tiers: Free (6 bots), Pro ($24/month, 30 bots), Premium ($44/month, all 60+ bots)
+- ✅ Created new sales-focused landing page with pricing tiers and feature comparisons
+- ✅ Built comprehensive user dashboard with subscription management and analytics
+- ✅ Implemented user authentication using Replit Auth (OpenID Connect)
+- ✅ Added PostgreSQL database with user management, analytics, and session storage
+- ✅ Updated all API routes to require authentication and enforce subscription limits
 
 ## System Architecture
 

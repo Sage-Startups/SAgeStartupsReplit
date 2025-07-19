@@ -1,160 +1,135 @@
-import { users, projects, botSessions, chatMessages, generatedAssets, type User, type InsertUser, type Project, type InsertProject, type BotSession, type InsertBotSession, type ChatMessage, type InsertChatMessage, type GeneratedAsset, type InsertGeneratedAsset } from "@shared/schema";
+import { users, projects, botSessions, chatMessages, generatedAssets, userAnalytics, type User, type Project, type BotSession, type ChatMessage, type GeneratedAsset, type UserAnalytics, type UpsertUser, type InsertProject, type InsertBotSession, type InsertChatMessage, type InsertGeneratedAsset, type InsertUserAnalytics } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
+// Interface for storage operations
 export interface IStorage {
-  getUser(id: number): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  // User operations (required for Replit Auth)
+  getUser(id: string): Promise<User | undefined>;
+  upsertUser(user: UpsertUser): Promise<User>;
   
+  // Project operations
   getProject(id: number): Promise<Project | undefined>;
-  getProjectsByUserId(userId: number): Promise<Project[]>;
+  getProjectsByUserId(userId: string): Promise<Project[]>;
   createProject(project: InsertProject): Promise<Project>;
   updateProject(id: number, updates: Partial<Project>): Promise<Project | undefined>;
   
+  // Bot session operations
   getBotSession(id: number): Promise<BotSession | undefined>;
   getBotSessionsByProjectId(projectId: number): Promise<BotSession[]>;
   createBotSession(session: InsertBotSession): Promise<BotSession>;
   
+  // Chat message operations
   getChatMessagesBySessionId(sessionId: number): Promise<ChatMessage[]>;
   createChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
   
+  // Generated asset operations
   getGeneratedAssetsBySessionId(sessionId: number): Promise<GeneratedAsset[]>;
   createGeneratedAsset(asset: InsertGeneratedAsset): Promise<GeneratedAsset>;
+  
+  // Analytics operations
+  getUserAnalytics(userId: string): Promise<UserAnalytics | undefined>;
+  updateUserAnalytics(userId: string, updates: Partial<InsertUserAnalytics>): Promise<void>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private projects: Map<number, Project>;
-  private botSessions: Map<number, BotSession>;
-  private chatMessages: Map<number, ChatMessage>;
-  private generatedAssets: Map<number, GeneratedAsset>;
-  private currentUserId: number;
-  private currentProjectId: number;
-  private currentSessionId: number;
-  private currentMessageId: number;
-  private currentAssetId: number;
-
-  constructor() {
-    this.users = new Map();
-    this.projects = new Map();
-    this.botSessions = new Map();
-    this.chatMessages = new Map();
-    this.generatedAssets = new Map();
-    this.currentUserId = 1;
-    this.currentProjectId = 1;
-    this.currentSessionId = 1;
-    this.currentMessageId = 1;
-    this.currentAssetId = 1;
-  }
-
-  async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentUserId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+export class DatabaseStorage implements IStorage {
+  // User operations
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
   }
 
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return user;
+  }
+
+  // Project operations
   async getProject(id: number): Promise<Project | undefined> {
-    return this.projects.get(id);
-  }
-
-  async getProjectsByUserId(userId: number): Promise<Project[]> {
-    return Array.from(this.projects.values()).filter(
-      (project) => project.userId === userId,
-    );
-  }
-
-  async createProject(insertProject: InsertProject): Promise<Project> {
-    const id = this.currentProjectId++;
-    const now = new Date();
-    const project: Project = { 
-      ...insertProject, 
-      id, 
-      createdAt: now,
-      updatedAt: now,
-      description: insertProject.description || null
-    };
-    this.projects.set(id, project);
+    const [project] = await db.select().from(projects).where(eq(projects.id, id));
     return project;
   }
 
+  async getProjectsByUserId(userId: string): Promise<Project[]> {
+    return await db.select().from(projects).where(eq(projects.userId, userId));
+  }
+
+  async createProject(project: InsertProject): Promise<Project> {
+    const [newProject] = await db.insert(projects).values(project).returning();
+    return newProject;
+  }
+
   async updateProject(id: number, updates: Partial<Project>): Promise<Project | undefined> {
-    const project = this.projects.get(id);
-    if (!project) return undefined;
-    
-    const updatedProject: Project = {
-      ...project,
-      ...updates,
-      updatedAt: new Date()
-    };
-    this.projects.set(id, updatedProject);
+    const [updatedProject] = await db
+      .update(projects)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(projects.id, id))
+      .returning();
     return updatedProject;
   }
 
+  // Bot session operations
   async getBotSession(id: number): Promise<BotSession | undefined> {
-    return this.botSessions.get(id);
-  }
-
-  async getBotSessionsByProjectId(projectId: number): Promise<BotSession[]> {
-    return Array.from(this.botSessions.values()).filter(
-      (session) => session.projectId === projectId,
-    );
-  }
-
-  async createBotSession(insertSession: InsertBotSession): Promise<BotSession> {
-    const id = this.currentSessionId++;
-    const session: BotSession = { 
-      ...insertSession, 
-      id, 
-      createdAt: new Date()
-    };
-    this.botSessions.set(id, session);
+    const [session] = await db.select().from(botSessions).where(eq(botSessions.id, id));
     return session;
   }
 
+  async getBotSessionsByProjectId(projectId: number): Promise<BotSession[]> {
+    return await db.select().from(botSessions).where(eq(botSessions.projectId, projectId));
+  }
+
+  async createBotSession(session: InsertBotSession): Promise<BotSession> {
+    const [newSession] = await db.insert(botSessions).values(session).returning();
+    return newSession;
+  }
+
+  // Chat message operations
   async getChatMessagesBySessionId(sessionId: number): Promise<ChatMessage[]> {
-    return Array.from(this.chatMessages.values())
-      .filter((message) => message.sessionId === sessionId)
-      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+    return await db.select().from(chatMessages).where(eq(chatMessages.sessionId, sessionId));
   }
 
-  async createChatMessage(insertMessage: InsertChatMessage): Promise<ChatMessage> {
-    const id = this.currentMessageId++;
-    const message: ChatMessage = { 
-      ...insertMessage, 
-      id, 
-      createdAt: new Date(),
-      metadata: insertMessage.metadata || null
-    };
-    this.chatMessages.set(id, message);
-    return message;
+  async createChatMessage(message: InsertChatMessage): Promise<ChatMessage> {
+    const [newMessage] = await db.insert(chatMessages).values(message).returning();
+    return newMessage;
   }
 
+  // Generated asset operations
   async getGeneratedAssetsBySessionId(sessionId: number): Promise<GeneratedAsset[]> {
-    return Array.from(this.generatedAssets.values())
-      .filter((asset) => asset.sessionId === sessionId)
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    return await db.select().from(generatedAssets).where(eq(generatedAssets.sessionId, sessionId));
   }
 
-  async createGeneratedAsset(insertAsset: InsertGeneratedAsset): Promise<GeneratedAsset> {
-    const id = this.currentAssetId++;
-    const asset: GeneratedAsset = { 
-      ...insertAsset, 
-      id, 
-      createdAt: new Date()
-    };
-    this.generatedAssets.set(id, asset);
-    return asset;
+  async createGeneratedAsset(asset: InsertGeneratedAsset): Promise<GeneratedAsset> {
+    const [newAsset] = await db.insert(generatedAssets).values(asset).returning();
+    return newAsset;
+  }
+
+  // Analytics operations
+  async getUserAnalytics(userId: string): Promise<UserAnalytics | undefined> {
+    const [analytics] = await db.select().from(userAnalytics).where(eq(userAnalytics.userId, userId));
+    return analytics;
+  }
+
+  async updateUserAnalytics(userId: string, updates: Partial<InsertUserAnalytics>): Promise<void> {
+    const existing = await this.getUserAnalytics(userId);
+    if (existing) {
+      await db
+        .update(userAnalytics)
+        .set({ ...updates, updatedAt: new Date() })
+        .where(eq(userAnalytics.userId, userId));
+    } else {
+      await db.insert(userAnalytics).values({ userId, ...updates });
+    }
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
