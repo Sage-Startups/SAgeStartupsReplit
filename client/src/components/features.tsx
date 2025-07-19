@@ -33,7 +33,7 @@ export function Features() {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {sections.map((section) => {
-            const IconComponent = iconMap[section.icon as keyof typeof iconMap];
+            const IconComponent = iconMap[section.icon as keyof typeof iconMap] || Sparkles;
             return (
               <Link key={section.id} href={`/section/${section.id}`}>
                 <div className={`${section.color} p-8 rounded-xl border hover:shadow-lg transition cursor-pointer`}>

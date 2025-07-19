@@ -34,7 +34,7 @@ export function AllBots() {
         <div className="grid lg:grid-cols-2 gap-8">
           {sections.map((section) => {
             const sectionBots = bots.filter(bot => bot.section === section.id);
-            const IconComponent = iconMap[section.icon as keyof typeof iconMap];
+            const IconComponent = iconMap[section.icon as keyof typeof iconMap] || Sparkles;
             
             return (
               <div key={section.id} className="bg-white rounded-xl shadow-lg p-8">

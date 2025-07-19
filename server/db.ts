@@ -3,14 +3,10 @@ import { drizzle } from 'drizzle-orm/neon-serverless';
 import ws from "ws";
 import * as schema from "../shared/schema";
 
-// Only use WebSocket in production or when explicitly enabled
-if (process.env.NODE_ENV === 'production' || process.env.ENABLE_WEBSOCKET) {
-  neonConfig.webSocketConstructor = ws;
-} else {
-  // In development, disable WebSocket to use regular connection pooling
-  neonConfig.useSecureWebSocket = false;
-  neonConfig.pipelineConnect = false;
-}
+// Configure Neon for Replit environment
+neonConfig.webSocketConstructor = ws;
+neonConfig.useSecureWebSocket = true;
+neonConfig.pipelineConnect = 'password';
 
 if (!process.env.DATABASE_URL) {
   throw new Error(

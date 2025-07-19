@@ -1,9 +1,18 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, Star, Zap, Users, BarChart, Rocket, ArrowRight } from "lucide-react";
+import { Check, Star, Zap, Users, BarChart, Rocket, ArrowRight, Megaphone, Palette, Sparkles, PenTool, TrendingUp } from "lucide-react";
 import { sections, bots } from "@/lib/bot-definitions";
 import { Link } from "wouter";
+
+const iconMap = {
+  bullhorn: Megaphone,
+  palette: Palette,
+  ad: Sparkles,
+  users: Users,
+  'pen-nib': PenTool,
+  'chart-line': TrendingUp
+};
 
 export default function Landing() {
   return (
@@ -83,12 +92,13 @@ export default function Landing() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {sections.map((section) => {
               const sectionBots = bots.filter(bot => bot.section === section.id);
+              const IconComponent = iconMap[section.icon as keyof typeof iconMap] || Sparkles;
               return (
                 <Card key={section.id} className="border-0 shadow-lg hover:shadow-xl transition-shadow">
                   <CardHeader>
                     <div className="flex items-center space-x-3">
                       <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${section.gradient} flex items-center justify-center`}>
-                        <section.icon className="w-6 h-6 text-white" />
+                        <IconComponent className="w-6 h-6 text-white" />
                       </div>
                       <div>
                         <CardTitle className="text-lg">{section.name}</CardTitle>
