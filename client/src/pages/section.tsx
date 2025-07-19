@@ -2,8 +2,37 @@ import { useParams, Link } from "wouter";
 import { Navbar } from "@/components/navbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Search, Calendar, Eye, Star, Rocket, Target, BarChart, CheckCircle, FileText, Hash, MessageSquare, Image, Camera, Video, Edit3, Globe, Share2, Heart, Lightbulb, ChevronRight, Zap, Shield, Sparkles } from "lucide-react";
 import { getSectionById, getBotsBySection } from "@/lib/bot-definitions";
+
+// Icon mapping for bots
+const botIconMap: Record<string, any> = {
+  'chess': Target,
+  'search': Search,
+  'envelope': MessageSquare,
+  'calendar': Calendar,
+  'eye': Eye,
+  'star': Star,
+  'rocket': Rocket,
+  'target': Target,
+  'bar-chart': BarChart,
+  'check-circle': CheckCircle,
+  'file-text': FileText,
+  'hash': Hash,
+  'message-square': MessageSquare,
+  'image': Image,
+  'camera': Camera,
+  'video': Video,
+  'edit-3': Edit3,
+  'globe': Globe,
+  'share-2': Share2,
+  'heart': Heart,
+  'lightbulb': Lightbulb,
+  'chevron-right': ChevronRight,
+  'zap': Zap,
+  'shield': Shield,
+  'sparkles': Sparkles
+};
 
 export default function Section() {
   const { sectionId } = useParams();
@@ -51,7 +80,10 @@ export default function Section() {
                       bot.color === 'text-danger' ? 'bg-danger' : 
                       'bg-accent'
                     }`}>
-                      <i className={`fas fa-${bot.icon} text-white text-sm`}></i>
+                      {(() => {
+                        const IconComponent = botIconMap[bot.icon] || Sparkles;
+                        return <IconComponent className="w-4 h-4 text-white" />;
+                      })()}
                     </div>
                     <span className="text-lg">{bot.name}</span>
                   </CardTitle>

@@ -32,7 +32,10 @@ export function ChatInterface({ sessionId, botName, botColor }: ChatInterfacePro
 
   const sendMessageMutation = useMutation({
     mutationFn: async (content: string) => {
-      const response = await apiRequest('POST', `/api/sessions/${sessionId}/messages`, { content });
+      const response = await apiRequest('POST', `/api/sessions/${sessionId}/messages`, { 
+        content,
+        role: 'user'
+      });
       return response.json();
     },
     onSuccess: () => {

@@ -16,20 +16,13 @@ export interface BotResponse {
 
 export async function generateBotResponse(
   botId: string,
-  botName: string,
-  section: string,
-  userMessage: string,
-  conversationHistory: Array<{ role: string; content: string }>
-): Promise<BotResponse> {
+  userMessage: string
+): Promise<string> {
   try {
-    const systemPrompt = getBotSystemPrompt(botId, section);
+    const systemPrompt = getBotSystemPrompt(botId, 'general');
     
     const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
       { role: "system", content: systemPrompt },
-      ...conversationHistory.map(msg => ({
-        role: msg.role as "user" | "assistant",
-        content: msg.content
-      })),
       { role: "user", content: userMessage }
     ];
 
@@ -42,13 +35,7 @@ export async function generateBotResponse(
 
     const content = response.choices[0].message.content || "";
     
-    // Extract any generated assets from the response
-    const assets = extractAssetsFromResponse(content, botId, section);
-    
-    return {
-      content,
-      assets
-    };
+    return content;
   } catch (error) {
     throw new Error(`Failed to generate bot response: ${error.message}`);
   }
