@@ -20,6 +20,9 @@ Preferred communication style: Simple, everyday language.
 - ✅ Fixed database connection issues with Neon serverless configuration
 - ✅ Resolved React warnings by properly mapping icon strings to Lucide React components
 - ✅ Fixed AI message validation errors by adding required role field
+- ✅ Added subscription tier and usage tracking to dashboard
+- ✅ Replaced conversational bot interface with dropdown-based option selection
+- ✅ Created structured input forms for better user experience
 
 ## System Architecture
 

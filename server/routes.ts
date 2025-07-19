@@ -64,15 +64,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.claims.sub;
       const analytics = await storage.getUserAnalytics(userId);
-      res.json(analytics || {
-        userId,
-        totalSessions: 0,
-        totalMessages: 0,
-        totalAssets: 0,
-        favoriteSection: null,
-        lastActive: new Date(),
-        updatedAt: new Date()
-      });
+      const user = await storage.getUser(userId);
+      
+      const response = {
+        ...(analytics || {
+          userId,
+          totalSessions: 0,
+          totalMessages: 0,
+          totalAssets: 0,
+          favoriteSection: null,
+          lastActive: new Date(),
+          updatedAt: new Date()
+        }),
+        subscriptionTier: user?.subscriptionTier || 'free',
+        subscriptionStatus: user?.subscriptionStatus || 'active'
+      };
+      
+      res.json(response);
     } catch (error) {
       console.error("Error fetching user analytics:", error);
       res.status(500).json({ message: "Failed to fetch analytics" });

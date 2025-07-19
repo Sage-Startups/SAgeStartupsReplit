@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "wouter";
 import { Navbar } from "@/components/navbar";
-import { ChatInterface } from "@/components/chat-interface";
+import { BotDropdownInterface } from "@/components/bot-dropdown-interface";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -334,10 +334,11 @@ export default function Bot() {
           {/* Main Content - Chat Interface */}
           <div className="lg:col-span-2">
             {activeSessionId ? (
-              <ChatInterface 
+              <BotDropdownInterface 
                 sessionId={activeSessionId}
                 botName={bot.name}
-                botColor={getColorClass()}
+                botId={bot.id}
+                botColor={bot.color}
               />
             ) : (
               <Card className="h-96">
@@ -351,7 +352,7 @@ export default function Bot() {
                       bot.color === 'text-danger' ? 'bg-danger' : 
                       'bg-accent'
                     }`}>
-                      <i className={`fas fa-${bot.icon} text-white text-2xl`}></i>
+                      <Sparkles className="w-8 h-8 text-white" />
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">
                       Ready to start with {bot.name}

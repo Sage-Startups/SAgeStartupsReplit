@@ -46,6 +46,14 @@ export default function Dashboard() {
     queryKey: ['/api/projects']
   });
 
+  const { data: userAnalytics } = useQuery({
+    queryKey: ['/api/user/analytics']
+  });
+
+  const { data: userBots = [] } = useQuery({
+    queryKey: ['/api/user/bots']
+  });
+
   const createProjectMutation = useMutation({
     mutationFn: async (data: { name: string; description?: string }) => {
       const response = await apiRequest('POST', '/api/projects', data);
@@ -147,53 +155,70 @@ export default function Dashboard() {
           </Dialog>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        {/* Subscription & Usage Stats */}
+        <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-6 mb-8">
           <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-2xl font-bold text-gray-900">1,247</div>
-                  <div className="text-sm text-gray-600">AI Generations</div>
-                </div>
-                <Brain className="h-8 w-8 text-primary" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Subscription</CardTitle>
+              <Sparkles className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold capitalize">
+                {userAnalytics?.subscriptionTier || 'Free'}
               </div>
+              <p className="text-xs text-muted-foreground">
+                {userBots.length} bots available
+              </p>
             </CardContent>
           </Card>
+
           <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-2xl font-bold text-gray-900">{projects.length}</div>
-                  <div className="text-sm text-gray-600">Active Projects</div>
-                </div>
-                <FolderOpen className="h-8 w-8 text-success" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Messages</CardTitle>
+              <Brain className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {userAnalytics?.totalMessages || 0}
               </div>
+              <p className="text-xs text-muted-foreground">
+                AI conversations
+              </p>
             </CardContent>
           </Card>
+
           <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-2xl font-bold text-gray-900">89%</div>
-                  <div className="text-sm text-gray-600">Brand Consistency</div>
-                </div>
-                <PieChart className="h-8 w-8 text-warning" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Bot Sessions</CardTitle>
+              <FolderOpen className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {userAnalytics?.totalSessions || 0}
               </div>
+              <p className="text-xs text-muted-foreground">
+                Active projects
+              </p>
             </CardContent>
           </Card>
+
           <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-2xl font-bold text-gray-900">156</div>
-                  <div className="text-sm text-gray-600">Assets Created</div>
-                </div>
-                <Images className="h-8 w-8 text-accent" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Generated Assets</CardTitle>
+              <Images className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {userAnalytics?.totalAssets || 0}
               </div>
+              <p className="text-xs text-muted-foreground">
+                Content created
+              </p>
             </CardContent>
           </Card>
         </div>
+
+
 
         {/* Projects Section */}
         <div className="mb-8">
