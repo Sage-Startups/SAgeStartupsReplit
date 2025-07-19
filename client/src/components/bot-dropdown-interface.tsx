@@ -77,7 +77,9 @@ export function BotDropdownInterface({ sessionId, botName, botId, botColor }: Bo
       return response.json();
     },
     onSuccess: (data) => {
-      setResult(data.aiMessage.content);
+      console.log('API Response:', data); // Debug log
+      const content = data.aiMessage?.content || data.content || '';
+      setResult(content);
       queryClient.invalidateQueries({ queryKey: ['/api/sessions', sessionId, 'messages'] });
       toast({
         title: "Generated!",
@@ -248,9 +250,20 @@ Please provide a comprehensive, actionable response.`;
           </CardHeader>
           <CardContent>
             <div className="prose max-w-none">
-              <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-4 rounded-lg">
+              <div className="whitespace-pre-wrap text-sm bg-gray-50 p-4 rounded-lg border">
                 {result}
-              </pre>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      
+      {/* Debug info - remove in production */}
+      {generateMutation.isPending && (
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-sm text-gray-500">
+              Generating content... This may take a few moments.
             </div>
           </CardContent>
         </Card>

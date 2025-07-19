@@ -278,7 +278,7 @@ export default function Dashboard() {
                     <CardHeader>
                       <div className="flex items-center">
                         <div className={`w-10 h-10 rounded-lg flex items-center justify-center mr-3 ${section.iconColor === 'text-primary' ? 'bg-primary' : section.iconColor === 'text-secondary' ? 'bg-secondary' : section.iconColor === 'text-success' ? 'bg-success' : section.iconColor === 'text-warning' ? 'bg-warning' : section.iconColor === 'text-danger' ? 'bg-danger' : 'bg-accent'}`}>
-                          <IconComponent className="text-white text-lg" />
+                          {IconComponent ? <IconComponent className="w-5 h-5 text-white" /> : <Sparkles className="w-5 h-5 text-white" />}
                         </div>
                         <CardTitle className="text-lg">{section.name}</CardTitle>
                       </div>
