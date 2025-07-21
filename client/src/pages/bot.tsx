@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, Link, useSearch } from "wouter";
+import { useParams, Link, useSearch, useLocation } from "wouter";
 import { Navbar } from "@/components/navbar";
 import { BotDropdownInterface } from "@/components/bot-dropdown-interface";
 import { Button } from "@/components/ui/button";
@@ -10,16 +10,18 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Play, Plus, FolderOpen, Sparkles } from "lucide-react";
-import { getBotById } from "@/lib/bot-definitions";
+import { ArrowLeft, Play, Plus, FolderOpen, Sparkles, Lock, Crown } from "lucide-react";
+import { getBotById, hasAccessToBot } from "@/lib/bot-definitions";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import type { Project, BotSession } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Bot() {
   const { botId } = useParams();
   const searchParams = useSearch();
+  const [, setLocation] = useLocation();
   const [selectedProjectId, setSelectedProjectId] = useState<string>("");
   const [activeSessionId, setActiveSessionId] = useState<number | null>(null);
   const [isCreateProjectDialogOpen, setIsCreateProjectDialogOpen] = useState(false);
@@ -27,6 +29,7 @@ export default function Bot() {
   const [projectDescription, setProjectDescription] = useState("");
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { user, isLoading: authLoading } = useAuth();
 
   // Parse URL parameters to load existing session
   useEffect(() => {
@@ -48,6 +51,22 @@ export default function Bot() {
 
   const bot = getBotById(botId);
 
+  // Check if user has access to this bot
+  const userSubscriptionTier = (user as any)?.subscriptionTier || 'free';
+  const hasAccess = hasAccessToBot(botId, userSubscriptionTier);
+
+  // Redirect to pricing page if user doesn't have access
+  useEffect(() => {
+    if (!authLoading && user && !hasAccess) {
+      setLocation('/');
+      toast({
+        title: "Upgrade Required",
+        description: `This bot requires a ${bot?.section === 'marketing' || bot?.section === 'branding' ? 'Pro' : 'Premium'} subscription. Please upgrade to access this feature.`,
+        variant: "destructive",
+      });
+    }
+  }, [authLoading, user, hasAccess, setLocation, toast, bot]);
+
   if (!bot) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -58,6 +77,40 @@ export default function Bot() {
             <Link href="/dashboard">
               <Button className="mt-4">Back to Dashboard</Button>
             </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show access denied page if user doesn't have access
+  if (!authLoading && user && !hasAccess) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="max-w-2xl mx-auto text-center">
+            <div className="bg-white rounded-lg shadow-sm p-8">
+              <div className="flex justify-center mb-4">
+                <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center">
+                  <Lock className="w-8 h-8 text-amber-600" />
+                </div>
+              </div>
+              <h1 className="text-2xl font-bold text-gray-900 mb-4">Upgrade Required</h1>
+              <p className="text-gray-600 mb-6">
+                The <strong>{bot.name}</strong> requires a {userSubscriptionTier === 'free' ? 'Pro or Premium' : 'Premium'} subscription to access.
+              </p>
+              <div className="space-y-3">
+                <Button size="lg" onClick={() => setLocation('/')} className="w-full">
+                  <Crown className="w-4 h-4 mr-2" />
+                  View Pricing Plans
+                </Button>
+                <Button variant="outline" size="lg" onClick={() => setLocation('/')} className="w-full">
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to Dashboard
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </div>

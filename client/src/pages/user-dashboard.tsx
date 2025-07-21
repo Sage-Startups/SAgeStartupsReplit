@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { apiRequest } from "@/lib/queryClient";
 import type { Project } from "@shared/schema";
-import { sections, BotDefinition } from "@/lib/bot-definitions";
+import { sections, BotDefinition, getAvailableBots, getBotsBySection } from "@/lib/bot-definitions";
 import { Link, useLocation } from "wouter";
 import { 
   User, 
@@ -46,11 +46,16 @@ export default function UserDashboard() {
   const [projectName, setProjectName] = useState("");
   const [projectDescription, setProjectDescription] = useState("");
 
-  // Fetch user's available bots
-  const { data: availableBots = [], isLoading: botsLoading } = useQuery<BotDefinition[]>({
-    queryKey: ["/api/user/bots"],
-    enabled: !!user
-  });
+  // Get available bots based on subscription tier
+  const userSubscriptionTier = (user as any)?.subscriptionTier || 'free';
+  const availableBots = getAvailableBots(userSubscriptionTier);
+  
+  // Total bots function
+  const getTotalBots = () => {
+    return sections.reduce((total, section) => {
+      return total + getBotsBySection(section.id).length;
+    }, 0);
+  };
 
   // Fetch user analytics
   const { data: analytics } = useQuery<UserAnalytics>({
@@ -148,19 +153,9 @@ export default function UserDashboard() {
     }
   };
 
-  const getBotsBySection = (sectionId: string) => {
-    return availableBots?.filter(bot => bot.section === sectionId) || [];
-  };
 
-  const getTotalBots = () => {
-    if (!user) return 6;
-    switch ((user as any).subscriptionTier) {
-      case 'free': return 6;
-      case 'pro': return 30;
-      case 'premium': return 60;
-      default: return 6;
-    }
-  };
+
+
 
   const subInfo = getSubscriptionInfo((user as any)?.subscriptionTier || 'free');
 
@@ -313,7 +308,7 @@ export default function UserDashboard() {
                   You have access to {availableBots.length} specialized AI bots
                 </p>
               </div>
-              {user.subscriptionTier === 'free' && (
+              {userSubscriptionTier === 'free' && (
                 <Button onClick={() => upgradeMutation.mutate('pro')}>
                   Upgrade to Access More Bots
                 </Button>
@@ -322,19 +317,21 @@ export default function UserDashboard() {
 
             <div className="space-y-6">
               {sections.map((section) => {
-                const sectionBots = getBotsBySection(section.id);
+                const sectionBots = availableBots.filter(bot => bot.section === section.id);
+                if (sectionBots.length === 0) return null;
+                
                 return (
                   <Card key={section.id}>
                     <CardHeader>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
-                          <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${section.gradient} flex items-center justify-center`}>
+                          <div className={`w-12 h-12 rounded-lg ${section.iconColor} flex items-center justify-center`}>
                             <section.icon className="w-6 h-6 text-white" />
                           </div>
                           <div>
                             <CardTitle>{section.name}</CardTitle>
                             <CardDescription>
-                              {sectionBots.length} of {section.totalBots} bots available
+                              {sectionBots.length} bots available
                             </CardDescription>
                           </div>
                         </div>

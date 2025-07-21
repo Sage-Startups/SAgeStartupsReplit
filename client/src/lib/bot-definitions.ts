@@ -624,3 +624,33 @@ export function getBotById(botId: string): BotDefinition | undefined {
 export function getSectionById(sectionId: string) {
   return sections.find(section => section.id === sectionId);
 }
+
+// Function to get available bots based on subscription tier
+export function getAvailableBots(subscriptionTier: string): BotDefinition[] {
+  if (subscriptionTier === 'free') {
+    // Free tier: 6 bots (1 from each section)
+    return [
+      bots.find(bot => bot.id === 'campaign-strategy')!,
+      bots.find(bot => bot.id === 'logo-creator')!,
+      bots.find(bot => bot.id === 'ad-copy')!,
+      bots.find(bot => bot.id === 'social-scheduler')!,
+      bots.find(bot => bot.id === 'blog-writer')!,
+      bots.find(bot => bot.id === 'growth-hacker')!
+    ].filter(Boolean);
+  } else if (subscriptionTier === 'pro') {
+    // Pro tier: 30 bots (5 from each section)
+    return bots.slice(0, 30);
+  } else if (subscriptionTier === 'premium') {
+    // Premium tier: All 60+ bots
+    return bots;
+  }
+  
+  // Default to free tier if subscription tier not recognized
+  return getAvailableBots('free');
+}
+
+// Function to check if user has access to a specific bot
+export function hasAccessToBot(botId: string, subscriptionTier: string): boolean {
+  const availableBots = getAvailableBots(subscriptionTier);
+  return availableBots.some(bot => bot.id === botId);
+}
