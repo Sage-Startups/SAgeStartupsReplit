@@ -44,41 +44,17 @@ export default function UserDashboard() {
   // Fetch user's available bots
   const { data: availableBots = [], isLoading: botsLoading } = useQuery<BotDefinition[]>({
     queryKey: ["/api/user/bots"],
-    enabled: !!user,
-    onError: (error) => {
-      if (isUnauthorizedError(error as Error)) {
-        toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
-      }
-    }
+    enabled: !!user
   });
 
   // Fetch user analytics
   const { data: analytics } = useQuery<UserAnalytics>({
     queryKey: ["/api/user/analytics"],
-    enabled: !!user,
-    onError: (error) => {
-      if (isUnauthorizedError(error as Error)) {
-        toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
-      }
-    }
+    enabled: !!user
   });
 
   // Fetch user projects
-  const { data: projects = [] } = useQuery({
+  const { data: projects = [] } = useQuery<any[]>({
     queryKey: ["/api/projects"],
     enabled: !!user,
   });
@@ -86,10 +62,8 @@ export default function UserDashboard() {
   // Subscription upgrade mutation
   const upgradeMutation = useMutation({
     mutationFn: async (tier: string) => {
-      return apiRequest("/api/user/subscription", {
-        method: "POST",
-        body: { tier }
-      });
+      const response = await apiRequest("POST", "/api/user/subscription", { tier });
+      return response.json();
     },
     onSuccess: () => {
       toast({
@@ -135,11 +109,12 @@ export default function UserDashboard() {
   };
 
   const getBotsBySection = (sectionId: string) => {
-    return availableBots.filter(bot => bot.section === sectionId);
+    return availableBots?.filter(bot => bot.section === sectionId) || [];
   };
 
   const getTotalBots = () => {
-    switch (user.subscriptionTier) {
+    if (!user) return 6;
+    switch ((user as any).subscriptionTier) {
       case 'free': return 6;
       case 'pro': return 30;
       case 'premium': return 60;
@@ -147,7 +122,7 @@ export default function UserDashboard() {
     }
   };
 
-  const subInfo = getSubscriptionInfo(user.subscriptionTier);
+  const subInfo = getSubscriptionInfo((user as any)?.subscriptionTier || 'free');
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -169,9 +144,9 @@ export default function UserDashboard() {
               </Badge>
               
               <div className="flex items-center space-x-2">
-                {user.profileImageUrl ? (
+                {(user as any)?.profileImageUrl ? (
                   <img 
-                    src={user.profileImageUrl} 
+                    src={(user as any).profileImageUrl} 
                     alt="Profile" 
                     className="w-8 h-8 rounded-full object-cover"
                   />
@@ -181,7 +156,7 @@ export default function UserDashboard() {
                   </div>
                 )}
                 <span className="text-sm font-medium">
-                  {user.firstName || user.email?.split('@')[0] || 'User'}
+                  {(user as any)?.firstName || (user as any)?.email?.split('@')[0] || 'User'}
                 </span>
               </div>
               
@@ -199,7 +174,7 @@ export default function UserDashboard() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">
-            Welcome back, {user.firstName || user.email?.split('@')[0] || 'User'}!
+            Welcome back, {(user as any)?.firstName || (user as any)?.email?.split('@')[0] || 'User'}!
           </h1>
           <p className="text-gray-600 mt-2">
             Manage your projects, access your AI bots, and track your branding progress.
@@ -330,7 +305,7 @@ export default function UserDashboard() {
                     </CardHeader>
                     <CardContent>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {sectionBots.map((bot) => (
+                        {sectionBots.map((bot: any) => (
                           <div 
                             key={bot.id}
                             className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer"
@@ -342,7 +317,7 @@ export default function UserDashboard() {
                             </div>
                             <p className="text-sm text-gray-600 mb-3">{bot.description}</p>
                             <div className="flex flex-wrap gap-1">
-                              {bot.features.slice(0, 2).map((feature, i) => (
+                              {bot.features?.slice(0, 2).map((feature: any, i: number) => (
                                 <Badge key={i} variant="outline" className="text-xs">
                                   {feature}
                                 </Badge>
@@ -352,7 +327,7 @@ export default function UserDashboard() {
                         ))}
                         
                         {/* Show locked bots for free/pro users */}
-                        {user.subscriptionTier !== 'premium' && (
+                        {(user as any)?.subscriptionTier !== 'premium' && (
                           <div className="p-4 border border-dashed rounded-lg bg-gray-50 flex items-center justify-center">
                             <div className="text-center">
                               <Lock className="w-8 h-8 text-gray-400 mx-auto mb-2" />
@@ -361,7 +336,7 @@ export default function UserDashboard() {
                                 size="sm" 
                                 variant="outline" 
                                 className="mt-2"
-                                onClick={() => upgradeMutation.mutate(user.subscriptionTier === 'free' ? 'pro' : 'premium')}
+                                onClick={() => upgradeMutation.mutate((user as any)?.subscriptionTier === 'free' ? 'pro' : 'premium')}
                               >
                                 Upgrade Plan
                               </Button>
@@ -437,11 +412,11 @@ export default function UserDashboard() {
 
             <div className="grid md:grid-cols-3 gap-6">
               {/* Current Plan */}
-              <Card className={user.subscriptionTier === 'free' ? 'border-gray-200' : user.subscriptionTier === 'pro' ? 'border-blue-500' : 'border-purple-500'}>
+              <Card className={(user as any)?.subscriptionTier === 'free' ? 'border-gray-200' : (user as any)?.subscriptionTier === 'pro' ? 'border-blue-500' : 'border-purple-500'}>
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle>Free Trial</CardTitle>
-                    {user.subscriptionTier === 'free' && <Badge>Current Plan</Badge>}
+                    {(user as any)?.subscriptionTier === 'free' && <Badge>Current Plan</Badge>}
                   </div>
                   <CardDescription>Perfect for trying out our platform</CardDescription>
                 </CardHeader>
@@ -453,7 +428,7 @@ export default function UserDashboard() {
                     <li>✓ Basic asset generation</li>
                     <li>✓ Project management</li>
                   </ul>
-                  {user.subscriptionTier !== 'free' && (
+                  {(user as any)?.subscriptionTier !== 'free' && (
                     <Button 
                       variant="outline" 
                       className="w-full"
@@ -466,11 +441,11 @@ export default function UserDashboard() {
                 </CardContent>
               </Card>
 
-              <Card className={user.subscriptionTier === 'pro' ? 'border-blue-500' : 'border-gray-200'}>
+              <Card className={(user as any)?.subscriptionTier === 'pro' ? 'border-blue-500' : 'border-gray-200'}>
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle>Pro Plan</CardTitle>
-                    {user.subscriptionTier === 'pro' && <Badge>Current Plan</Badge>}
+                    {(user as any)?.subscriptionTier === 'pro' && <Badge>Current Plan</Badge>}
                   </div>
                   <CardDescription>Great for growing startups</CardDescription>
                 </CardHeader>
@@ -486,18 +461,18 @@ export default function UserDashboard() {
                   <Button 
                     className="w-full"
                     onClick={() => upgradeMutation.mutate('pro')}
-                    disabled={user.subscriptionTier === 'pro' || upgradeMutation.isPending}
+                    disabled={(user as any)?.subscriptionTier === 'pro' || upgradeMutation.isPending}
                   >
-                    {user.subscriptionTier === 'pro' ? 'Current Plan' : 'Choose Pro'}
+                    {(user as any)?.subscriptionTier === 'pro' ? 'Current Plan' : 'Choose Pro'}
                   </Button>
                 </CardContent>
               </Card>
 
-              <Card className={user.subscriptionTier === 'premium' ? 'border-purple-500' : 'border-gray-200'}>
+              <Card className={(user as any)?.subscriptionTier === 'premium' ? 'border-purple-500' : 'border-gray-200'}>
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle>Premium Plan</CardTitle>
-                    {user.subscriptionTier === 'premium' && <Badge>Current Plan</Badge>}
+                    {(user as any)?.subscriptionTier === 'premium' && <Badge>Current Plan</Badge>}
                   </div>
                   <CardDescription>Complete branding solution</CardDescription>
                 </CardHeader>
@@ -513,9 +488,9 @@ export default function UserDashboard() {
                   <Button 
                     className="w-full"
                     onClick={() => upgradeMutation.mutate('premium')}
-                    disabled={user.subscriptionTier === 'premium' || upgradeMutation.isPending}
+                    disabled={(user as any)?.subscriptionTier === 'premium' || upgradeMutation.isPending}
                   >
-                    {user.subscriptionTier === 'premium' ? 'Current Plan' : 'Choose Premium'}
+                    {(user as any)?.subscriptionTier === 'premium' ? 'Current Plan' : 'Choose Premium'}
                   </Button>
                 </CardContent>
               </Card>

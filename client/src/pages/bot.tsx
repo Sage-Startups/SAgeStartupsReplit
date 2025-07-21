@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "wouter";
+import { useParams, Link, useSearch } from "wouter";
 import { Navbar } from "@/components/navbar";
 import { BotDropdownInterface } from "@/components/bot-dropdown-interface";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function Bot() {
   const { botId } = useParams();
+  const searchParams = useSearch();
   const [selectedProjectId, setSelectedProjectId] = useState<string>("");
   const [activeSessionId, setActiveSessionId] = useState<number | null>(null);
   const [isCreateProjectDialogOpen, setIsCreateProjectDialogOpen] = useState(false);
@@ -26,6 +27,20 @@ export default function Bot() {
   const [projectDescription, setProjectDescription] = useState("");
   const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  // Parse URL parameters to load existing session
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+    const projectParam = params.get('project');
+    const sessionParam = params.get('session');
+    
+    if (projectParam) {
+      setSelectedProjectId(projectParam);
+    }
+    if (sessionParam) {
+      setActiveSessionId(parseInt(sessionParam));
+    }
+  }, [searchParams]);
 
   if (!botId) {
     return <div>Bot not found</div>;
