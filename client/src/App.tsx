@@ -11,6 +11,8 @@ import Section from "@/pages/section";
 import Bot from "@/pages/bot";
 import ProjectSessions from "./pages/project-sessions";
 import NotFound from "@/pages/not-found";
+import FounderDashboard from "@/pages/founder-dashboard";
+import BusinessSuite from "@/pages/business-suite";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -21,8 +23,10 @@ function Router() {
         <Route path="/" component={Landing} />
       ) : (
         <>
-          <Route path="/" component={UserDashboard} />
-          <Route path="/dashboard" component={UserDashboard} />
+          <Route path="/" component={FounderDashboard} />
+          <Route path="/dashboard" component={FounderDashboard} />
+          <Route path="/ai-suite" component={UserDashboard} />
+          <Route path="/business-suite" component={BusinessSuite} />
           <Route path="/section/:sectionId" component={Section} />
           <Route path="/bot/:botId" component={Bot} />
           <Route path="/project/:projectId" component={ProjectSessions} />

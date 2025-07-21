@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, jsonb, varchar, index } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, jsonb, varchar, index, real } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -132,3 +132,33 @@ export type InsertGeneratedAsset = z.infer<typeof insertGeneratedAssetSchema>;
 export type GeneratedAsset = typeof generatedAssets.$inferSelect;
 export type InsertUserAnalytics = z.infer<typeof insertUserAnalyticsSchema>;
 export type UserAnalytics = typeof userAnalytics.$inferSelect;
+
+export const founderMetrics = pgTable('founder_metrics', {
+  id: serial('id').primaryKey(),
+  userId: text('user_id').notNull().references(() => users.id),
+  companyName: text('company_name').notNull().default('Your Startup'),
+  revenue: integer('revenue').notNull().default(0),
+  monthlyGrowth: integer('monthly_growth').notNull().default(0),
+  activeUsers: integer('active_users').notNull().default(0),
+  churnRate: integer('churn_rate').notNull().default(0),
+  burnRate: integer('burn_rate').notNull().default(0),
+  runway: integer('runway').notNull().default(0),
+  goals: text('goals').array().notNull().default([]),
+  lastUpdated: timestamp('last_updated').defaultNow().notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const insertFounderMetricsSchema = createInsertSchema(founderMetrics).pick({
+  userId: true,
+  companyName: true,
+  revenue: true,
+  monthlyGrowth: true,
+  activeUsers: true,
+  churnRate: true,
+  burnRate: true,
+  runway: true,
+  goals: true,
+});
+
+export type InsertFounderMetrics = z.infer<typeof insertFounderMetricsSchema>;
+export type FounderMetrics = typeof founderMetrics.$inferSelect;

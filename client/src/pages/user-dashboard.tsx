@@ -13,6 +13,7 @@ import { apiRequest } from "@/lib/queryClient";
 import type { Project } from "@shared/schema";
 import { sections, BotDefinition, getAvailableBots, getBotsBySection, hasAccessToBot, bots } from "@/lib/bot-definitions";
 import { Link, useLocation } from "wouter";
+import { MainNavigation } from "@/components/main-navigation";
 import { 
   User, 
   Crown, 
@@ -166,8 +167,9 @@ export default function UserDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <MainNavigation />
       {/* Header */}
-      <header className="bg-white border-b sticky top-0 z-50">
+      <header className="bg-white border-b sticky top-0 z-50" style={{ display: 'none' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-4">

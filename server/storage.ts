@@ -1,4 +1,4 @@
-import { users, projects, botSessions, chatMessages, generatedAssets, userAnalytics, type User, type Project, type BotSession, type ChatMessage, type GeneratedAsset, type UserAnalytics, type UpsertUser, type InsertProject, type InsertBotSession, type InsertChatMessage, type InsertGeneratedAsset, type InsertUserAnalytics } from "@shared/schema";
+import { users, projects, botSessions, chatMessages, generatedAssets, userAnalytics, founderMetrics, type User, type Project, type BotSession, type ChatMessage, type GeneratedAsset, type UserAnalytics, type FounderMetrics, type UpsertUser, type InsertProject, type InsertBotSession, type InsertChatMessage, type InsertGeneratedAsset, type InsertUserAnalytics, type InsertFounderMetrics } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 
@@ -31,6 +31,10 @@ export interface IStorage {
   // Analytics operations
   getUserAnalytics(userId: string): Promise<UserAnalytics | undefined>;
   updateUserAnalytics(userId: string, updates: Partial<InsertUserAnalytics>): Promise<void>;
+  
+  // Founder metrics operations
+  getFounderMetrics(userId: string): Promise<FounderMetrics | undefined>;
+  updateFounderMetrics(userId: string, updates: Partial<InsertFounderMetrics>): Promise<FounderMetrics>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -138,6 +142,39 @@ export class DatabaseStorage implements IStorage {
         .where(eq(userAnalytics.userId, userId));
     } else {
       await db.insert(userAnalytics).values({ userId, ...updates });
+    }
+  }
+
+  // Founder metrics operations
+  async getFounderMetrics(userId: string): Promise<FounderMetrics | undefined> {
+    const [metrics] = await db.select().from(founderMetrics).where(eq(founderMetrics.userId, userId));
+    return metrics;
+  }
+
+  async updateFounderMetrics(userId: string, updates: Partial<InsertFounderMetrics>): Promise<FounderMetrics> {
+    const existingMetrics = await this.getFounderMetrics(userId);
+    
+    if (existingMetrics) {
+      const [updatedMetrics] = await db
+        .update(founderMetrics)
+        .set({ ...updates, lastUpdated: new Date() })
+        .where(eq(founderMetrics.userId, userId))
+        .returning();
+      return updatedMetrics;
+    } else {
+      const [newMetrics] = await db.insert(founderMetrics).values({
+        userId,
+        companyName: 'Your Startup',
+        revenue: 0,
+        monthlyGrowth: 0,
+        activeUsers: 0,
+        churnRate: 0,
+        burnRate: 0,
+        runway: 0,
+        goals: [],
+        ...updates,
+      }).returning();
+      return newMetrics;
     }
   }
 }
