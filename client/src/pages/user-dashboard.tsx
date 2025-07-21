@@ -5,10 +5,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { apiRequest } from "@/lib/queryClient";
+import type { Project } from "@shared/schema";
 import { sections, BotDefinition } from "@/lib/bot-definitions";
 import { Link, useLocation } from "wouter";
 import { 
@@ -40,6 +42,9 @@ export default function UserDashboard() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
+  const [isCreateProjectDialogOpen, setIsCreateProjectDialogOpen] = useState(false);
+  const [projectName, setProjectName] = useState("");
+  const [projectDescription, setProjectDescription] = useState("");
 
   // Fetch user's available bots
   const { data: availableBots = [], isLoading: botsLoading } = useQuery<BotDefinition[]>({
@@ -54,7 +59,7 @@ export default function UserDashboard() {
   });
 
   // Fetch user projects
-  const { data: projects = [] } = useQuery<any[]>({
+  const { data: projects = [] } = useQuery<Project[]>({
     queryKey: ["/api/projects"],
     enabled: !!user,
   });
@@ -81,6 +86,41 @@ export default function UserDashboard() {
       });
     }
   });
+
+  // Create project mutation
+  const createProjectMutation = useMutation({
+    mutationFn: async (data: { name: string; description?: string }) => {
+      const response = await apiRequest('POST', '/api/projects', data);
+      return response.json();
+    },
+    onSuccess: (newProject) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/projects'] });
+      setIsCreateProjectDialogOpen(false);
+      setProjectName("");
+      setProjectDescription("");
+      toast({
+        title: "Project created!",
+        description: "Your new project has been created successfully."
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to create project. Please try again.",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const handleCreateProject = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!projectName.trim()) return;
+    
+    createProjectMutation.mutate({
+      name: projectName.trim(),
+      description: projectDescription.trim() || undefined
+    });
+  };
 
   if (authLoading) {
     return (
@@ -358,16 +398,65 @@ export default function UserDashboard() {
                 <h2 className="text-2xl font-bold">Your Projects</h2>
                 <p className="text-gray-600">Organize your branding work by project</p>
               </div>
-              <Button asChild>
-                <Link href="/dashboard">
-                  <Plus className="w-4 h-4 mr-2" />
-                  New Project
-                </Link>
-              </Button>
+              <Dialog open={isCreateProjectDialogOpen} onOpenChange={setIsCreateProjectDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <Plus className="w-4 h-4 mr-2" />
+                    New Project
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Create New Project</DialogTitle>
+                    <DialogDescription>
+                      Create a new project to organize your branding work
+                    </DialogDescription>
+                  </DialogHeader>
+                  <form onSubmit={handleCreateProject}>
+                    <div className="space-y-4">
+                      <div>
+                        <label htmlFor="projectName" className="block text-sm font-medium text-gray-700">
+                          Project Name
+                        </label>
+                        <input
+                          type="text"
+                          id="projectName"
+                          value={projectName}
+                          onChange={(e) => setProjectName(e.target.value)}
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                          placeholder="Enter project name"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="projectDescription" className="block text-sm font-medium text-gray-700">
+                          Description (Optional)
+                        </label>
+                        <textarea
+                          id="projectDescription"
+                          value={projectDescription}
+                          onChange={(e) => setProjectDescription(e.target.value)}
+                          rows={3}
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                          placeholder="Describe your project"
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter className="mt-6">
+                      <Button type="button" variant="outline" onClick={() => setIsCreateProjectDialogOpen(false)}>
+                        Cancel
+                      </Button>
+                      <Button type="submit" disabled={!projectName.trim() || createProjectMutation.isPending}>
+                        {createProjectMutation.isPending ? "Creating..." : "Create Project"}
+                      </Button>
+                    </DialogFooter>
+                  </form>
+                </DialogContent>
+              </Dialog>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {projects.map((project: any) => (
+              {projects.map((project: Project) => (
                 <Card key={project.id} className="hover:shadow-md transition-shadow">
                   <CardHeader>
                     <CardTitle className="text-lg">{project.name}</CardTitle>
@@ -394,8 +483,8 @@ export default function UserDashboard() {
                     <p className="text-gray-500 text-center mb-4">
                       Create your first project to start organizing your branding work
                     </p>
-                    <Button asChild>
-                      <Link href="/dashboard">Create Project</Link>
+                    <Button onClick={() => setIsCreateProjectDialogOpen(true)}>
+                      Create Project
                     </Button>
                   </CardContent>
                 </Card>
