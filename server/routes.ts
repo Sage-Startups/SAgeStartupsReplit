@@ -87,6 +87,88 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Recent activity endpoint
+  app.get("/api/user/recent-activity", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      
+      // Get all user projects first
+      const projects = await storage.getProjectsByUserId(userId);
+      
+      if (projects.length === 0) {
+        return res.json([]);
+      }
+      
+      // Get all sessions from all projects
+      let allSessions: any[] = [];
+      for (const project of projects) {
+        const projectSessions = await storage.getBotSessionsByProjectId(project.id);
+        allSessions = allSessions.concat(projectSessions.map(session => ({
+          ...session,
+          projectName: project.name
+        })));
+      }
+      
+      // Sort by creation date and get the last 2
+      const recentSessions = allSessions
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .slice(0, 2);
+      
+      // Get recent messages for each session to create meaningful headlines
+      const activitiesWithContent = await Promise.all(
+        recentSessions.map(async (session) => {
+          const messages = await storage.getChatMessagesBySessionId(session.id);
+          const assistantMessages = messages.filter(msg => msg.role === 'assistant');
+          const userMessages = messages.filter(msg => msg.role === 'user');
+          
+          // Generate a meaningful headline based on the content
+          let headline = session.sessionTitle || `${session.botId} session`;
+          
+          if (assistantMessages.length > 0) {
+            const lastAssistantMessage = assistantMessages[assistantMessages.length - 1];
+            const content = lastAssistantMessage.content;
+            
+            // Create headline based on bot type and content
+            if (session.botId.includes('logo')) {
+              headline = 'Logo design concepts generated';
+            } else if (session.botId.includes('strategy') || session.botId.includes('campaign')) {
+              headline = 'Marketing strategy developed';
+            } else if (session.botId.includes('ad') || session.botId.includes('copy')) {
+              headline = 'Ad copy and messaging created';
+            } else if (session.botId.includes('brand')) {
+              headline = 'Brand guidelines established';
+            } else if (session.botId.includes('blog') || session.botId.includes('content')) {
+              headline = 'Content strategy planned';
+            } else if (session.botId.includes('analytics') || session.botId.includes('performance')) {
+              headline = 'Performance insights generated';
+            } else if (content.length > 0) {
+              // Extract first meaningful words from AI response
+              const words = content.split(' ').slice(0, 6).join(' ');
+              headline = words.endsWith('.') ? words : words + '...';
+            }
+          } else if (userMessages.length > 0) {
+            const lastUserMessage = userMessages[userMessages.length - 1];
+            headline = `Working on: ${lastUserMessage.content.slice(0, 40)}...`;
+          }
+          
+          return {
+            id: session.id,
+            headline,
+            botId: session.botId,
+            projectName: session.projectName,
+            createdAt: session.createdAt,
+            messagesCount: messages.length
+          };
+        })
+      );
+      
+      res.json(activitiesWithContent);
+    } catch (error) {
+      console.error("Error fetching recent activity:", error);
+      res.status(500).json({ message: error instanceof Error ? error.message : 'An error occurred' });
+    }
+  });
+
   // Subscription management
   app.post("/api/user/subscription", isAuthenticated, async (req: any, res) => {
     try {

@@ -73,6 +73,12 @@ export default function UserDashboard() {
     enabled: !!user
   });
 
+  // Fetch recent activity
+  const { data: recentActivity = [] } = useQuery<any[]>({
+    queryKey: ["/api/user/recent-activity"],
+    enabled: !!user
+  });
+
   // Fetch user projects
   const { data: projects = [] } = useQuery<Project[]>({
     queryKey: ["/api/projects"],
@@ -306,12 +312,35 @@ export default function UserDashboard() {
                 <CardDescription>Your latest interactions with AI bots</CardDescription>
               </CardHeader>
               <CardContent>
-                {analytics?.lastActive ? (
-                  <p className="text-sm text-gray-600">
-                    Last active: {new Date(analytics.lastActive).toLocaleDateString()}
-                  </p>
+                {recentActivity.length > 0 ? (
+                  <div className="space-y-3">
+                    {recentActivity.map((activity, index) => (
+                      <div key={activity.id} className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+                        <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                          <Zap className="w-4 h-4 text-blue-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 truncate">
+                            {activity.headline}
+                          </p>
+                          <div className="flex items-center text-xs text-gray-500 mt-1">
+                            <span className="truncate">{activity.projectName}</span>
+                            <span className="mx-1">•</span>
+                            <span>{new Date(activity.createdAt).toLocaleDateString()}</span>
+                            <span className="mx-1">•</span>
+                            <span>{activity.messagesCount} messages</span>
+                          </div>
+                        </div>
+                        <ArrowRight className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                      </div>
+                    ))}
+                  </div>
                 ) : (
-                  <p className="text-sm text-gray-500">No recent activity</p>
+                  <div className="text-center py-4">
+                    <Zap className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                    <p className="text-sm text-gray-500">No recent activity</p>
+                    <p className="text-xs text-gray-400">Start a conversation with an AI tool to see activity here</p>
+                  </div>
                 )}
               </CardContent>
             </Card>
