@@ -10,7 +10,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -25,6 +25,7 @@ export default function SignIn() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [error, setError] = useState<string>("");
+  const queryClient = useQueryClient();
 
   const form = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
@@ -38,12 +39,24 @@ export default function SignIn() {
     mutationFn: async (data: SignInFormData) => {
       return await apiRequest("POST", "/api/auth/signin", data);
     },
-    onSuccess: () => {
+    onSuccess: async (response) => {
+      // Parse the response to get user data
+      const result = await response.json();
+      
+      // Invalidate auth cache to trigger useAuth to refetch
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      
       toast({
         title: "Welcome back!",
         description: "You've been signed in successfully.",
       });
-      setLocation("/");
+      
+      // Check if user is super admin and redirect accordingly
+      if (result.user && result.user.role === "super_admin") {
+        setLocation("/super-admin");
+      } else {
+        setLocation("/");
+      }
     },
     onError: (error: Error) => {
       setError(error.message);
