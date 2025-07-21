@@ -28,10 +28,10 @@ export default function Landing() {
           </div>
           <div className="space-x-4">
             <Button variant="ghost" asChild>
-              <a href="/api/login">Sign In</a>
+              <Link href="/signin">Sign In</Link>
             </Button>
             <Button asChild>
-              <a href="/api/login">Get Started Free</a>
+              <Link href="/signup">Get Started Free</Link>
             </Button>
           </div>
         </div>
@@ -52,9 +52,9 @@ export default function Landing() {
           </p>
           <div className="space-x-4">
             <Button size="lg" asChild>
-              <a href="/api/login">
+              <Link href="/signup">
                 Start Free Trial <ArrowRight className="ml-2 w-4 h-4" />
-              </a>
+              </Link>
             </Button>
             <Button size="lg" variant="outline">
               View Demo

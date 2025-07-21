@@ -5,6 +5,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import Landing from "@/pages/landing";
+import SignIn from "@/pages/signin";
+import SignUp from "@/pages/signup";
 import UserDashboard from "@/pages/user-dashboard";
 import Dashboard from "@/pages/dashboard";
 import Section from "@/pages/section";
@@ -22,7 +24,11 @@ function Router() {
   return (
     <Switch>
       {isLoading || !isAuthenticated ? (
-        <Route path="/" component={Landing} />
+        <>
+          <Route path="/" component={Landing} />
+          <Route path="/signin" component={SignIn} />
+          <Route path="/signup" component={SignUp} />
+        </>
       ) : (
         <>
           <Route path="/" component={FounderDashboard} />
