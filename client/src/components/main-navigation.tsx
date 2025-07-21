@@ -12,7 +12,8 @@ import {
   User,
   Crown,
   LogOut,
-  ChevronDown
+  ChevronDown,
+  Shield
 } from "lucide-react";
 
 export function MainNavigation() {
@@ -57,7 +58,13 @@ export function MainNavigation() {
       icon: <Building className="w-4 h-4" />,
       path: "/business-suite",
       active: location === "/business-suite"
-    }
+    },
+    ...((user as any)?.role === 'super_admin' ? [{
+      label: "Super Admin",
+      icon: <Shield className="w-4 h-4" />,
+      path: "/super-admin",
+      active: location === "/super-admin"
+    }] : [])
   ];
 
   return (

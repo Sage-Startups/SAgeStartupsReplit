@@ -1,4 +1,4 @@
-import { users, projects, botSessions, chatMessages, generatedAssets, userAnalytics, founderMetrics, type User, type Project, type BotSession, type ChatMessage, type GeneratedAsset, type UserAnalytics, type FounderMetrics, type UpsertUser, type InsertProject, type InsertBotSession, type InsertChatMessage, type InsertGeneratedAsset, type InsertUserAnalytics, type InsertFounderMetrics } from "@shared/schema";
+import { users, projects, botSessions, chatMessages, generatedAssets, userAnalytics, founderMetrics, auditLogs, subscriptionPlans, payments, content, media, type User, type Project, type BotSession, type ChatMessage, type GeneratedAsset, type UserAnalytics, type FounderMetrics, type AuditLog, type SubscriptionPlan, type Payment, type Content, type Media, type UpsertUser, type InsertProject, type InsertBotSession, type InsertChatMessage, type InsertGeneratedAsset, type InsertUserAnalytics, type InsertFounderMetrics } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 
@@ -38,6 +38,14 @@ export interface IStorage {
   // Founder metrics operations
   getFounderMetrics(userId: string): Promise<FounderMetrics | undefined>;
   updateFounderMetrics(userId: string, updates: Partial<InsertFounderMetrics>): Promise<FounderMetrics>;
+
+  // Admin operations
+  getAllUsers(): Promise<User[]>;
+  getAllPayments(): Promise<Payment[]>;
+  getAllAuditLogs(): Promise<AuditLog[]>;
+  getAllSubscriptionPlans(): Promise<SubscriptionPlan[]>;
+  createAuditLog(log: Partial<AuditLog>): Promise<void>;
+  getSystemMetrics(): Promise<any>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -197,6 +205,55 @@ export class DatabaseStorage implements IStorage {
       }).returning();
       return newMetrics;
     }
+  }
+
+  // Admin operations
+  async getAllUsers(): Promise<User[]> {
+    return await db.select().from(users);
+  }
+
+  async getAllPayments(): Promise<Payment[]> {
+    return await db.select().from(payments);
+  }
+
+  async getAllAuditLogs(): Promise<AuditLog[]> {
+    return await db.select().from(auditLogs);
+  }
+
+  async getAllSubscriptionPlans(): Promise<SubscriptionPlan[]> {
+    return await db.select().from(subscriptionPlans);
+  }
+
+  async createAuditLog(logData: Partial<AuditLog>): Promise<void> {
+    await db.insert(auditLogs).values(logData as any);
+  }
+
+  async getSystemMetrics(): Promise<any> {
+    const totalUsers = await db.select().from(users);
+    const activeUsers = totalUsers.filter(u => u.subscriptionStatus === 'active');
+    const allPayments = await db.select().from(payments);
+    const completedPayments = allPayments.filter(p => p.status === 'completed');
+    
+    const totalRevenue = completedPayments.reduce((sum, p) => sum + p.amount, 0);
+    const thisMonth = new Date();
+    thisMonth.setDate(1);
+    const monthlyPayments = completedPayments.filter(p => new Date(p.createdAt) >= thisMonth);
+    const monthlyRevenue = monthlyPayments.reduce((sum, p) => sum + p.amount, 0);
+
+    const analytics = await db.select().from(userAnalytics);
+    const totalSessions = analytics.reduce((sum, a) => sum + a.totalSessions, 0);
+    const totalMessages = analytics.reduce((sum, a) => sum + a.totalMessages, 0);
+
+    return {
+      totalUsers: totalUsers.length,
+      activeUsers: activeUsers.length,
+      totalRevenue,
+      monthlyRevenue,
+      totalSessions,
+      totalMessages,
+      conversionRate: totalUsers.length > 0 ? (activeUsers.length / totalUsers.length * 100) : 0,
+      churnRate: 5 // placeholder
+    };
   }
 }
 

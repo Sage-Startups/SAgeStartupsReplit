@@ -397,6 +397,153 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Super Admin middleware
+  const requireSuperAdmin = async (req: any, res: any, next: any) => {
+    try {
+      if (!req.user?.claims?.sub) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+      
+      const user = await storage.getUserById(req.user.claims.sub);
+      if (!user || user.role !== 'super_admin') {
+        return res.status(403).json({ error: "Super admin access required" });
+      }
+      
+      next();
+    } catch (error) {
+      res.status(500).json({ error: "Authorization check failed" });
+    }
+  };
+
+  // Super Admin API Routes
+  app.get("/api/admin/users", isAuthenticated, requireSuperAdmin, async (req: any, res) => {
+    try {
+      const users = await storage.getAllUsers();
+      
+      // Get analytics for each user
+      const usersWithAnalytics = await Promise.all(users.map(async (user) => {
+        const analytics = await storage.getUserAnalytics(user.id);
+        return {
+          ...user,
+          totalSessions: analytics?.totalSessions || 0,
+          totalMessages: analytics?.totalMessages || 0
+        };
+      }));
+      
+      res.json(usersWithAnalytics);
+    } catch (error) {
+      console.error("Failed to get users:", error);
+      res.status(500).json({ error: "Failed to get users" });
+    }
+  });
+
+  app.put("/api/admin/users/:userId", isAuthenticated, requireSuperAdmin, async (req: any, res) => {
+    try {
+      const { userId } = req.params;
+      const updates = req.body;
+      
+      const updatedUser = await storage.updateUser(userId, updates);
+      
+      // Log the action
+      await storage.createAuditLog({
+        userId: req.user.claims.sub,
+        action: 'update',
+        resource: 'user',
+        resourceId: userId,
+        details: updates,
+        ipAddress: req.ip
+      });
+      
+      res.json(updatedUser);
+    } catch (error) {
+      console.error("Failed to update user:", error);
+      res.status(500).json({ error: "Failed to update user" });
+    }
+  });
+
+  app.delete("/api/admin/users/:userId", isAuthenticated, requireSuperAdmin, async (req: any, res) => {
+    try {
+      const { userId } = req.params;
+      
+      await storage.deleteUser(userId);
+      
+      // Log the action
+      await storage.createAuditLog({
+        userId: req.user.claims.sub,
+        action: 'delete',
+        resource: 'user',
+        resourceId: userId,
+        details: {},
+        ipAddress: req.ip
+      });
+      
+      res.json({ message: "User deleted successfully" });
+    } catch (error) {
+      console.error("Failed to delete user:", error);
+      res.status(500).json({ error: "Failed to delete user" });
+    }
+  });
+
+  app.get("/api/admin/plans", isAuthenticated, requireSuperAdmin, async (req: any, res) => {
+    try {
+      const plans = await storage.getAllSubscriptionPlans();
+      res.json(plans);
+    } catch (error) {
+      console.error("Failed to get plans:", error);
+      res.status(500).json({ error: "Failed to get plans" });
+    }
+  });
+
+  app.get("/api/admin/payments", isAuthenticated, requireSuperAdmin, async (req: any, res) => {
+    try {
+      const payments = await storage.getAllPayments();
+      
+      // Get user emails for payments
+      const paymentsWithUsers = await Promise.all(payments.map(async (payment) => {
+        const user = await storage.getUserById(payment.userId);
+        return {
+          ...payment,
+          userEmail: user?.email || 'Unknown'
+        };
+      }));
+      
+      res.json(paymentsWithUsers);
+    } catch (error) {
+      console.error("Failed to get payments:", error);
+      res.status(500).json({ error: "Failed to get payments" });
+    }
+  });
+
+  app.get("/api/admin/audit-logs", isAuthenticated, requireSuperAdmin, async (req: any, res) => {
+    try {
+      const logs = await storage.getAllAuditLogs();
+      
+      // Get user emails for logs
+      const logsWithUsers = await Promise.all(logs.map(async (log) => {
+        const user = await storage.getUserById(log.userId);
+        return {
+          ...log,
+          userEmail: user?.email || 'Unknown'
+        };
+      }));
+      
+      res.json(logsWithUsers);
+    } catch (error) {
+      console.error("Failed to get audit logs:", error);
+      res.status(500).json({ error: "Failed to get audit logs" });
+    }
+  });
+
+  app.get("/api/admin/metrics", isAuthenticated, requireSuperAdmin, async (req: any, res) => {
+    try {
+      const metrics = await storage.getSystemMetrics();
+      res.json(metrics);
+    } catch (error) {
+      console.error("Failed to get metrics:", error);
+      res.status(500).json({ error: "Failed to get metrics" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

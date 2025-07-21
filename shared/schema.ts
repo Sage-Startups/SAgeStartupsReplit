@@ -27,6 +27,7 @@ export const users = pgTable("users", {
   language: varchar("language").default("en"),
   subscriptionTier: varchar("subscription_tier", { length: 20 }).notNull().default("free"), // 'free', 'pro', 'premium'
   subscriptionStatus: varchar("subscription_status", { length: 20 }).notNull().default("active"), // 'active', 'cancelled', 'expired'
+  role: varchar("role", { length: 20 }).notNull().default("client"), // 'super_admin', 'moderator', 'client'
   subscriptionExpires: timestamp("subscription_expires"),
   trialUsed: boolean("trial_used").notNull().default(false),
   emailNotifications: boolean("email_notifications").notNull().default(true),
@@ -35,6 +36,74 @@ export const users = pgTable("users", {
   lastActive: timestamp("last_active"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Audit logs for tracking admin actions
+export const auditLogs = pgTable("audit_logs", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  action: varchar("action").notNull(), // 'create', 'update', 'delete', 'login', etc.
+  resource: varchar("resource").notNull(), // 'user', 'subscription', 'content', etc.
+  resourceId: varchar("resource_id"), // ID of affected resource
+  details: jsonb("details"), // Additional action details
+  ipAddress: varchar("ip_address"),
+  userAgent: varchar("user_agent"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Subscription plans management
+export const subscriptionPlans = pgTable("subscription_plans", {
+  id: serial("id").primaryKey(),
+  name: varchar("name").notNull(),
+  tier: varchar("tier").notNull(), // 'free', 'pro', 'premium'
+  price: real("price").notNull(),
+  billingInterval: varchar("billing_interval").notNull(), // 'monthly', 'yearly'
+  features: jsonb("features").notNull(),
+  botLimit: integer("bot_limit").notNull(),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Payment history
+export const payments = pgTable("payments", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  planId: integer("plan_id").references(() => subscriptionPlans.id),
+  amount: real("amount").notNull(),
+  currency: varchar("currency").notNull().default("USD"),
+  status: varchar("status").notNull(), // 'pending', 'completed', 'failed', 'refunded'
+  paymentMethod: varchar("payment_method"), // 'stripe', 'paypal'
+  transactionId: varchar("transaction_id"),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Content management
+export const content = pgTable("content", {
+  id: serial("id").primaryKey(),
+  type: varchar("type").notNull(), // 'blog_post', 'help_doc', 'page'
+  title: varchar("title").notNull(),
+  slug: varchar("slug").unique().notNull(),
+  content: text("content").notNull(),
+  status: varchar("status").notNull().default("draft"), // 'draft', 'published', 'archived'
+  authorId: varchar("author_id").notNull().references(() => users.id),
+  metadata: jsonb("metadata"),
+  publishedAt: timestamp("published_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Media assets
+export const media = pgTable("media", {
+  id: serial("id").primaryKey(),
+  filename: varchar("filename").notNull(),
+  originalName: varchar("original_name").notNull(),
+  mimeType: varchar("mime_type").notNull(),
+  size: integer("size").notNull(),
+  url: varchar("url").notNull(),
+  uploadedBy: varchar("uploaded_by").notNull().references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const projects = pgTable("projects", {
@@ -172,3 +241,8 @@ export const insertFounderMetricsSchema = createInsertSchema(founderMetrics).pic
 
 export type InsertFounderMetrics = z.infer<typeof insertFounderMetricsSchema>;
 export type FounderMetrics = typeof founderMetrics.$inferSelect;
+export type AuditLog = typeof auditLogs.$inferSelect;
+export type SubscriptionPlan = typeof subscriptionPlans.$inferSelect;
+export type Payment = typeof payments.$inferSelect;
+export type Content = typeof content.$inferSelect;
+export type Media = typeof media.$inferSelect;
