@@ -12,7 +12,7 @@ export const sections = [
   {
     id: 'marketing',
     name: 'Marketing',
-    description: '10+ AI bots for campaign strategy, content planning, SEO optimization, and performance analytics.',
+    description: '20+ AI bots for campaign strategy, content planning, SEO optimization, performance analytics, and blog content creation.',
     icon: 'bullhorn',
     color: 'bg-blue-50 border-blue-200 text-primary',
     iconColor: 'text-primary'
@@ -32,22 +32,6 @@ export const sections = [
     icon: 'ad',
     color: 'bg-green-50 border-green-200',
     iconColor: 'text-success'
-  },
-  {
-    id: 'community',
-    name: 'Community',
-    description: '10+ AI bots for social media management, engagement strategies, and community building.',
-    icon: 'users',
-    color: 'bg-yellow-50 border-yellow-200',
-    iconColor: 'text-warning'
-  },
-  {
-    id: 'blog',
-    name: 'Blog',
-    description: '10+ AI bots for content creation, editorial planning, SEO writing, and publishing workflows.',
-    icon: 'pen-nib',
-    color: 'bg-red-50 border-red-200',
-    iconColor: 'text-danger'
   },
   {
     id: 'analytics',
@@ -336,187 +320,97 @@ export const bots: BotDefinition[] = [
     features: ['Performance analysis', 'Optimization recommendations', 'Trend identification', 'ROI tracking']
   },
 
-  // Community Bots
-  {
-    id: 'social-scheduler',
-    name: 'Social Media Scheduler',
-    description: 'Automated posting',
-    section: 'community',
-    icon: 'clock',
-    color: 'text-warning',
-    features: ['Content scheduling', 'Optimal timing', 'Platform optimization', 'Automation']
-  },
-  {
-    id: 'engagement-strategy',
-    name: 'Engagement Strategy Bot',
-    description: 'Community interaction',
-    section: 'community',
-    icon: 'comments',
-    color: 'text-warning',
-    features: ['Engagement tactics', 'Response strategies', 'Community building', 'Relationship management']
-  },
-  {
-    id: 'hashtag-research',
-    name: 'Hashtag Research Tool',
-    description: 'Trending tag discovery',
-    section: 'community',
-    icon: 'hashtag',
-    color: 'text-warning',
-    features: ['Hashtag research', 'Trend analysis', 'Performance tracking', 'Strategy optimization']
-  },
-  {
-    id: 'community-manager',
-    name: 'Community Manager',
-    description: 'Member relationship building',
-    section: 'community',
-    icon: 'user-friends',
-    color: 'text-warning',
-    features: ['Community management', 'Member engagement', 'Conflict resolution', 'Growth strategies']
-  },
-  {
-    id: 'event-planner',
-    name: 'Event Planner Bot',
-    description: 'Virtual & physical events',
-    section: 'community',
-    icon: 'calendar-alt',
-    color: 'text-warning',
-    features: ['Event planning', 'Logistics coordination', 'Promotion strategy', 'Follow-up activities']
-  },
-  {
-    id: 'ugc-campaigns',
-    name: 'UGC Campaign Creator',
-    description: 'User-generated content',
-    section: 'community',
-    icon: 'camera',
-    color: 'text-warning',
-    features: ['UGC strategy', 'Campaign design', 'Incentive programs', 'Content curation']
-  },
-  {
-    id: 'crisis-communication',
-    name: 'Crisis Communication',
-    description: 'Reputation management',
-    section: 'community',
-    icon: 'shield-alt',
-    color: 'text-warning',
-    features: ['Crisis management', 'Response protocols', 'Reputation repair', 'Communication strategy']
-  },
-  {
-    id: 'feedback-collector',
-    name: 'Feedback Collector',
-    description: 'Community insights',
-    section: 'community',
-    icon: 'poll',
-    color: 'text-warning',
-    features: ['Feedback collection', 'Survey design', 'Insight analysis', 'Action planning']
-  },
-  {
-    id: 'ambassador-program',
-    name: 'Brand Ambassador Program',
-    description: 'Advocacy development',
-    section: 'community',
-    icon: 'crown',
-    color: 'text-warning',
-    features: ['Ambassador recruitment', 'Program design', 'Incentive structure', 'Performance tracking']
-  },
-  {
-    id: 'social-listening',
-    name: 'Social Listening Bot',
-    description: 'Sentiment monitoring',
-    section: 'community',
-    icon: 'ear-listen',
-    color: 'text-warning',
-    features: ['Social monitoring', 'Sentiment analysis', 'Trend detection', 'Competitive intelligence']
-  },
 
-  // Blog Bots
+
+  // Blog Bots (moved to Marketing section)
   {
     id: 'blog-generator',
     name: 'Blog Post Generator',
     description: 'Full article creation',
-    section: 'blog',
+    section: 'marketing',
     icon: 'file-alt',
-    color: 'text-danger',
+    color: 'text-primary',
     features: ['Article writing', 'Content structure', 'SEO optimization', 'Readability analysis']
   },
   {
     id: 'topic-research',
     name: 'Topic Research Bot',
     description: 'Content idea generation',
-    section: 'blog',
+    section: 'marketing',
     icon: 'search-plus',
-    color: 'text-danger',
+    color: 'text-primary',
     features: ['Topic research', 'Trend analysis', 'Keyword opportunities', 'Content gaps']
   },
   {
     id: 'seo-optimizer',
     name: 'SEO Article Optimizer',
     description: 'Search-friendly content',
-    section: 'blog',
+    section: 'marketing',
     icon: 'search-location',
-    color: 'text-danger',
+    color: 'text-primary',
     features: ['SEO optimization', 'Keyword integration', 'Meta optimization', 'Ranking factors']
   },
   {
     id: 'editorial-calendar',
     name: 'Editorial Calendar',
     description: 'Content planning',
-    section: 'blog',
+    section: 'marketing',
     icon: 'calendar-week',
-    color: 'text-danger',
+    color: 'text-primary',
     features: ['Content planning', 'Publishing schedule', 'Theme coordination', 'Resource allocation']
   },
   {
     id: 'headline-generator',
     name: 'Headline Generator',
     description: 'Click-worthy titles',
-    section: 'blog',
+    section: 'marketing',
     icon: 'heading',
-    color: 'text-danger',
+    color: 'text-primary',
     features: ['Headline creation', 'A/B testing', 'Click optimization', 'Emotional impact']
   },
   {
     id: 'content-repurposer',
     name: 'Content Repurposer',
     description: 'Multi-format adaptation',
-    section: 'blog',
+    section: 'marketing',
     icon: 'retweet',
-    color: 'text-danger',
+    color: 'text-primary',
     features: ['Content adaptation', 'Format conversion', 'Platform optimization', 'Value maximization']
   },
   {
     id: 'proofreading',
     name: 'Proofreading Assistant',
     description: 'Grammar & style checking',
-    section: 'blog',
+    section: 'marketing',
     icon: 'spell-check',
-    color: 'text-danger',
+    color: 'text-primary',
     features: ['Grammar checking', 'Style improvement', 'Clarity enhancement', 'Consistency review']
   },
   {
     id: 'meta-descriptions',
     name: 'Meta Description Writer',
     description: 'Search snippet optimization',
-    section: 'blog',
+    section: 'marketing',
     icon: 'tag',
-    color: 'text-danger',
+    color: 'text-primary',
     features: ['Meta descriptions', 'SERP optimization', 'Click-through rates', 'Character limits']
   },
   {
     id: 'guest-posting',
     name: 'Guest Post Outreach',
     description: 'Partnership content',
-    section: 'blog',
+    section: 'marketing',
     icon: 'handshake',
-    color: 'text-danger',
+    color: 'text-primary',
     features: ['Outreach strategy', 'Partnership development', 'Content collaboration', 'Relationship building']
   },
   {
     id: 'content-performance',
     name: 'Content Performance Tracker',
     description: 'Engagement analysis',
-    section: 'blog',
+    section: 'marketing',
     icon: 'analytics',
-    color: 'text-danger',
+    color: 'text-primary',
     features: ['Performance tracking', 'Engagement metrics', 'Optimization insights', 'Content ROI']
   },
 

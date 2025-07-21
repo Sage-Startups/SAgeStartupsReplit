@@ -32,6 +32,9 @@ Preferred communication style: Simple, everyday language.
 - ✅ Removed subscription submenu from AI-suite page (Tools tab)
 - ✅ Changed "My Bots" naming to "Tools" throughout the interface
 - ✅ Implemented collapsible sections in AI-suite - users must click on sections like "Branding" to expand and see the tools
+- ✅ Deleted Community section completely from bot definitions
+- ✅ Moved all Blog bots into Marketing section (now 20+ tools in Marketing)
+- ✅ Reorganized tool sections: Marketing (20+), Branding (10), Advertising (10), Analytics (10)
 
 ## System Architecture
 
