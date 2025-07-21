@@ -27,7 +27,9 @@ import {
   Edit3,
   Save,
   X,
-  Plus
+  Plus,
+  CheckCircle,
+  Circle
 } from "lucide-react";
 
 
@@ -160,7 +162,14 @@ export default function FounderDashboard() {
   const addGoalMutation = useMutation({
     mutationFn: async (goal: string) => {
       const currentGoals = metrics?.goals || [];
-      const updatedGoals = [...currentGoals, goal];
+      const newGoal = {
+        id: Date.now().toString(),
+        text: goal,
+        completed: false,
+        completedAt: null,
+        createdAt: new Date().toISOString()
+      };
+      const updatedGoals = [...currentGoals, newGoal];
       const response = await apiRequest("PUT", "/api/founder/metrics", { goals: updatedGoals });
       return response.json();
     },
@@ -174,11 +183,32 @@ export default function FounderDashboard() {
     }
   });
 
+  // Toggle goal completion mutation
+  const toggleGoalMutation = useMutation({
+    mutationFn: async (goalId: string) => {
+      const currentGoals = metrics?.goals || [];
+      const updatedGoals = currentGoals.map((goal: any) =>
+        goal.id === goalId
+          ? {
+              ...goal,
+              completed: !goal.completed,
+              completedAt: !goal.completed ? new Date().toISOString() : null
+            }
+          : goal
+      );
+      const response = await apiRequest("PUT", "/api/founder/metrics", { goals: updatedGoals });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/founder/metrics"] });
+    }
+  });
+
   // Remove goal mutation
   const removeGoalMutation = useMutation({
-    mutationFn: async (goalIndex: number) => {
+    mutationFn: async (goalId: string) => {
       const currentGoals = metrics?.goals || [];
-      const updatedGoals = currentGoals.filter((_, index) => index !== goalIndex);
+      const updatedGoals = currentGoals.filter((goal: any) => goal.id !== goalId);
       const response = await apiRequest("PUT", "/api/founder/metrics", { goals: updatedGoals });
       return response.json();
     },
@@ -323,13 +353,36 @@ export default function FounderDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3 mb-4">
-                {currentMetrics.goals.map((goal, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <span className="text-sm">{goal}</span>
+                {(currentMetrics.goals || []).map((goal: any, index: number) => (
+                  <div key={goal.id || goal.text || index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center space-x-3 flex-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toggleGoalMutation.mutate(goal.id || goal.text)}
+                        className="h-6 w-6 p-0"
+                      >
+                        {goal.completed ? (
+                          <CheckCircle className="h-5 w-5 text-green-600" />
+                        ) : (
+                          <Circle className="h-5 w-5 text-gray-400" />
+                        )}
+                      </Button>
+                      <div className="flex-1">
+                        <span className={`text-sm ${goal.completed ? 'line-through text-gray-500' : ''}`}>
+                          {goal.text || goal}
+                        </span>
+                        {goal.completed && goal.completedAt && (
+                          <div className="text-xs text-green-600 mt-1">
+                            Completed {new Date(goal.completedAt).toLocaleDateString()}
+                          </div>
+                        )}
+                      </div>
+                    </div>
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => removeGoalMutation.mutate(index)}
+                      onClick={() => removeGoalMutation.mutate(goal.id || goal.text)}
                       className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
                     >
                       <X className="h-3 w-3" />

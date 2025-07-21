@@ -143,7 +143,7 @@ export const founderMetrics = pgTable('founder_metrics', {
   churnRate: integer('churn_rate').notNull().default(0),
   burnRate: integer('burn_rate').notNull().default(0),
   runway: integer('runway').notNull().default(0),
-  goals: text('goals').array().notNull().default([]),
+  goals: jsonb('goals').notNull().default([]),
   lastUpdated: timestamp('last_updated').defaultNow().notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
