@@ -84,7 +84,7 @@ export class AuthService {
       }
 
       // Check password
-      const isValidPassword = await this.comparePassword(credentials.password, user.password);
+      const isValidPassword = await this.comparePassword(credentials.password, user.password || '');
       if (!isValidPassword) {
         return { success: false, message: "Invalid email or password" };
       }
@@ -135,7 +135,7 @@ export class AuthService {
 
     const msg = {
       to: email,
-      from: 'noreply@sage-startups.com', // Use your verified sender
+      from: process.env.SENDGRID_FROM_EMAIL || 'noreply@sage-startups.com', // Use your verified sender
       subject: 'Welcome to Sage-Startups! Please verify your email',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">

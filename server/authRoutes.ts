@@ -137,4 +137,56 @@ router.get("/verify-email", async (req: Request, res: Response) => {
   }
 });
 
+// Resend verification email route
+router.post("/resend-verification", async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const user = await storage.getUserByEmail(email);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.emailVerified) {
+      return res.status(400).json({ message: "Email is already verified" });
+    }
+
+    // Generate new verification token
+    const newToken = AuthService.generateVerificationToken();
+    await storage.updateUser(user.id, { emailVerificationToken: newToken });
+
+    // Resend verification email
+    await AuthService.sendWelcomeEmail(user.email, user.firstName || 'User', newToken);
+
+    res.json({ message: "Verification email resent successfully" });
+  } catch (error) {
+    console.error("Resend verification error:", error);
+    res.status(500).json({ message: "Failed to resend verification email" });
+  }
+});
+
+// Test email route (temporary for debugging)
+router.post("/test-email", async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    await AuthService.sendWelcomeEmail(email, "Test User", "test-token-123");
+    res.json({ message: "Test email sent successfully" });
+  } catch (error) {
+    console.error("Test email error:", error);
+    res.status(500).json({ 
+      message: "Failed to send test email", 
+      error: error instanceof Error ? error.message : String(error) 
+    });
+  }
+});
+
 export default router;
