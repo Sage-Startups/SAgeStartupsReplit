@@ -103,13 +103,13 @@ export function MainNavigation() {
                       {(user as any)?.name?.split(' ').map((n: string) => n[0]).join('') || 'U'}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="hidden md:block">{(user as any)?.name || 'User'}</span>
+                  <span className="hidden md:block">{(user as any)?.firstName || (user as any)?.name || 'User'}</span>
                   <ChevronDown className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <div className="px-2 py-1.5">
-                  <p className="text-sm font-medium">{(user as any)?.name || 'User'}</p>
+                  <p className="text-sm font-medium">{(user as any)?.firstName || (user as any)?.name || 'User'}</p>
                   <p className="text-xs text-gray-500">{(user as any)?.email}</p>
                 </div>
                 <DropdownMenuSeparator />
