@@ -8,7 +8,7 @@ export function Footer() {
           <div>
             <div className="flex items-center mb-4">
               <Brain className="text-primary text-2xl mr-2" />
-              <h3 className="text-xl font-bold">BrandAI Pro</h3>
+              <h3 className="text-xl font-bold">Sage-Startups</h3>
             </div>
             <p className="text-gray-400 mb-4">
               AI-powered branding automation for the next generation of startups.
@@ -48,7 +48,7 @@ export function Footer() {
           </div>
         </div>
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-          <p>&copy; 2024 BrandAI Pro. All rights reserved.</p>
+          <p>&copy; 2025 Sage-Startups. All rights reserved.</p>
         </div>
       </div>
     </footer>

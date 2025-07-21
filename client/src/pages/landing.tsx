@@ -24,7 +24,7 @@ export default function Landing() {
             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
               <Zap className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold">BrandAI Pro</span>
+            <span className="text-xl font-bold">Sage-Startups</span>
           </div>
           <div className="space-x-4">
             <Button variant="ghost" asChild>
@@ -97,8 +97,8 @@ export default function Landing() {
                 <Card key={section.id} className="border-0 shadow-lg hover:shadow-xl transition-shadow">
                   <CardHeader>
                     <div className="flex items-center space-x-3">
-                      <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${section.gradient} flex items-center justify-center`}>
-                        <IconComponent className="w-6 h-6 text-white" />
+                      <div className={`w-12 h-12 rounded-lg ${section.color} flex items-center justify-center`}>
+                        <IconComponent className={`w-6 h-6 ${section.iconColor}`} />
                       </div>
                       <div>
                         <CardTitle className="text-lg">{section.name}</CardTitle>
@@ -301,7 +301,7 @@ export default function Landing() {
             Ready to Transform Your Branding?
           </h2>
           <p className="text-xl text-blue-100 max-w-2xl mx-auto mb-8">
-            Join hundreds of startups using BrandAI Pro to create professional branding in minutes, not hours.
+            Join hundreds of startups using Sage-Startups to create professional branding in minutes, not hours.
           </p>
           <Button size="lg" variant="secondary" asChild>
             <a href="/api/login">
@@ -321,9 +321,9 @@ export default function Landing() {
             <div className="w-6 h-6 bg-blue-600 rounded-lg flex items-center justify-center">
               <Zap className="w-4 h-4 text-white" />
             </div>
-            <span className="text-lg font-bold text-white">BrandAI Pro</span>
+            <span className="text-lg font-bold text-white">Sage-Startups</span>
           </div>
-          <p className="text-sm">© 2024 BrandAI Pro. All rights reserved.</p>
+          <p className="text-sm">© 2025 Sage-Startups. All rights reserved.</p>
         </div>
       </footer>
     </div>
