@@ -5,10 +5,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Sparkles, Download, Loader2 } from "lucide-react";
+import { Sparkles, Download, Loader2, Copy, CheckCircle, Star, Target, Lightbulb, Zap } from "lucide-react";
 
 interface BotDropdownInterfaceProps {
   sessionId: number;
@@ -102,6 +104,7 @@ export function BotDropdownInterface({ sessionId, botName, botId, botColor }: Bo
   const [targetAudience, setTargetAudience] = useState("");
   const [additionalInfo, setAdditionalInfo] = useState("");
   const [result, setResult] = useState("");
+  const [copiedSections, setCopiedSections] = useState<Set<number>>(new Set());
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -168,6 +171,60 @@ Please provide a comprehensive, actionable response.`;
     a.download = `${botName}_${selectedOption}_${new Date().toISOString().split('T')[0]}.txt`;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const copyToClipboard = async (text: string, sectionIndex: number) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedSections(prev => new Set(prev).add(sectionIndex));
+      setTimeout(() => {
+        setCopiedSections(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(sectionIndex);
+          return newSet;
+        });
+      }, 2000);
+      toast({
+        title: "Copied!",
+        description: "Content copied to clipboard",
+      });
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to copy content",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const parseAndFormatResult = (content: string) => {
+    // Split content into sections based on markdown headers
+    const sections = content.split(/(?=^#{1,3}\s)/gm).filter(section => section.trim());
+    
+    return sections.map((section, index) => {
+      const lines = section.trim().split('\n');
+      const headerMatch = lines[0].match(/^(#{1,3})\s+(.+)/);
+      
+      if (headerMatch) {
+        const level = headerMatch[1].length;
+        const title = headerMatch[2].replace(/[🌿📱💡⚡🎯✨]/g, '').trim();
+        const content = lines.slice(1).join('\n').trim();
+        
+        return {
+          type: 'section',
+          level,
+          title,
+          content,
+          index
+        };
+      } else {
+        return {
+          type: 'content',
+          content: section,
+          index
+        };
+      }
+    });
   };
 
   const options = getOptionsForBot(botId);
@@ -276,24 +333,149 @@ Please provide a comprehensive, actionable response.`;
 
       {/* Results */}
       {result && (
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Generated Content</CardTitle>
-              <Button variant="outline" size="sm" onClick={exportResult}>
-                <Download className="w-4 h-4 mr-2" />
-                Export
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="prose max-w-none">
-              <div className="whitespace-pre-wrap text-sm bg-gray-50 p-4 rounded-lg border">
-                {result}
+        <div className="space-y-6">
+          {/* Header */}
+          <Card className="border-green-200 bg-gradient-to-r from-green-50 to-blue-50">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+                    <CheckCircle className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-green-800">Content Generated Successfully</CardTitle>
+                    <CardDescription className="text-green-600">
+                      Your {selectedOption.replace('-', ' ')} content is ready
+                    </CardDescription>
+                  </div>
+                </div>
+                <div className="flex space-x-2">
+                  <Button variant="outline" size="sm" onClick={exportResult}>
+                    <Download className="w-4 h-4 mr-2" />
+                    Export
+                  </Button>
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardHeader>
+          </Card>
+
+          {/* Formatted Content Sections */}
+          <div className="space-y-4">
+            {parseAndFormatResult(result).map((section, index) => {
+              if (section.type === 'section') {
+                return (
+                  <Card key={index} className="overflow-hidden border-l-4 border-l-blue-500">
+                    <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 pb-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          {section.level === 1 && <Star className="w-5 h-5 text-blue-600" />}
+                          {section.level === 2 && <Target className="w-5 h-5 text-purple-600" />}
+                          {section.level === 3 && <Lightbulb className="w-4 h-4 text-orange-500" />}
+                          <CardTitle className={`${
+                            section.level === 1 ? 'text-lg text-blue-800' :
+                            section.level === 2 ? 'text-base text-purple-700' :
+                            'text-sm text-orange-600'
+                          }`}>
+                            {section.title}
+                          </CardTitle>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => copyToClipboard(section.content, section.index)}
+                          className="h-8 w-8 p-0"
+                        >
+                          {copiedSections.has(section.index) ? (
+                            <CheckCircle className="w-4 h-4 text-green-600" />
+                          ) : (
+                            <Copy className="w-4 h-4" />
+                          )}
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-4">
+                      <div className="prose prose-sm max-w-none">
+                        <div className="whitespace-pre-wrap text-gray-700 leading-relaxed">
+                          {section.content}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              } else {
+                return (
+                  <Card key={index} className="border-gray-200">
+                    <CardContent className="pt-6">
+                      <div className="prose prose-sm max-w-none">
+                        <div className="whitespace-pre-wrap text-gray-700 leading-relaxed">
+                          {section.content}
+                        </div>
+                      </div>
+                      <div className="mt-4 flex justify-end">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => copyToClipboard(section.content, section.index)}
+                        >
+                          {copiedSections.has(section.index) ? (
+                            <>
+                              <CheckCircle className="w-4 h-4 mr-2 text-green-600" />
+                              Copied
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-4 h-4 mr-2" />
+                              Copy
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              }
+            })}
+          </div>
+
+          {/* Quick Actions */}
+          <Card className="bg-gradient-to-r from-gray-50 to-blue-50 border-gray-200">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <Zap className="w-5 h-5 text-blue-600" />
+                  <div>
+                    <h4 className="font-medium text-gray-900">Ready to use this content?</h4>
+                    <p className="text-sm text-gray-600">Copy sections individually or export everything</p>
+                  </div>
+                </div>
+                <div className="flex space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => copyToClipboard(result, -1)}
+                  >
+                    <Copy className="w-4 h-4 mr-2" />
+                    Copy All
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      setResult("");
+                      setSelectedOption("");
+                      setBusinessName("");
+                      setIndustry("");
+                      setTargetAudience("");
+                      setAdditionalInfo("");
+                    }}
+                  >
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Generate New
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       )}
       
       {/* Debug info - remove in production */}
