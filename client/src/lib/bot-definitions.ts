@@ -20,7 +20,7 @@ export const sections = [
   {
     id: 'branding',
     name: 'Branding',
-    description: '10+ AI bots for logo design, brand guidelines, color schemes, and visual identity creation.',
+    description: '10 AI bots for logo design, brand guidelines, color schemes, and visual identity creation.',
     icon: 'palette',
     color: 'bg-purple-50 border-purple-200',
     iconColor: 'text-secondary'
@@ -28,7 +28,7 @@ export const sections = [
   {
     id: 'advertising',
     name: 'Advertising',
-    description: '10+ AI bots for ad copy, creative concepts, targeting strategies, and budget optimization.',
+    description: '10 AI bots for ad copy, creative concepts, targeting strategies, and budget optimization.',
     icon: 'ad',
     color: 'bg-green-50 border-green-200',
     iconColor: 'text-success'
@@ -36,7 +36,7 @@ export const sections = [
   {
     id: 'analytics',
     name: 'Analytics',
-    description: '10+ AI bots for data analysis, reporting, insights generation, and performance tracking.',
+    description: '10 AI bots for data analysis, reporting, insights generation, and performance tracking.',
     icon: 'chart-line',
     color: 'bg-cyan-50 border-cyan-200',
     iconColor: 'text-accent'
@@ -522,17 +522,15 @@ export function getSectionById(sectionId: string) {
 // Function to get available bots based on subscription tier
 export function getAvailableBots(subscriptionTier: string): BotDefinition[] {
   if (subscriptionTier === 'free') {
-    // Free tier: 6 bots (1 from each section)
-    return [
-      bots.find(bot => bot.id === 'campaign-strategy')!,
-      bots.find(bot => bot.id === 'logo-creator')!,
-      bots.find(bot => bot.id === 'ad-copy')!,
-      bots.find(bot => bot.id === 'social-scheduler')!,
-      bots.find(bot => bot.id === 'blog-writer')!,
-      bots.find(bot => bot.id === 'growth-hacker')!
-    ].filter(Boolean);
+    // Free tier: 8 bots (2 from each of the 4 sections)
+    const marketingBots = bots.filter(bot => bot.section === 'marketing').slice(0, 2);
+    const brandingBots = bots.filter(bot => bot.section === 'branding').slice(0, 2);
+    const advertisingBots = bots.filter(bot => bot.section === 'advertising').slice(0, 2);
+    const analyticsBots = bots.filter(bot => bot.section === 'analytics').slice(0, 2);
+    
+    return [...marketingBots, ...brandingBots, ...advertisingBots, ...analyticsBots];
   } else if (subscriptionTier === 'pro') {
-    // Pro tier: 30 bots (5 from each section)
+    // Pro tier: 30 bots (roughly 7-8 from each section)
     return bots.slice(0, 30);
   } else if (subscriptionTier === 'premium') {
     // Premium tier: All 60+ bots

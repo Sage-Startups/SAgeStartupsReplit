@@ -156,7 +156,7 @@ export default function Landing() {
                 <div className="space-y-3">
                   <div className="flex items-center">
                     <Check className="w-5 h-5 text-green-500 mr-3" />
-                    <span>1 bot per section (6 total)</span>
+                    <span>2 bots per section (8 total)</span>
                   </div>
                   <div className="flex items-center">
                     <Check className="w-5 h-5 text-green-500 mr-3" />

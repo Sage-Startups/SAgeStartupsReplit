@@ -11,7 +11,7 @@ Preferred communication style: Simple, everyday language.
 ## Recent Changes (January 2025)
 
 - ✅ Converted platform to subscription-based model with Replit authentication
-- ✅ Added three subscription tiers: Free (6 bots), Pro ($24/month, 30 bots), Premium ($44/month, all 60+ bots)
+- ✅ Added three subscription tiers: Free (8 bots), Pro ($24/month, 30 bots), Premium ($44/month, all 60+ bots)
 - ✅ Created new sales-focused landing page with pricing tiers and feature comparisons
 - ✅ Built comprehensive user dashboard with subscription management and analytics
 - ✅ Implemented user authentication using Replit Auth (OpenID Connect)
@@ -35,6 +35,7 @@ Preferred communication style: Simple, everyday language.
 - ✅ Deleted Community section completely from bot definitions
 - ✅ Moved all Blog bots into Marketing section (now 20+ tools in Marketing)
 - ✅ Reorganized tool sections: Marketing (20+), Branding (10), Advertising (10), Analytics (10)
+- ✅ Updated free subscription to provide 8 bots (2 from each of the 4 sections) instead of 6 bots
 
 ## System Architecture
 
