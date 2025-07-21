@@ -135,7 +135,7 @@ export type UserAnalytics = typeof userAnalytics.$inferSelect;
 
 export const founderMetrics = pgTable('founder_metrics', {
   id: serial('id').primaryKey(),
-  userId: text('user_id').notNull().references(() => users.id),
+  userId: varchar('user_id').notNull().references(() => users.id),
   companyName: text('company_name').notNull().default('Your Startup'),
   revenue: integer('revenue').notNull().default(0),
   monthlyGrowth: integer('monthly_growth').notNull().default(0),

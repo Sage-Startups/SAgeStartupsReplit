@@ -131,7 +131,12 @@ export default function FounderDashboard() {
   // Update metrics mutation
   const updateMetricsMutation = useMutation({
     mutationFn: async (data: Partial<FounderMetrics>) => {
+      console.log("Updating metrics with data:", data);
       const response = await apiRequest("PUT", "/api/founder/metrics", data);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.details || errorData.error || 'Failed to update metrics');
+      }
       return response.json();
     },
     onSuccess: () => {
@@ -141,10 +146,11 @@ export default function FounderDashboard() {
         description: "Your business metrics have been updated successfully.",
       });
     },
-    onError: () => {
+    onError: (error: any) => {
+      console.error("Error updating metrics:", error);
       toast({
         title: "Error",
-        description: "Failed to update metrics. Please try again.",
+        description: error.message || "Failed to update metrics. Please try again.",
         variant: "destructive",
       });
     }
@@ -205,7 +211,8 @@ export default function FounderDashboard() {
   }
 
   const defaultMetrics: FounderMetrics = {
-    userId: user.id,
+    id: 0,
+    userId: (user as any)?.id || '',
     companyName: "Your Startup",
     revenue: 0,
     monthlyGrowth: 0,
@@ -214,7 +221,8 @@ export default function FounderDashboard() {
     burnRate: 0,
     runway: 0,
     goals: [],
-    lastUpdated: new Date().toISOString()
+    lastUpdated: new Date(),
+    createdAt: new Date()
   };
 
   const currentMetrics = metrics || defaultMetrics;

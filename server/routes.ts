@@ -297,6 +297,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Founder metrics endpoints
+  app.get("/api/founder/metrics", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const metrics = await storage.getFounderMetrics(userId);
+      res.json(metrics);
+    } catch (error) {
+      console.error("Error fetching founder metrics:", error);
+      res.status(500).json({ error: "Failed to fetch founder metrics" });
+    }
+  });
+
+  app.put("/api/founder/metrics", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      console.log("Updating founder metrics for user:", userId, "with data:", req.body);
+      const metrics = await storage.updateFounderMetrics(userId, req.body);
+      res.json(metrics);
+    } catch (error) {
+      console.error("Error updating founder metrics:", error);
+      res.status(500).json({ error: "Failed to update founder metrics", details: error instanceof Error ? error.message : String(error) });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
