@@ -416,6 +416,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
   };
 
   // Super Admin API Routes
+  app.post("/api/admin/users", isAuthenticated, requireSuperAdmin, async (req: any, res) => {
+    try {
+      const { email, firstName, lastName, role, subscriptionTier } = req.body;
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(email);
+      if (existingUser) {
+        return res.status(400).json({ error: "User with this email already exists" });
+      }
+      
+      // Create new user  
+      const newUser = await storage.createUser({
+        id: Date.now().toString(), // Simple ID generation for demo
+        email,
+        firstName,
+        lastName,
+        role: role || 'client',
+        subscriptionTier: subscriptionTier || 'free',
+        subscriptionStatus: 'active',
+        profileImageUrl: null,
+        phone: null,
+        location: null,
+        timezone: null,
+        language: 'en',
+        subscriptionExpires: null,
+        trialUsed: false,
+        monthlyUsage: 0,
+        usageLimit: subscriptionTier === 'premium' ? 999 : subscriptionTier === 'pro' ? 30 : 6,
+        emailVerified: false,
+        marketingOptIn: false,
+        securityAlerts: true,
+        lastActive: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+      
+      // Log the action
+      await storage.createAuditLog({
+        userId: req.user.claims.sub,
+        action: 'create',
+        resource: 'user',
+        resourceId: newUser.id,
+        details: { email, role, subscriptionTier },
+        ipAddress: req.ip
+      });
+      
+      res.json(newUser);
+    } catch (error) {
+      console.error("Failed to create user:", error);
+      res.status(500).json({ error: "Failed to create user" });
+    }
+  });
+
   app.get("/api/admin/users", isAuthenticated, requireSuperAdmin, async (req: any, res) => {
     try {
       const users = await storage.getAllUsers();

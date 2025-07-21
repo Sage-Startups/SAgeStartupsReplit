@@ -46,6 +46,8 @@ export interface IStorage {
   getAllSubscriptionPlans(): Promise<SubscriptionPlan[]>;
   createAuditLog(log: Partial<AuditLog>): Promise<void>;
   getSystemMetrics(): Promise<any>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  createUser(userData: any): Promise<User>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -254,6 +256,16 @@ export class DatabaseStorage implements IStorage {
       conversionRate: totalUsers.length > 0 ? (activeUsers.length / totalUsers.length * 100) : 0,
       churnRate: 5 // placeholder
     };
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.email, email));
+    return result[0];
+  }
+
+  async createUser(userData: any): Promise<User> {
+    const [newUser] = await db.insert(users).values(userData).returning();
+    return newUser;
   }
 }
 

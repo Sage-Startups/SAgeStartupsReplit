@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -84,19 +88,40 @@ interface SystemMetrics {
   churnRate: number;
 }
 
+const createUserSchema = z.object({
+  email: z.string().email("Please enter a valid email"),
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  role: z.enum(["super_admin", "moderator", "client"]),
+  subscriptionTier: z.enum(["free", "pro", "premium"])
+});
+
 export default function SuperAdmin() {
   const { user, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
   const [isEditingUser, setIsEditingUser] = useState(false);
+  const [isCreatingUser, setIsCreatingUser] = useState(false);
   const [isCreatingPlan, setIsCreatingPlan] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterRole, setFilterRole] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
 
+  // Create user form
+  const createUserForm = useForm<z.infer<typeof createUserSchema>>({
+    resolver: zodResolver(createUserSchema),
+    defaultValues: {
+      email: "",
+      firstName: "",
+      lastName: "",
+      role: "client",
+      subscriptionTier: "free"
+    }
+  });
+
   // Check if user is super admin
-  const { data: currentUserProfile } = useQuery({
+  const { data: currentUserProfile } = useQuery<{ role: string }>({
     queryKey: ["/api/user/profile"],
     enabled: !!user
   });
@@ -142,6 +167,27 @@ export default function SuperAdmin() {
       setIsEditingUser(false);
       setSelectedUser(null);
       toast({ title: "User updated successfully" });
+    }
+  });
+
+  // Create user mutation
+  const createUserMutation = useMutation({
+    mutationFn: async (userData: z.infer<typeof createUserSchema>) => {
+      const response = await apiRequest("POST", "/api/admin/users", userData);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      setIsCreatingUser(false);
+      createUserForm.reset();
+      toast({ title: "User created successfully" });
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: "Failed to create user", 
+        description: error.message,
+        variant: "destructive" 
+      });
     }
   });
 
@@ -294,19 +340,122 @@ export default function SuperAdmin() {
                     <CardTitle>User Management</CardTitle>
                     <CardDescription>Manage all user accounts, roles, and permissions</CardDescription>
                   </div>
-                  <Dialog>
+                  <Dialog open={isCreatingUser} onOpenChange={setIsCreatingUser}>
                     <DialogTrigger asChild>
                       <Button>
                         <Plus className="w-4 h-4 mr-2" />
                         Add User
                       </Button>
                     </DialogTrigger>
-                    <DialogContent>
+                    <DialogContent className="sm:max-w-md">
                       <DialogHeader>
                         <DialogTitle>Create New User</DialogTitle>
                         <DialogDescription>Add a new user to the system</DialogDescription>
                       </DialogHeader>
-                      {/* User creation form would go here */}
+                      <Form {...createUserForm}>
+                        <form onSubmit={createUserForm.handleSubmit((data) => createUserMutation.mutate(data))} className="space-y-4">
+                          <FormField
+                            control={createUserForm.control}
+                            name="email"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Email</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="user@example.com" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                              control={createUserForm.control}
+                              name="firstName"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>First Name</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="John" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={createUserForm.control}
+                              name="lastName"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Last Name</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="Doe" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                          <FormField
+                            control={createUserForm.control}
+                            name="role"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Role</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select a role" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="client">Client</SelectItem>
+                                    <SelectItem value="moderator">Moderator</SelectItem>
+                                    <SelectItem value="super_admin">Super Admin</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={createUserForm.control}
+                            name="subscriptionTier"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Subscription Tier</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select a subscription tier" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="free">Free</SelectItem>
+                                    <SelectItem value="pro">Pro</SelectItem>
+                                    <SelectItem value="premium">Premium</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <DialogFooter>
+                            <Button 
+                              type="button" 
+                              variant="outline" 
+                              onClick={() => setIsCreatingUser(false)}
+                            >
+                              Cancel
+                            </Button>
+                            <Button 
+                              type="submit" 
+                              disabled={createUserMutation.isPending}
+                            >
+                              {createUserMutation.isPending ? "Creating..." : "Create User"}
+                            </Button>
+                          </DialogFooter>
+                        </form>
+                      </Form>
                     </DialogContent>
                   </Dialog>
                 </div>
