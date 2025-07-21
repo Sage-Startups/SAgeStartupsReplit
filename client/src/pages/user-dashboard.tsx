@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { apiRequest } from "@/lib/queryClient";
 import type { Project } from "@shared/schema";
-import { sections, BotDefinition, getAvailableBots, getBotsBySection } from "@/lib/bot-definitions";
+import { sections, BotDefinition, getAvailableBots, getBotsBySection, hasAccessToBot, bots } from "@/lib/bot-definitions";
 import { Link, useLocation } from "wouter";
 import { 
   User, 
@@ -26,7 +26,12 @@ import {
   LogOut,
   Plus,
   ArrowRight,
-  Lock
+  Lock,
+  Megaphone,
+  Palette,
+  Monitor,
+  Users,
+  PenTool
 } from "lucide-react";
 
 interface UserAnalytics {
@@ -317,39 +322,55 @@ export default function UserDashboard() {
 
             <div className="space-y-6">
               {sections.map((section) => {
-                const sectionBots = availableBots.filter(bot => bot.section === section.id);
-                if (sectionBots.length === 0) return null;
+                // Get icon component mapping
+                const getIconComponent = (iconName: string) => {
+                  const iconMap: { [key: string]: any } = {
+                    'bullhorn': Megaphone,
+                    'palette': Palette,
+                    'ad': Monitor,
+                    'users': Users,
+                    'pen-nib': PenTool,
+                    'chart-line': TrendingUp
+                  };
+                  return iconMap[iconName] || Zap;
+                };
+                
+                const IconComponent = getIconComponent(section.icon);
+                const allSectionBots = getBotsBySection(section.id);
+                const availableSectionBots = allSectionBots.filter(bot => hasAccessToBot(bot.id, userSubscriptionTier));
+                const lockedSectionBots = allSectionBots.filter(bot => !hasAccessToBot(bot.id, userSubscriptionTier));
                 
                 return (
                   <Card key={section.id}>
                     <CardHeader>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
-                          <div className={`w-12 h-12 rounded-lg ${section.iconColor} flex items-center justify-center`}>
-                            <section.icon className="w-6 h-6 text-white" />
+                          <div className={`w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center`}>
+                            <IconComponent className="w-6 h-6 text-blue-600" />
                           </div>
                           <div>
                             <CardTitle>{section.name}</CardTitle>
                             <CardDescription>
-                              {sectionBots.length} bots available
+                              {availableSectionBots.length} of {allSectionBots.length} bots available
                             </CardDescription>
                           </div>
                         </div>
                         <Badge variant="secondary">
-                          {sectionBots.length} bots
+                          {allSectionBots.length} total
                         </Badge>
                       </div>
                     </CardHeader>
                     <CardContent>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {sectionBots.map((bot: any) => (
+                        {/* Available bots */}
+                        {availableSectionBots.map((bot: any) => (
                           <div 
                             key={bot.id}
-                            className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer"
+                            className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer bg-white"
                             onClick={() => setLocation(`/bot/${bot.id}`)}
                           >
                             <div className="flex items-center justify-between mb-2">
-                              <h4 className="font-medium">{bot.name}</h4>
+                              <h4 className="font-medium text-gray-900">{bot.name}</h4>
                               <ArrowRight className="w-4 h-4 text-gray-400" />
                             </div>
                             <p className="text-sm text-gray-600 mb-3">{bot.description}</p>
@@ -363,23 +384,34 @@ export default function UserDashboard() {
                           </div>
                         ))}
                         
-                        {/* Show locked bots for free/pro users */}
-                        {(user as any)?.subscriptionTier !== 'premium' && (
-                          <div className="p-4 border border-dashed rounded-lg bg-gray-50 flex items-center justify-center">
-                            <div className="text-center">
-                              <Lock className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                              <p className="text-sm text-gray-500">More bots available</p>
+                        {/* Locked bots */}
+                        {lockedSectionBots.map((bot: any) => (
+                          <div 
+                            key={`locked-${bot.id}`}
+                            className="p-4 border border-dashed rounded-lg bg-gray-50 relative opacity-60"
+                          >
+                            <div className="absolute top-2 right-2">
+                              <Lock className="w-4 h-4 text-gray-400" />
+                            </div>
+                            <div className="flex items-center justify-between mb-2">
+                              <h4 className="font-medium text-gray-500">{bot.name}</h4>
+                            </div>
+                            <p className="text-sm text-gray-500 mb-3">{bot.description}</p>
+                            <div className="flex items-center justify-between">
+                              <Badge variant="outline" className="text-xs text-gray-400 border-gray-300">
+                                {userSubscriptionTier === 'free' ? 'Pro Required' : 'Premium Required'}
+                              </Badge>
                               <Button 
                                 size="sm" 
                                 variant="outline" 
-                                className="mt-2"
-                                onClick={() => upgradeMutation.mutate((user as any)?.subscriptionTier === 'free' ? 'pro' : 'premium')}
+                                className="text-xs h-6"
+                                onClick={() => upgradeMutation.mutate(userSubscriptionTier === 'free' ? 'pro' : 'premium')}
                               >
-                                Upgrade Plan
+                                Upgrade
                               </Button>
                             </div>
                           </div>
-                        )}
+                        ))}
                       </div>
                     </CardContent>
                   </Card>
