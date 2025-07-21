@@ -13,6 +13,7 @@ import ProjectSessions from "./pages/project-sessions";
 import NotFound from "@/pages/not-found";
 import FounderDashboard from "@/pages/founder-dashboard";
 import BusinessSuite from "@/pages/business-suite";
+import Account from "@/pages/account";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -27,6 +28,7 @@ function Router() {
           <Route path="/dashboard" component={FounderDashboard} />
           <Route path="/ai-suite" component={UserDashboard} />
           <Route path="/business-suite" component={BusinessSuite} />
+          <Route path="/account" component={Account} />
           <Route path="/section/:sectionId" component={Section} />
           <Route path="/bot/:botId" component={Bot} />
           <Route path="/project/:projectId" component={ProjectSessions} />

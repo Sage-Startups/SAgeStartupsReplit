@@ -321,6 +321,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User profile endpoints
+  app.get("/api/user/profile", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUserById(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      res.json(user);
+    } catch (error) {
+      console.error("Failed to get user profile:", error);
+      res.status(500).json({ error: "Failed to get user profile" });
+    }
+  });
+
+  app.put("/api/user/profile", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const updates = req.body;
+      
+      // Remove sensitive fields that shouldn't be updated via this endpoint
+      delete updates.id;
+      delete updates.email;
+      delete updates.subscriptionTier;
+      delete updates.subscriptionStatus;
+      delete updates.createdAt;
+      
+      const updatedUser = await storage.updateUser(userId, updates);
+      res.json(updatedUser);
+    } catch (error) {
+      console.error("Failed to update user profile:", error);
+      res.status(500).json({ error: "Failed to update user profile" });
+    }
+  });
+
+  app.post("/api/user/subscription", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { tier } = req.body;
+      
+      if (!['free', 'pro', 'premium'].includes(tier)) {
+        return res.status(400).json({ error: "Invalid subscription tier" });
+      }
+      
+      const updatedUser = await storage.updateUser(userId, { 
+        subscriptionTier: tier,
+        subscriptionStatus: 'active',
+        subscriptionExpires: tier === 'free' ? null : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days from now
+      });
+      
+      res.json(updatedUser);
+    } catch (error) {
+      console.error("Failed to update subscription:", error);
+      res.status(500).json({ error: "Failed to update subscription" });
+    }
+  });
+
+  app.delete("/api/user/account", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      await storage.deleteUser(userId);
+      
+      // Clear the session
+      req.session.destroy((err: any) => {
+        if (err) {
+          console.error("Failed to destroy session:", err);
+        }
+      });
+      
+      res.json({ message: "Account deleted successfully" });
+    } catch (error) {
+      console.error("Failed to delete account:", error);
+      res.status(500).json({ error: "Failed to delete account" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

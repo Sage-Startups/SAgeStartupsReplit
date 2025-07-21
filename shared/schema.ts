@@ -19,10 +19,20 @@ export const users = pgTable("users", {
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
+  company: varchar("company"),
+  jobTitle: varchar("job_title"),
+  phone: varchar("phone"),
+  location: varchar("location"),
+  timezone: varchar("timezone"),
+  language: varchar("language").default("en"),
   subscriptionTier: varchar("subscription_tier", { length: 20 }).notNull().default("free"), // 'free', 'pro', 'premium'
   subscriptionStatus: varchar("subscription_status", { length: 20 }).notNull().default("active"), // 'active', 'cancelled', 'expired'
   subscriptionExpires: timestamp("subscription_expires"),
   trialUsed: boolean("trial_used").notNull().default(false),
+  emailNotifications: boolean("email_notifications").notNull().default(true),
+  marketingEmails: boolean("marketing_emails").notNull().default(false),
+  securityAlerts: boolean("security_alerts").notNull().default(true),
+  lastActive: timestamp("last_active"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
