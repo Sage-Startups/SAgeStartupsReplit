@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
@@ -29,7 +30,8 @@ import {
   X,
   Plus,
   CheckCircle,
-  Circle
+  Circle,
+  RotateCcw
 } from "lucide-react";
 
 
@@ -217,6 +219,27 @@ export default function FounderDashboard() {
     }
   });
 
+  // Reset metrics mutation
+  const resetMetrics = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("POST", "/api/founder/metrics/reset");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/founder/metrics"] });
+      toast({ 
+        title: "Metrics Reset", 
+        description: "All metrics have been reset to default values" 
+      });
+    },
+    onError: () => {
+      toast({ 
+        title: "Failed to reset metrics", 
+        variant: "destructive" 
+      });
+    }
+  });
+
   const handleMetricUpdate = (field: keyof FounderMetrics, value: string | number) => {
     updateMetricsMutation.mutate({ [field]: value });
   };
@@ -263,13 +286,41 @@ export default function FounderDashboard() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Welcome back, {(user as any)?.firstName || (user as any)?.name || 'Founder'}! 👋
-          </h1>
-          <p className="text-gray-600 mt-2">
-            Here's how your business is performing today.
-          </p>
+        <div className="mb-8 flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Welcome back, {(user as any)?.firstName || (user as any)?.name || 'Founder'}! 👋
+            </h1>
+            <p className="text-gray-600 mt-2">
+              Here's how your business is performing today.
+            </p>
+          </div>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50">
+                <RotateCcw className="w-4 h-4 mr-2" />
+                Reset All Metrics
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Reset All Metrics?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will reset all your business metrics (revenue, growth, users, etc.) to default values and clear all goals. This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => resetMetrics.mutate()}
+                  className="bg-red-600 hover:bg-red-700"
+                  disabled={resetMetrics.isPending}
+                >
+                  {resetMetrics.isPending ? "Resetting..." : "Reset All Data"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
 
         {/* Key Metrics Grid */}

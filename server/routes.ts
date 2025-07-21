@@ -597,6 +597,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Reset founder metrics endpoint
+  app.post("/api/founder/metrics/reset", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      
+      // Reset to default values
+      const resetData = {
+        companyName: 'Your Startup',
+        revenue: 0,
+        monthlyGrowth: 0,
+        activeUsers: 0,
+        churnRate: 0,
+        burnRate: 0,
+        runway: 0,
+        goals: []
+      };
+      
+      const updatedMetrics = await storage.updateFounderMetrics(userId, resetData);
+      res.json(updatedMetrics);
+    } catch (error) {
+      console.error("Failed to reset metrics:", error);
+      res.status(500).json({ error: "Failed to reset metrics" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
