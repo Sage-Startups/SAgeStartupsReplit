@@ -17,43 +17,82 @@ interface BotDropdownInterfaceProps {
   botColor: string;
 }
 
-// Bot-specific dropdown options
-const botOptions: Record<string, Array<{ label: string; value: string; description: string }>> = {
-  'campaign-strategy': [
-    { label: 'New Product Launch', value: 'product-launch', description: 'Create a comprehensive launch strategy' },
-    { label: 'Brand Awareness', value: 'brand-awareness', description: 'Build visibility and recognition' },
-    { label: 'Lead Generation', value: 'lead-generation', description: 'Generate qualified prospects' },
-    { label: 'Customer Retention', value: 'customer-retention', description: 'Keep existing customers engaged' },
-    { label: 'Market Expansion', value: 'market-expansion', description: 'Enter new markets or segments' }
-  ],
-  'logo-design': [
-    { label: 'Modern Minimalist', value: 'minimalist', description: 'Clean, simple design with strong typography' },
-    { label: 'Classic & Timeless', value: 'classic', description: 'Traditional design that stands the test of time' },
-    { label: 'Bold & Dynamic', value: 'bold', description: 'Eye-catching design with strong visual impact' },
-    { label: 'Tech & Innovation', value: 'tech', description: 'Modern design for technology companies' },
-    { label: 'Organic & Natural', value: 'organic', description: 'Flowing design for health/wellness brands' }
-  ],
-  'brand-voice': [
-    { label: 'Professional & Authoritative', value: 'professional', description: 'Formal tone for B2B and corporate' },
-    { label: 'Friendly & Approachable', value: 'friendly', description: 'Warm tone for consumer brands' },
-    { label: 'Innovative & Forward-thinking', value: 'innovative', description: 'Modern tone for tech companies' },
-    { label: 'Luxury & Premium', value: 'luxury', description: 'Sophisticated tone for high-end brands' },
-    { label: 'Fun & Playful', value: 'playful', description: 'Casual tone for lifestyle brands' }
-  ],
-  'ad-copy': [
-    { label: 'Social Media Ads', value: 'social-media', description: 'Short, engaging copy for platforms' },
-    { label: 'Google Ads', value: 'google-ads', description: 'Search-focused headlines and descriptions' },
-    { label: 'Email Marketing', value: 'email', description: 'Subject lines and body copy' },
-    { label: 'Print Advertising', value: 'print', description: 'Traditional media copy' },
-    { label: 'Video Scripts', value: 'video', description: 'Narration and call-to-action scripts' }
-  ],
-  'seo-content': [
-    { label: 'Blog Posts', value: 'blog-posts', description: 'SEO-optimized article content' },
-    { label: 'Product Descriptions', value: 'product-descriptions', description: 'E-commerce copy that ranks' },
-    { label: 'Landing Pages', value: 'landing-pages', description: 'Conversion-focused page content' },
-    { label: 'Meta Descriptions', value: 'meta-descriptions', description: 'Search result snippets' },
-    { label: 'Category Pages', value: 'category-pages', description: 'Navigation and overview content' }
-  ]
+// Universal dropdown options that work for all bots - automatically adapts based on bot type
+const getOptionsForBot = (botId: string) => {
+  // Marketing bots
+  if (botId.includes('campaign') || botId.includes('marketing')) {
+    return [
+      { label: 'New Product Launch', value: 'product-launch', description: 'Create a comprehensive launch strategy' },
+      { label: 'Brand Awareness', value: 'brand-awareness', description: 'Build visibility and recognition' },
+      { label: 'Lead Generation', value: 'lead-generation', description: 'Generate qualified prospects' },
+      { label: 'Customer Retention', value: 'customer-retention', description: 'Keep existing customers engaged' },
+      { label: 'Market Expansion', value: 'market-expansion', description: 'Enter new markets or segments' }
+    ];
+  }
+  
+  // Branding bots
+  if (botId.includes('logo') || botId.includes('brand') || botId.includes('design')) {
+    return [
+      { label: 'Modern Minimalist', value: 'minimalist', description: 'Clean, simple design with strong typography' },
+      { label: 'Classic & Timeless', value: 'classic', description: 'Traditional design that stands the test of time' },
+      { label: 'Bold & Dynamic', value: 'bold', description: 'Eye-catching design with strong visual impact' },
+      { label: 'Tech & Innovation', value: 'tech', description: 'Modern design for technology companies' },
+      { label: 'Organic & Natural', value: 'organic', description: 'Flowing design for health/wellness brands' }
+    ];
+  }
+  
+  // Content bots
+  if (botId.includes('content') || botId.includes('seo') || botId.includes('blog')) {
+    return [
+      { label: 'Blog Posts', value: 'blog-posts', description: 'SEO-optimized article content' },
+      { label: 'Product Descriptions', value: 'product-descriptions', description: 'E-commerce copy that ranks' },
+      { label: 'Landing Pages', value: 'landing-pages', description: 'Conversion-focused page content' },
+      { label: 'Meta Descriptions', value: 'meta-descriptions', description: 'Search result snippets' },
+      { label: 'Website Copy', value: 'website-copy', description: 'About us, services, and main pages' }
+    ];
+  }
+  
+  // Ad bots
+  if (botId.includes('ad') || botId.includes('copy')) {
+    return [
+      { label: 'Social Media Ads', value: 'social-media', description: 'Short, engaging copy for platforms' },
+      { label: 'Google Ads', value: 'google-ads', description: 'Search-focused headlines and descriptions' },
+      { label: 'Email Marketing', value: 'email', description: 'Subject lines and body copy' },
+      { label: 'Print Advertising', value: 'print', description: 'Traditional media copy' },
+      { label: 'Video Scripts', value: 'video', description: 'Narration and call-to-action scripts' }
+    ];
+  }
+  
+  // Analytics/Strategy bots
+  if (botId.includes('analytics') || botId.includes('insights') || botId.includes('performance')) {
+    return [
+      { label: 'Performance Analysis', value: 'performance', description: 'Analyze current marketing performance' },
+      { label: 'Competitor Research', value: 'competitor', description: 'Research and analyze competitors' },
+      { label: 'Market Trends', value: 'trends', description: 'Identify market opportunities' },
+      { label: 'ROI Optimization', value: 'roi', description: 'Improve return on investment' },
+      { label: 'KPI Dashboard', value: 'dashboard', description: 'Set up key metrics tracking' }
+    ];
+  }
+  
+  // Community/Social bots
+  if (botId.includes('social') || botId.includes('community') || botId.includes('engagement')) {
+    return [
+      { label: 'Content Calendar', value: 'calendar', description: 'Plan social media posts' },
+      { label: 'Engagement Strategy', value: 'engagement', description: 'Increase follower interaction' },
+      { label: 'Hashtag Research', value: 'hashtags', description: 'Find trending hashtags' },
+      { label: 'Community Events', value: 'events', description: 'Plan online/offline events' },
+      { label: 'Influencer Outreach', value: 'influencer', description: 'Connect with key influencers' }
+    ];
+  }
+  
+  // Default universal options for any bot
+  return [
+    { label: 'Strategy Development', value: 'strategy', description: 'Create a comprehensive strategy' },
+    { label: 'Content Creation', value: 'content', description: 'Generate relevant content' },
+    { label: 'Analysis & Research', value: 'analysis', description: 'Research and analyze opportunities' },
+    { label: 'Optimization', value: 'optimization', description: 'Improve existing efforts' },
+    { label: 'Implementation Plan', value: 'implementation', description: 'Step-by-step action plan' }
+  ];
 };
 
 export function BotDropdownInterface({ sessionId, botName, botId, botColor }: BotDropdownInterfaceProps) {
@@ -96,7 +135,8 @@ export function BotDropdownInterface({ sessionId, botName, botId, botColor }: Bo
   });
 
   const buildPrompt = () => {
-    const option = botOptions[botId]?.find(opt => opt.value === selectedOption);
+    const options = getOptionsForBot(botId);
+    const option = options.find((opt: any) => opt.value === selectedOption);
     return `Create ${option?.label || selectedOption} for:
 Business: ${businessName}
 Industry: ${industry}
@@ -130,9 +170,7 @@ Please provide a comprehensive, actionable response.`;
     URL.revokeObjectURL(url);
   };
 
-  const options = botOptions[botId] || [
-    { label: 'General Analysis', value: 'general', description: 'Comprehensive business analysis' }
-  ];
+  const options = getOptionsForBot(botId);
 
   return (
     <div className="space-y-6">

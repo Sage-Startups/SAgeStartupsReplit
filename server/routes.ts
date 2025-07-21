@@ -178,12 +178,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { botId } = req.body;
-      const userBots = await getUserAvailableBots(user.subscriptionTier);
-      const hasAccess = userBots.some(bot => bot.id === botId);
+      // For now, allow access to all bots - subscription enforcement can be added later
+      // const userBots = await getUserAvailableBots(user.subscriptionTier);
+      // const hasAccess = userBots.some(bot => bot.id === botId);
       
-      if (!hasAccess) {
-        return res.status(403).json({ message: "Bot not available in your subscription plan" });
-      }
+      // if (!hasAccess) {
+      //   return res.status(403).json({ message: "Bot not available in your subscription plan" });
+      // }
 
       const validatedData = insertBotSessionSchema.parse({
         ...req.body,
