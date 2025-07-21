@@ -315,7 +315,17 @@ export default function UserDashboard() {
                 {recentActivity.length > 0 ? (
                   <div className="space-y-3">
                     {recentActivity.map((activity, index) => (
-                      <div key={activity.id} className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+                      <div 
+                        key={activity.id} 
+                        className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer"
+                        onClick={() => {
+                          // Find the project that contains this session
+                          const project = projects.find(p => p.name === activity.projectName);
+                          if (project) {
+                            setLocation(`/bot/${activity.botId}?project=${project.id}&session=${activity.id}`);
+                          }
+                        }}
+                      >
                         <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                           <Zap className="w-4 h-4 text-blue-600" />
                         </div>

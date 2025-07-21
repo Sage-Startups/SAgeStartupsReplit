@@ -317,15 +317,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/sessions/:sessionId", isAuthenticated, async (req, res) => {
     try {
       const sessionId = parseInt(req.params.sessionId);
+      console.log(`Attempting to delete session ${sessionId}`);
+      
+      // First check if session exists
+      const session = await storage.getBotSession(sessionId);
+      if (!session) {
+        console.log(`Session ${sessionId} not found`);
+        return res.status(404).json({ message: "Session not found" });
+      }
+      
+      console.log(`Found session ${sessionId}, proceeding with deletion`);
       
       // First delete all associated chat messages
       await storage.deleteChatMessagesBySessionId(sessionId);
+      console.log(`Deleted chat messages for session ${sessionId}`);
       
       // Then delete the session itself
       const deleted = await storage.deleteBotSession(sessionId);
-      if (!deleted) {
-        return res.status(404).json({ message: "Session not found" });
-      }
+      console.log(`Session deletion result: ${deleted}`);
       
       res.json({ message: "Session deleted successfully" });
     } catch (error) {

@@ -141,8 +141,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteBotSession(id: number): Promise<boolean> {
-    const result = await db.delete(botSessions).where(eq(botSessions.id, id));
-    return result.rowsAffected > 0;
+    try {
+      await db.delete(botSessions).where(eq(botSessions.id, id));
+      return true;
+    } catch (error) {
+      console.error("Error deleting bot session:", error);
+      return false;
+    }
   }
 
   // Chat message operations
