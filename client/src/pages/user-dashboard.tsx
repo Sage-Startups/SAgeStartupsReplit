@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -32,7 +33,9 @@ import {
   Palette,
   Monitor,
   Users,
-  PenTool
+  PenTool,
+  ChevronDown,
+  ChevronRight
 } from "lucide-react";
 
 interface UserAnalytics {
@@ -51,6 +54,7 @@ export default function UserDashboard() {
   const [isCreateProjectDialogOpen, setIsCreateProjectDialogOpen] = useState(false);
   const [projectName, setProjectName] = useState("");
   const [projectDescription, setProjectDescription] = useState("");
+  const [expandedSections, setExpandedSections] = useState<string[]>([]);
 
   // Get available bots based on subscription tier
   const userSubscriptionTier = (user as any)?.subscriptionTier || 'free';
@@ -131,6 +135,14 @@ export default function UserDashboard() {
       name: projectName.trim(),
       description: projectDescription.trim() || undefined
     });
+  };
+
+  const toggleSection = (sectionId: string) => {
+    setExpandedSections(prev => 
+      prev.includes(sectionId) 
+        ? prev.filter(id => id !== sectionId)
+        : [...prev, sectionId]
+    );
   };
 
   if (authLoading) {
@@ -224,11 +236,10 @@ export default function UserDashboard() {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="bots">My Bots</TabsTrigger>
+            <TabsTrigger value="bots">Tools</TabsTrigger>
             <TabsTrigger value="projects">Projects</TabsTrigger>
-            <TabsTrigger value="subscription">Subscription</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
@@ -306,23 +317,23 @@ export default function UserDashboard() {
             </Card>
           </TabsContent>
 
-          {/* Bots Tab */}
+          {/* Tools Tab (formerly Bots) */}
           <TabsContent value="bots" className="space-y-6">
             <div className="flex justify-between items-center">
               <div>
-                <h2 className="text-2xl font-bold">Your AI Bots</h2>
+                <h2 className="text-2xl font-bold">AI Tools</h2>
                 <p className="text-gray-600">
-                  You have access to {availableBots.length} specialized AI bots
+                  You have access to {availableBots.length} specialized AI tools
                 </p>
               </div>
               {userSubscriptionTier === 'free' && (
                 <Button onClick={() => upgradeMutation.mutate('pro')}>
-                  Upgrade to Access More Bots
+                  Upgrade to Access More Tools
                 </Button>
               )}
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-4">
               {sections.map((section) => {
                 // Get icon component mapping
                 const getIconComponent = (iconName: string) => {
@@ -341,28 +352,40 @@ export default function UserDashboard() {
                 const allSectionBots = getBotsBySection(section.id);
                 const availableSectionBots = allSectionBots.filter(bot => hasAccessToBot(bot.id, userSubscriptionTier));
                 const lockedSectionBots = allSectionBots.filter(bot => !hasAccessToBot(bot.id, userSubscriptionTier));
+                const isExpanded = expandedSections.includes(section.id);
                 
                 return (
                   <Card key={section.id}>
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <div className={`w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center`}>
-                            <IconComponent className="w-6 h-6 text-blue-600" />
+                    <Collapsible open={isExpanded} onOpenChange={() => toggleSection(section.id)}>
+                      <CollapsibleTrigger className="w-full">
+                        <CardHeader className="hover:bg-gray-50 transition-colors">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                              <div className={`w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center`}>
+                                <IconComponent className="w-6 h-6 text-blue-600" />
+                              </div>
+                              <div className="text-left">
+                                <CardTitle className="flex items-center">
+                                  {section.name}
+                                  {isExpanded ? (
+                                    <ChevronDown className="w-4 h-4 ml-2 text-gray-500" />
+                                  ) : (
+                                    <ChevronRight className="w-4 h-4 ml-2 text-gray-500" />
+                                  )}
+                                </CardTitle>
+                                <CardDescription>
+                                  {availableSectionBots.length} of {allSectionBots.length} tools available
+                                </CardDescription>
+                              </div>
+                            </div>
+                            <Badge variant="secondary">
+                              {allSectionBots.length} total
+                            </Badge>
                           </div>
-                          <div>
-                            <CardTitle>{section.name}</CardTitle>
-                            <CardDescription>
-                              {availableSectionBots.length} of {allSectionBots.length} bots available
-                            </CardDescription>
-                          </div>
-                        </div>
-                        <Badge variant="secondary">
-                          {allSectionBots.length} total
-                        </Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
+                        </CardHeader>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <CardContent>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {/* Available bots */}
                         {availableSectionBots.map((bot: any) => (
@@ -414,8 +437,10 @@ export default function UserDashboard() {
                             </div>
                           </div>
                         ))}
-                      </div>
-                    </CardContent>
+                        </div>
+                        </CardContent>
+                      </CollapsibleContent>
+                    </Collapsible>
                   </Card>
                 );
               })}
@@ -520,100 +545,6 @@ export default function UserDashboard() {
                   </CardContent>
                 </Card>
               )}
-            </div>
-          </TabsContent>
-
-          {/* Subscription Tab */}
-          <TabsContent value="subscription" className="space-y-6">
-            <div>
-              <h2 className="text-2xl font-bold">Subscription Management</h2>
-              <p className="text-gray-600">Manage your plan and billing</p>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-6">
-              {/* Current Plan */}
-              <Card className={(user as any)?.subscriptionTier === 'free' ? 'border-gray-200' : (user as any)?.subscriptionTier === 'pro' ? 'border-blue-500' : 'border-purple-500'}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle>Free Trial</CardTitle>
-                    {(user as any)?.subscriptionTier === 'free' && <Badge>Current Plan</Badge>}
-                  </div>
-                  <CardDescription>Perfect for trying out our platform</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="text-2xl font-bold">$0<span className="text-base font-normal">/month</span></div>
-                  <ul className="space-y-2 text-sm">
-                    <li>✓ 1 bot per section (6 total)</li>
-                    <li>✓ Unlimited conversations</li>
-                    <li>✓ Basic asset generation</li>
-                    <li>✓ Project management</li>
-                  </ul>
-                  {(user as any)?.subscriptionTier !== 'free' && (
-                    <Button 
-                      variant="outline" 
-                      className="w-full"
-                      onClick={() => upgradeMutation.mutate('free')}
-                      disabled={upgradeMutation.isPending}
-                    >
-                      Downgrade
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card className={(user as any)?.subscriptionTier === 'pro' ? 'border-blue-500' : 'border-gray-200'}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle>Pro Plan</CardTitle>
-                    {(user as any)?.subscriptionTier === 'pro' && <Badge>Current Plan</Badge>}
-                  </div>
-                  <CardDescription>Great for growing startups</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="text-2xl font-bold">$24<span className="text-base font-normal">/month</span></div>
-                  <ul className="space-y-2 text-sm">
-                    <li>✓ 50% of all bots (30 total)</li>
-                    <li>✓ Priority AI responses</li>
-                    <li>✓ Advanced asset generation</li>
-                    <li>✓ Analytics dashboard</li>
-                    <li>✓ Email support</li>
-                  </ul>
-                  <Button 
-                    className="w-full"
-                    onClick={() => upgradeMutation.mutate('pro')}
-                    disabled={(user as any)?.subscriptionTier === 'pro' || upgradeMutation.isPending}
-                  >
-                    {(user as any)?.subscriptionTier === 'pro' ? 'Current Plan' : 'Choose Pro'}
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card className={(user as any)?.subscriptionTier === 'premium' ? 'border-purple-500' : 'border-gray-200'}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle>Premium Plan</CardTitle>
-                    {(user as any)?.subscriptionTier === 'premium' && <Badge>Current Plan</Badge>}
-                  </div>
-                  <CardDescription>Complete branding solution</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="text-2xl font-bold">$44<span className="text-base font-normal">/month</span></div>
-                  <ul className="space-y-2 text-sm">
-                    <li>✓ All 60+ bots</li>
-                    <li>✓ Fastest AI responses</li>
-                    <li>✓ Premium asset generation</li>
-                    <li>✓ Advanced analytics</li>
-                    <li>✓ Priority support</li>
-                  </ul>
-                  <Button 
-                    className="w-full"
-                    onClick={() => upgradeMutation.mutate('premium')}
-                    disabled={(user as any)?.subscriptionTier === 'premium' || upgradeMutation.isPending}
-                  >
-                    {(user as any)?.subscriptionTier === 'premium' ? 'Current Plan' : 'Choose Premium'}
-                  </Button>
-                </CardContent>
-              </Card>
             </div>
           </TabsContent>
         </Tabs>

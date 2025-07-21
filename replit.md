@@ -28,6 +28,10 @@ Preferred communication style: Simple, everyday language.
 - ✅ Added interactive goal tracking with completion status and dates
 - ✅ Created comprehensive business suite with categorized startup tools
 - ✅ Enhanced navigation with user account management and personalized experience
+- ✅ Added "Reset All Metrics" button to founder dashboard with confirmation dialog
+- ✅ Removed subscription submenu from AI-suite page (Tools tab)
+- ✅ Changed "My Bots" naming to "Tools" throughout the interface
+- ✅ Implemented collapsible sections in AI-suite - users must click on sections like "Branding" to expand and see the tools
 
 ## System Architecture
 
