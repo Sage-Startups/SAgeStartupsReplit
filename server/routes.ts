@@ -314,6 +314,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete("/api/sessions/:sessionId", isAuthenticated, async (req, res) => {
+    try {
+      const sessionId = parseInt(req.params.sessionId);
+      
+      // First delete all associated chat messages
+      await storage.deleteChatMessagesBySessionId(sessionId);
+      
+      // Then delete the session itself
+      const deleted = await storage.deleteBotSession(sessionId);
+      if (!deleted) {
+        return res.status(404).json({ message: "Session not found" });
+      }
+      
+      res.json({ message: "Session deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting session:", error);
+      res.status(500).json({ message: error instanceof Error ? error.message : 'An error occurred' });
+    }
+  });
+
   // Chat Messages
   app.get("/api/sessions/:sessionId/messages", isAuthenticated, async (req, res) => {
     try {

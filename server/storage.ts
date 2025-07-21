@@ -22,10 +22,12 @@ export interface IStorage {
   getBotSessionsByProjectId(projectId: number): Promise<BotSession[]>;
   createBotSession(session: InsertBotSession): Promise<BotSession>;
   updateBotSession(id: number, updates: Partial<BotSession>): Promise<BotSession | undefined>;
+  deleteBotSession(id: number): Promise<boolean>;
   
   // Chat message operations
   getChatMessagesBySessionId(sessionId: number): Promise<ChatMessage[]>;
   createChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
+  deleteChatMessagesBySessionId(sessionId: number): Promise<void>;
   
   // Generated asset operations
   getGeneratedAssetsBySessionId(sessionId: number): Promise<GeneratedAsset[]>;
@@ -138,6 +140,11 @@ export class DatabaseStorage implements IStorage {
     return updatedSession;
   }
 
+  async deleteBotSession(id: number): Promise<boolean> {
+    const result = await db.delete(botSessions).where(eq(botSessions.id, id));
+    return result.rowsAffected > 0;
+  }
+
   // Chat message operations
   async getChatMessagesBySessionId(sessionId: number): Promise<ChatMessage[]> {
     return await db.select().from(chatMessages).where(eq(chatMessages.sessionId, sessionId));
@@ -146,6 +153,10 @@ export class DatabaseStorage implements IStorage {
   async createChatMessage(message: InsertChatMessage): Promise<ChatMessage> {
     const [newMessage] = await db.insert(chatMessages).values(message).returning();
     return newMessage;
+  }
+
+  async deleteChatMessagesBySessionId(sessionId: number): Promise<void> {
+    await db.delete(chatMessages).where(eq(chatMessages.sessionId, sessionId));
   }
 
   // Generated asset operations

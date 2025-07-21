@@ -3,14 +3,18 @@ import { Navbar } from "@/components/navbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Calendar, MessageSquare, Bot as BotIcon, ExternalLink } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { ArrowLeft, Calendar, MessageSquare, Bot as BotIcon, ExternalLink, Trash2 } from "lucide-react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import type { Project, BotSession } from "@shared/schema";
 import { getBotById } from "@/lib/bot-definitions";
 import { format } from "date-fns";
 
 export default function ProjectSessions() {
   const { projectId } = useParams();
+  const { toast } = useToast();
   
   if (!projectId) {
     return <div>Project not found</div>;
@@ -22,6 +26,29 @@ export default function ProjectSessions() {
 
   const { data: sessions = [] } = useQuery<BotSession[]>({
     queryKey: ['/api/projects', projectId, 'sessions']
+  });
+
+  // Delete session mutation
+  const deleteSessionMutation = useMutation({
+    mutationFn: async (sessionId: number) => {
+      return await apiRequest("DELETE", `/api/sessions/${sessionId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/projects', projectId, 'sessions'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/user/analytics'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/user/recent-activity'] });
+      toast({
+        title: "Session deleted",
+        description: "The bot session has been successfully deleted.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete session",
+        variant: "destructive",
+      });
+    },
   });
 
   if (!project) {
@@ -145,12 +172,39 @@ export default function ProjectSessions() {
                               </p>
                             </div>
                           </div>
-                          <Link href={`/bot/${botId}?project=${projectId}&session=${session.id}`}>
-                            <Button variant="outline" size="sm">
-                              <ExternalLink className="w-4 h-4 mr-2" />
-                              View Session
-                            </Button>
-                          </Link>
+                          <div className="flex items-center space-x-2">
+                            <Link href={`/bot/${botId}?project=${projectId}&session=${session.id}`}>
+                              <Button variant="outline" size="sm">
+                                <ExternalLink className="w-4 h-4 mr-2" />
+                                View Session
+                              </Button>
+                            </Link>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50">
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Delete Session</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Are you sure you want to delete Session #{session.id}? This will permanently remove all messages and cannot be undone.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction 
+                                    onClick={() => deleteSessionMutation.mutate(session.id)}
+                                    className="bg-red-600 hover:bg-red-700"
+                                    disabled={deleteSessionMutation.isPending}
+                                  >
+                                    {deleteSessionMutation.isPending ? "Deleting..." : "Delete Session"}
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
                         </div>
                       ))}
                     </div>
