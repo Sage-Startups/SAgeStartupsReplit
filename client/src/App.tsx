@@ -9,6 +9,7 @@ import UserDashboard from "@/pages/user-dashboard";
 import Dashboard from "@/pages/dashboard";
 import Section from "@/pages/section";
 import Bot from "@/pages/bot";
+import ProjectSessions from "./pages/project-sessions";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -24,6 +25,7 @@ function Router() {
           <Route path="/dashboard" component={Dashboard} />
           <Route path="/section/:sectionId" component={Section} />
           <Route path="/bot/:botId" component={Bot} />
+          <Route path="/project/:projectId" component={ProjectSessions} />
         </>
       )}
       <Route component={NotFound} />

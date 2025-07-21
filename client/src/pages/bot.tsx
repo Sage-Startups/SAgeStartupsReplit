@@ -49,11 +49,11 @@ export default function Bot() {
     );
   }
 
-  const { data: projects = [] } = useQuery({
+  const { data: projects = [] } = useQuery<Project[]>({
     queryKey: ['/api/projects']
   });
 
-  const { data: sessions = [] } = useQuery({
+  const { data: sessions = [] } = useQuery<BotSession[]>({
     queryKey: ['/api/projects', selectedProjectId, 'sessions'],
     enabled: !!selectedProjectId
   });
