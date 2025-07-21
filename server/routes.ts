@@ -679,15 +679,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { userId } = req.params;
       const updates = req.body;
       
+      // If password is included, hash it
+      if (updates.password) {
+        updates.password = await AuthService.hashPassword(updates.password);
+      }
+      
+      // Add updatedAt timestamp
+      updates.updatedAt = new Date();
+      
       const updatedUser = await storage.updateUser(userId, updates);
       
       // Log the action
       await storage.createAuditLog({
-        userId: req.user.claims.sub,
+        userId: req.session.userId,
         action: 'update',
         resource: 'user',
         resourceId: userId,
-        details: updates,
+        details: { ...updates, password: updates.password ? '[REDACTED]' : undefined },
         ipAddress: req.ip
       });
       
@@ -706,7 +714,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Log the action
       await storage.createAuditLog({
-        userId: req.user.claims.sub,
+        userId: req.session.userId,
         action: 'delete',
         resource: 'user',
         resourceId: userId,
@@ -718,6 +726,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Failed to delete user:", error);
       res.status(500).json({ error: "Failed to delete user" });
+    }
+  });
+
+  // Reset user password endpoint
+  app.post("/api/admin/users/:userId/reset-password", requireAuth, requireSuperAdmin, async (req: any, res) => {
+    try {
+      const { userId } = req.params;
+      const { password } = req.body;
+      
+      if (!password || password.length < 8) {
+        return res.status(400).json({ error: "Password must be at least 8 characters" });
+      }
+      
+      // Hash the new password
+      const hashedPassword = await AuthService.hashPassword(password);
+      
+      // Update user password
+      const updatedUser = await storage.updateUser(userId, { 
+        password: hashedPassword,
+        updatedAt: new Date()
+      });
+      
+      // Log the action
+      await storage.createAuditLog({
+        userId: req.session.userId,
+        action: 'password_reset',
+        resource: 'user',
+        resourceId: userId,
+        details: { message: "Password reset by admin" },
+        ipAddress: req.ip
+      });
+      
+      res.json({ message: "Password reset successfully" });
+    } catch (error) {
+      console.error("Failed to reset password:", error);
+      res.status(500).json({ error: "Failed to reset password" });
     }
   });
 

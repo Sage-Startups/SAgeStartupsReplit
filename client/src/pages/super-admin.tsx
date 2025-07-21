@@ -97,6 +97,14 @@ const createUserSchema = z.object({
   subscriptionTier: z.enum(["free", "pro", "premium"])
 });
 
+const editUserSchema = z.object({
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  role: z.enum(["super_admin", "moderator", "client"]),
+  subscriptionTier: z.enum(["free", "pro", "premium"]),
+  password: z.string().min(8, "Password must be at least 8 characters").optional()
+});
+
 export default function SuperAdmin() {
   const { user, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
@@ -105,6 +113,8 @@ export default function SuperAdmin() {
   const [isEditingUser, setIsEditingUser] = useState(false);
   const [isCreatingUser, setIsCreatingUser] = useState(false);
   const [isCreatingPlan, setIsCreatingPlan] = useState(false);
+  const [isResettingPassword, setIsResettingPassword] = useState(false);
+  const [passwordResetUser, setPasswordResetUser] = useState<AdminUser | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterRole, setFilterRole] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
@@ -119,6 +129,18 @@ export default function SuperAdmin() {
       password: "",
       role: "client",
       subscriptionTier: "free"
+    }
+  });
+
+  // Edit user form
+  const editUserForm = useForm<z.infer<typeof editUserSchema>>({
+    resolver: zodResolver(editUserSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      role: "client",
+      subscriptionTier: "free",
+      password: ""
     }
   });
 
@@ -160,7 +182,7 @@ export default function SuperAdmin() {
 
   // Update user mutation
   const updateUserMutation = useMutation({
-    mutationFn: async (data: { userId: string; updates: Partial<AdminUser> }) => {
+    mutationFn: async (data: { userId: string; updates: Partial<AdminUser> & { password?: string } }) => {
       const response = await apiRequest("PUT", `/api/admin/users/${data.userId}`, data.updates);
       return response.json();
     },
@@ -168,6 +190,7 @@ export default function SuperAdmin() {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
       setIsEditingUser(false);
       setSelectedUser(null);
+      editUserForm.reset();
       toast({ title: "User updated successfully" });
     }
   });
@@ -214,6 +237,29 @@ export default function SuperAdmin() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
       toast({ title: "User deleted successfully" });
+    }
+  });
+
+  // Reset password mutation
+  const resetPasswordMutation = useMutation({
+    mutationFn: async (data: { userId: string; newPassword: string }) => {
+      const response = await apiRequest("POST", `/api/admin/users/${data.userId}/reset-password`, {
+        password: data.newPassword
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      setIsResettingPassword(false);
+      setPasswordResetUser(null);
+      toast({ title: "Password reset successfully" });
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: "Failed to reset password", 
+        description: error.message,
+        variant: "destructive" 
+      });
     }
   });
 
@@ -542,8 +588,8 @@ export default function SuperAdmin() {
                               size="sm" 
                               className="text-xs text-blue-600 hover:text-blue-800 p-0 h-auto"
                               onClick={() => {
-                                // Reset password functionality can be added here
-                                toast({ title: "Password reset functionality coming soon" });
+                                setPasswordResetUser(user);
+                                setIsResettingPassword(true);
                               }}
                             >
                               Reset Password
@@ -578,6 +624,13 @@ export default function SuperAdmin() {
                                 size="sm"
                                 onClick={() => {
                                   setSelectedUser(user);
+                                  editUserForm.reset({
+                                    firstName: user.firstName,
+                                    lastName: user.lastName,
+                                    role: user.role as "super_admin" | "moderator" | "client",
+                                    subscriptionTier: user.subscriptionTier as "free" | "pro" | "premium",
+                                    password: ""
+                                  });
                                   setIsEditingUser(true);
                                 }}
                               >
@@ -808,7 +861,7 @@ export default function SuperAdmin() {
 
         {/* Edit User Dialog */}
         <Dialog open={isEditingUser} onOpenChange={setIsEditingUser}>
-          <DialogContent>
+          <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Edit User</DialogTitle>
               <DialogDescription>
@@ -816,54 +869,165 @@ export default function SuperAdmin() {
               </DialogDescription>
             </DialogHeader>
             {selectedUser && (
-              <div className="space-y-4">
-                <div>
-                  <Label>Email</Label>
-                  <Input value={selectedUser.email} disabled />
-                </div>
-                <div>
-                  <Label>Role</Label>
-                  <Select defaultValue={selectedUser.role}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="super_admin">Super Admin</SelectItem>
-                      <SelectItem value="moderator">Moderator</SelectItem>
-                      <SelectItem value="client">Client</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Subscription Status</Label>
-                  <Select defaultValue={selectedUser.subscriptionStatus}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="cancelled">Cancelled</SelectItem>
-                      <SelectItem value="expired">Expired</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            )}
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsEditingUser(false)}>
-                Cancel
-              </Button>
-              <Button onClick={() => {
-                if (selectedUser) {
+              <Form {...editUserForm}>
+                <form onSubmit={editUserForm.handleSubmit((data) => {
+                  const updates: any = {
+                    firstName: data.firstName,
+                    lastName: data.lastName,
+                    role: data.role,
+                    subscriptionTier: data.subscriptionTier
+                  };
+                  if (data.password && data.password.length >= 8) {
+                    updates.password = data.password;
+                  }
                   updateUserMutation.mutate({
                     userId: selectedUser.id,
-                    updates: { /* updated fields */ }
+                    updates
                   });
-                }
-              }}>
-                Save Changes
-              </Button>
-            </DialogFooter>
+                })} className="space-y-4">
+                  <div>
+                    <Label>Email</Label>
+                    <Input value={selectedUser.email} disabled />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={editUserForm.control}
+                      name="firstName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>First Name</FormLabel>
+                          <FormControl>
+                            <Input placeholder="First name" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={editUserForm.control}
+                      name="lastName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Last Name</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Last name" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <FormField
+                    control={editUserForm.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>New Password (optional)</FormLabel>
+                        <FormControl>
+                          <Input type="password" placeholder="Leave empty to keep current password" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={editUserForm.control}
+                    name="role"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Role</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a role" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="client">Client</SelectItem>
+                            <SelectItem value="moderator">Moderator</SelectItem>
+                            <SelectItem value="super_admin">Super Admin</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={editUserForm.control}
+                    name="subscriptionTier"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Subscription Tier</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a tier" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="free">Free</SelectItem>
+                            <SelectItem value="pro">Pro</SelectItem>
+                            <SelectItem value="premium">Premium</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsEditingUser(false)}>
+                      Cancel
+                    </Button>
+                    <Button type="submit" disabled={updateUserMutation.isPending}>
+                      {updateUserMutation.isPending ? "Saving..." : "Save Changes"}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </Form>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Password Reset Dialog */}
+        <Dialog open={isResettingPassword} onOpenChange={setIsResettingPassword}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Reset Password</DialogTitle>
+              <DialogDescription>
+                Set a new password for {passwordResetUser?.email}
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.target as HTMLFormElement);
+              const newPassword = formData.get('password') as string;
+              if (passwordResetUser && newPassword) {
+                resetPasswordMutation.mutate({
+                  userId: passwordResetUser.id,
+                  newPassword
+                });
+              }
+            }} className="space-y-4">
+              <div>
+                <Label htmlFor="password">New Password</Label>
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  placeholder="Enter new password (min 8 characters)"
+                  required
+                  minLength={8}
+                />
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsResettingPassword(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={resetPasswordMutation.isPending}>
+                  {resetPasswordMutation.isPending ? "Resetting..." : "Reset Password"}
+                </Button>
+              </DialogFooter>
+            </form>
           </DialogContent>
         </Dialog>
       </div>
