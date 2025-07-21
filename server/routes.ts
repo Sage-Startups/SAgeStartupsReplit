@@ -6,8 +6,10 @@ import { insertProjectSchema, insertBotSessionSchema, insertChatMessageSchema, i
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { bots } from "../client/src/lib/bot-definitions";
 import authRoutes from "./authRoutes";
+import { AuthService } from "./auth";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
+import { v4 as uuidv4 } from "uuid";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Session configuration for custom auth
@@ -592,7 +594,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Super Admin API Routes
   app.post("/api/admin/users", requireAuth, requireSuperAdmin, async (req: any, res) => {
     try {
-      const { email, firstName, lastName, role, subscriptionTier } = req.body;
+      const { email, firstName, lastName, password, role, subscriptionTier } = req.body;
       
       // Check if user already exists
       const existingUser = await storage.getUserByEmail(email);
@@ -600,35 +602,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "User with this email already exists" });
       }
       
+      // Hash the password
+      const hashedPassword = await AuthService.hashPassword(password);
+      
       // Create new user  
       const newUser = await storage.createUser({
-        id: Date.now().toString(), // Simple ID generation for demo
+        id: uuidv4(),
         email,
         firstName,
         lastName,
+        password: hashedPassword,
         role: role || 'client',
         subscriptionTier: subscriptionTier || 'free',
         subscriptionStatus: 'active',
         profileImageUrl: null,
+        company: null,
+        jobTitle: null,
         phone: null,
         location: null,
         timezone: null,
         language: 'en',
         subscriptionExpires: null,
         trialUsed: false,
-        monthlyUsage: 0,
-        usageLimit: subscriptionTier === 'premium' ? 999 : subscriptionTier === 'pro' ? 30 : 6,
-        emailVerified: false,
-        marketingOptIn: false,
+        emailNotifications: true,
+        marketingEmails: false,
         securityAlerts: true,
         lastActive: new Date(),
+        emailVerified: true, // Admin created users are auto-verified
+        passwordResetToken: null,
+        passwordResetExpires: null,
+        emailVerificationToken: null,
         createdAt: new Date(),
         updatedAt: new Date()
       });
       
       // Log the action
       await storage.createAuditLog({
-        userId: req.user.claims.sub,
+        userId: req.session.userId,
         action: 'create',
         resource: 'user',
         resourceId: newUser.id,

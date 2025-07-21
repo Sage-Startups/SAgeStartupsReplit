@@ -92,6 +92,7 @@ const createUserSchema = z.object({
   email: z.string().email("Please enter a valid email"),
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
   role: z.enum(["super_admin", "moderator", "client"]),
   subscriptionTier: z.enum(["free", "pro", "premium"])
 });
@@ -115,6 +116,7 @@ export default function SuperAdmin() {
       email: "",
       firstName: "",
       lastName: "",
+      password: "",
       role: "client",
       subscriptionTier: "free"
     }
@@ -397,6 +399,19 @@ export default function SuperAdmin() {
                           </div>
                           <FormField
                             control={createUserForm.control}
+                            name="password"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Password</FormLabel>
+                                <FormControl>
+                                  <Input type="password" placeholder="Enter password" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={createUserForm.control}
                             name="role"
                             render={({ field }) => (
                               <FormItem>
@@ -501,6 +516,7 @@ export default function SuperAdmin() {
                     <TableHeader>
                       <TableRow>
                         <TableHead>User</TableHead>
+                        <TableHead>Password</TableHead>
                         <TableHead>Role</TableHead>
                         <TableHead>Subscription</TableHead>
                         <TableHead>Status</TableHead>
@@ -516,6 +532,22 @@ export default function SuperAdmin() {
                               <p className="font-medium">{user.firstName} {user.lastName}</p>
                               <p className="text-sm text-gray-500">{user.email}</p>
                             </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="text-sm text-gray-600 font-mono bg-gray-50 px-2 py-1 rounded">
+                              [Encrypted]
+                            </div>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-xs text-blue-600 hover:text-blue-800 p-0 h-auto"
+                              onClick={() => {
+                                // Reset password functionality can be added here
+                                toast({ title: "Password reset functionality coming soon" });
+                              }}
+                            >
+                              Reset Password
+                            </Button>
                           </TableCell>
                           <TableCell>
                             <Badge variant={user.role === 'super_admin' ? 'destructive' : user.role === 'moderator' ? 'secondary' : 'outline'}>
