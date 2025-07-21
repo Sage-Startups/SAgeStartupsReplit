@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -109,9 +110,53 @@ export function BotDropdownInterface({ sessionId, botName, botId, botColor }: Bo
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
+  // Load existing messages for this session
+  const { data: messages = [] } = useQuery({
+    queryKey: ['/api/sessions', sessionId, 'messages'],
+    enabled: !!sessionId
+  });
+
+  // Load previous results when session loads
+  useEffect(() => {
+    if (messages.length > 0) {
+      // Find the last assistant message and set as result
+      const lastAssistantMessage = messages
+        .filter((msg: any) => msg.role === 'assistant')
+        .pop();
+      
+      if (lastAssistantMessage) {
+        setResult(lastAssistantMessage.content);
+      }
+
+      // Try to restore form data from first user message
+      const firstUserMessage = messages.find((msg: any) => msg.role === 'user');
+      if (firstUserMessage) {
+        const content = firstUserMessage.content;
+        const businessMatch = content.match(/Business:\s*(.+)/);
+        const industryMatch = content.match(/Industry:\s*(.+)/);
+        const targetMatch = content.match(/Target Audience:\s*(.+)/);
+        const infoMatch = content.match(/Additional Information:\s*(.+)/);
+        
+        if (businessMatch) setBusinessName(businessMatch[1].trim());
+        if (industryMatch) setIndustry(industryMatch[1].trim());
+        if (targetMatch) setTargetAudience(targetMatch[1].trim());
+        if (infoMatch) setAdditionalInfo(infoMatch[1].trim());
+      }
+    }
+  }, [messages]);
+
   const generateMutation = useMutation({
     mutationFn: async () => {
       const prompt = buildPrompt();
+      const options = getOptionsForBot(botId);
+      const option = options.find((opt: any) => opt.value === selectedOption);
+      
+      // Update session title with descriptive name
+      const sessionTitle = `${botName}: ${option?.label || selectedOption} for ${businessName}`;
+      await apiRequest('PUT', `/api/sessions/${sessionId}`, { 
+        sessionTitle 
+      });
+      
       const response = await apiRequest('POST', `/api/sessions/${sessionId}/messages`, { 
         content: prompt,
         role: 'user'
@@ -123,6 +168,7 @@ export function BotDropdownInterface({ sessionId, botName, botId, botColor }: Bo
       const content = data.aiMessage?.content || data.content || '';
       setResult(content);
       queryClient.invalidateQueries({ queryKey: ['/api/sessions', sessionId, 'messages'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/projects'] }); // Refresh projects to update session titles
       toast({
         title: "Generated!",
         description: "Your content has been created successfully."

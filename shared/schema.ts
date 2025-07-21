@@ -53,6 +53,7 @@ export const botSessions = pgTable("bot_sessions", {
   botId: text("bot_id").notNull(),
   botName: text("bot_name").notNull(),
   section: text("section").notNull(),
+  sessionTitle: text("session_title"), // Descriptive title based on user request
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -94,6 +95,7 @@ export const insertBotSessionSchema = createInsertSchema(botSessions).pick({
   botId: true,
   botName: true,
   section: true,
+  sessionTitle: true,
 });
 
 export const insertChatMessageSchema = createInsertSchema(chatMessages).pick({

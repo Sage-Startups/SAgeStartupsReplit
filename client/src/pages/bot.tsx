@@ -100,10 +100,14 @@ export default function Bot() {
 
   const createSessionMutation = useMutation({
     mutationFn: async (projectId: number) => {
+      // Generate a descriptive session title
+      const sessionTitle = `${bot.name} Session`;
+      
       const response = await apiRequest('POST', `/api/projects/${projectId}/sessions`, {
         botId: bot.id,
         botName: bot.name,
-        section: bot.section
+        section: bot.section,
+        sessionTitle
       });
       return response.json();
     },
@@ -333,7 +337,9 @@ export default function Bot() {
                         onClick={() => setActiveSessionId(session.id)}
                       >
                         <div className="text-left">
-                          <div className="font-medium">Session #{session.id}</div>
+                          <div className="font-medium">
+                            {(session as any).sessionTitle || `${bot.name} Session`}
+                          </div>
                           <div className="text-xs text-gray-500">
                             {new Date(session.createdAt).toLocaleDateString()}
                           </div>

@@ -18,6 +18,7 @@ export interface IStorage {
   getBotSession(id: number): Promise<BotSession | undefined>;
   getBotSessionsByProjectId(projectId: number): Promise<BotSession[]>;
   createBotSession(session: InsertBotSession): Promise<BotSession>;
+  updateBotSession(id: number, updates: Partial<BotSession>): Promise<BotSession | undefined>;
   
   // Chat message operations
   getChatMessagesBySessionId(sessionId: number): Promise<ChatMessage[]>;
@@ -91,6 +92,15 @@ export class DatabaseStorage implements IStorage {
   async createBotSession(session: InsertBotSession): Promise<BotSession> {
     const [newSession] = await db.insert(botSessions).values(session).returning();
     return newSession;
+  }
+
+  async updateBotSession(id: number, updates: Partial<BotSession>): Promise<BotSession | undefined> {
+    const [updatedSession] = await db
+      .update(botSessions)
+      .set(updates)
+      .where(eq(botSessions.id, id))
+      .returning();
+    return updatedSession;
   }
 
   // Chat message operations

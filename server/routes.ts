@@ -216,6 +216,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put("/api/sessions/:sessionId", isAuthenticated, async (req, res) => {
+    try {
+      const sessionId = parseInt(req.params.sessionId);
+      const { sessionTitle } = req.body;
+      
+      const updatedSession = await storage.updateBotSession(sessionId, { sessionTitle });
+      if (!updatedSession) {
+        return res.status(404).json({ message: "Session not found" });
+      }
+      
+      res.json(updatedSession);
+    } catch (error) {
+      res.status(500).json({ message: error instanceof Error ? error.message : 'An error occurred' });
+    }
+  });
+
   // Chat Messages
   app.get("/api/sessions/:sessionId/messages", isAuthenticated, async (req, res) => {
     try {
