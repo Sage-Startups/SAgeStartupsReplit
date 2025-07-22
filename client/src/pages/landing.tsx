@@ -97,11 +97,10 @@ export default function Landing() {
       <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <img 
-              src="/sage-logo.png" 
-              alt="Sage-Startups Logo" 
-              className="h-8 object-contain"
-            />
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <Zap className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-xl font-bold">Sage-Startups</span>
           </div>
           <div className="hidden md:flex items-center space-x-6">
             <Button variant="ghost" onClick={() => scrollToSection('features')}>
