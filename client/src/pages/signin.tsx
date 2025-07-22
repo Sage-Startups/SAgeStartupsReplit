@@ -63,24 +63,7 @@ export default function SignIn() {
     },
   });
 
-  const resendVerificationMutation = useMutation({
-    mutationFn: async (email: string) => {
-      return await apiRequest("POST", "/api/auth/resend-verification", { email });
-    },
-    onSuccess: () => {
-      toast({
-        title: "Verification email sent!",
-        description: "Please check your email for verification instructions.",
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Failed to send verification email",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
+
 
   const onSubmit = (data: SignInFormData) => {
     setError("");
@@ -150,33 +133,7 @@ export default function SignIn() {
 
                 {error && (
                   <Alert variant="destructive">
-                    <AlertDescription>
-                      {error}
-                      {error.includes("verify your email") && (
-                        <div className="mt-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              const email = form.getValues().email;
-                              if (email) {
-                                resendVerificationMutation.mutate(email);
-                              }
-                            }}
-                            disabled={resendVerificationMutation.isPending}
-                          >
-                            {resendVerificationMutation.isPending ? (
-                              <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Sending...
-                              </>
-                            ) : (
-                              "Resend Verification Email"
-                            )}
-                          </Button>
-                        </div>
-                      )}
-                    </AlertDescription>
+                    <AlertDescription>{error}</AlertDescription>
                   </Alert>
                 )}
 

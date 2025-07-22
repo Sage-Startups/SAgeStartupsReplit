@@ -62,11 +62,11 @@ export class AuthService {
         company: userData.company || null,
         subscriptionTier: userData.subscriptionTier,
         emailVerificationToken: verificationToken,
-        emailVerified: false,
+        emailVerified: true, // Auto-verify for immediate access
       });
 
-      // Send welcome email
-      await this.sendWelcomeEmail(userData.email, userData.firstName, verificationToken);
+      // Send welcome email (without verification requirement)
+      await this.sendWelcomeEmail(userData.email, userData.firstName);
 
       return { success: true, message: "Account created successfully", userId: newUser.id };
     } catch (error) {
@@ -89,10 +89,8 @@ export class AuthService {
         return { success: false, message: "Invalid email or password" };
       }
 
-      // Check if email is verified
-      if (!user.emailVerified) {
-        return { success: false, message: "Please verify your email address before signing in" };
-      }
+      // Email verification disabled for easier user onboarding
+      // Users can access the platform immediately after signup
 
       // Update last active
       await storage.updateUser(user.id, { lastActive: new Date() });
@@ -125,18 +123,18 @@ export class AuthService {
     }
   }
 
-  static async sendWelcomeEmail(email: string, firstName: string, verificationToken: string): Promise<void> {
+  static async sendWelcomeEmail(email: string, firstName: string): Promise<void> {
     if (!process.env.SENDGRID_API_KEY) {
       console.log("SendGrid not configured, skipping email");
       return;
     }
 
-    const verificationUrl = `${process.env.APP_URL || 'http://localhost:5000'}/verify-email?token=${verificationToken}`;
+    const loginUrl = `${process.env.APP_URL || 'http://localhost:5000'}/signin`;
 
     const msg = {
       to: email,
       from: 'contact@sage-startups.com', // Verified sender address
-      subject: 'Welcome to Sage-Startups! Please verify your email',
+      subject: 'Welcome to Sage-Startups! Your account is ready',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: linear-gradient(135deg, #3b82f6, #1e40af); padding: 40px 20px; text-align: center;">
@@ -151,25 +149,30 @@ export class AuthService {
             </p>
             
             <p style="color: #475569; line-height: 1.6; margin-bottom: 30px;">
-              To get started, please verify your email address by clicking the button below:
+              Your account is now ready! You can sign in and start exploring our platform immediately.
             </p>
             
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${verificationUrl}" 
+              <a href="${loginUrl}" 
                  style="background-color: #3b82f6; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
-                Verify Email Address
+                Sign In to Your Account
               </a>
             </div>
             
-            <p style="color: #64748b; font-size: 14px; line-height: 1.6;">
-              If the button doesn't work, copy and paste this link into your browser:<br>
-              <a href="${verificationUrl}" style="color: #3b82f6;">${verificationUrl}</a>
+            <p style="color: #475569; line-height: 1.6; margin-bottom: 20px;">
+              <strong>What you can do with Sage-Startups:</strong>
             </p>
+            <ul style="color: #475569; line-height: 1.8; margin-bottom: 20px;">
+              <li>Access 60+ specialized AI branding tools</li>
+              <li>Generate logos, marketing copy, and strategies</li>
+              <li>Track your startup's growth metrics</li>
+              <li>Organize projects and manage your brand assets</li>
+            </ul>
             
             <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 30px 0;">
             
             <p style="color: #64748b; font-size: 14px; line-height: 1.6;">
-              If you didn't create an account with us, you can safely ignore this email.
+              Need help getting started? Contact us at contact@sage-startups.com
             </p>
           </div>
         </div>
