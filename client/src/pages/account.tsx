@@ -743,6 +743,21 @@ export default function Account() {
           </TabsContent>
         </Tabs>
 
+        {/* Quick Fix for Stripe */}
+        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-medium text-blue-800">Fix Stripe Configuration</h3>
+              <p className="text-blue-700 text-sm">Update the Stripe Price IDs to fix subscription issues</p>
+            </div>
+            <Button
+              onClick={() => window.location.href = '/update-secrets'}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              Update Price IDs
+            </Button>
+          </div>
+        </div>
 
       </div>
     </div>

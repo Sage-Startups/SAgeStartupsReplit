@@ -856,6 +856,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin endpoint to update Stripe Price IDs
+  app.post('/api/admin/update-stripe-secrets', isAuthenticated, async (req, res) => {
+    try {
+      const { 
+        STRIPE_PRO_MONTHLY_PRICE_ID,
+        STRIPE_PRO_YEARLY_PRICE_ID,
+        STRIPE_PREMIUM_MONTHLY_PRICE_ID,
+        STRIPE_PREMIUM_YEARLY_PRICE_ID
+      } = req.body;
+
+      // Validate all Price IDs
+      const priceIds = [
+        STRIPE_PRO_MONTHLY_PRICE_ID,
+        STRIPE_PRO_YEARLY_PRICE_ID,
+        STRIPE_PREMIUM_MONTHLY_PRICE_ID,
+        STRIPE_PREMIUM_YEARLY_PRICE_ID
+      ];
+
+      if (!priceIds.every(id => id?.startsWith('price_'))) {
+        return res.status(400).json({ 
+          message: 'All Price IDs must start with "price_"' 
+        });
+      }
+
+      // Update environment variables
+      process.env.STRIPE_PRO_MONTHLY_PRICE_ID = STRIPE_PRO_MONTHLY_PRICE_ID;
+      process.env.STRIPE_PRO_YEARLY_PRICE_ID = STRIPE_PRO_YEARLY_PRICE_ID;
+      process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID = STRIPE_PREMIUM_MONTHLY_PRICE_ID;
+      process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID = STRIPE_PREMIUM_YEARLY_PRICE_ID;
+
+      console.log('✅ Updated Stripe Price IDs:', {
+        PRO_MONTHLY: STRIPE_PRO_MONTHLY_PRICE_ID.substring(0, 20) + '...',
+        PRO_YEARLY: STRIPE_PRO_YEARLY_PRICE_ID.substring(0, 20) + '...',
+        PREMIUM_MONTHLY: STRIPE_PREMIUM_MONTHLY_PRICE_ID.substring(0, 20) + '...',
+        PREMIUM_YEARLY: STRIPE_PREMIUM_YEARLY_PRICE_ID.substring(0, 20) + '...'
+      });
+
+      res.json({ 
+        message: 'Stripe Price IDs updated successfully',
+        success: true
+      });
+    } catch (error) {
+      console.error('Error updating Stripe secrets:', error);
+      res.status(500).json({ message: 'Failed to update secrets' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
