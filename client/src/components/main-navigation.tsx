@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { SageIcon } from "@/components/ui/sage-icon";
 import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "wouter";
 import { 
@@ -73,8 +74,8 @@ export function MainNavigation() {
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
           <div className="flex items-center space-x-4">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <Zap className="w-5 h-5 text-white" />
+            <div className="w-8 h-8 bg-green-700 rounded-lg flex items-center justify-center">
+              <SageIcon className="w-5 h-5 text-green-100" />
             </div>
             <span className="text-xl font-bold">Sage-Startups</span>
           </div>
