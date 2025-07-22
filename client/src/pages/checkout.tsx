@@ -73,14 +73,14 @@ const CheckoutForm = ({ planDetails }: { planDetails: any }) => {
             </div>
             <div className="text-right">
               <div className="text-2xl font-bold">
-                ${planDetails.billingCycle === 'yearly' ? Math.round(planDetails.price / 12) : planDetails.price}
+                ${planDetails.price}
               </div>
               <div className="text-sm text-gray-600">
-                /{planDetails.billingCycle === 'yearly' ? 'month (billed yearly)' : 'month'}
+                {planDetails.billingCycle === 'yearly' ? '/year (paid today)' : '/month'}
               </div>
               {planDetails.billingCycle === 'yearly' && (
                 <div className="text-sm text-green-600 mt-1">
-                  Billed ${planDetails.price} annually
+                  Save 20% vs monthly billing
                 </div>
               )}
             </div>
@@ -117,12 +117,16 @@ const CheckoutForm = ({ planDetails }: { planDetails: any }) => {
           disabled={!stripe || !elements || isProcessing}
         >
           <Lock className="w-4 h-4 mr-2" />
-          {isProcessing ? 'Processing...' : `Subscribe for $${planDetails.billingCycle === 'yearly' ? Math.round(planDetails.price / 12) + '/month (billed $' + planDetails.price + ' yearly)' : planDetails.price + '/month'}`}
+          {isProcessing ? 'Processing...' : `Pay $${planDetails.price} ${planDetails.billingCycle === 'yearly' ? 'for full year' : '/month'}`}
         </Button>
 
         <p className="text-xs text-gray-500 text-center">
-          By subscribing, you agree to our Terms of Service and Privacy Policy. 
-          You can cancel your subscription at any time.
+          {planDetails.billingCycle === 'yearly' 
+            ? `You will be charged $${planDetails.price} today for a full year of access. Your subscription will automatically renew on ${new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toLocaleDateString()}.`
+            : `You will be charged $${planDetails.price} today and then monthly. You can cancel anytime.`
+          }
+          <br />
+          By subscribing, you agree to our Terms of Service and Privacy Policy.
         </p>
       </form>
     </div>
