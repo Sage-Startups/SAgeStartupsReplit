@@ -80,34 +80,64 @@ export default function SignUp() {
     mutationFn: async (data: SignUpFormData) => {
       return await apiRequest("POST", "/api/auth/signup", data);
     },
-    onSuccess: async () => {
-      // Automatically sign in the user after successful registration
-      const signInData = {
-        email: form.getValues().email,
-        password: form.getValues().password
-      };
+    onSuccess: async (response) => {
+      const selectedTier = form.getValues().subscriptionTier;
       
-      try {
-        const signInResponse = await apiRequest("POST", "/api/auth/signin", signInData);
-        const result = await signInResponse.json();
+      // If free tier, sign in immediately
+      if (selectedTier === 'free') {
+        const signInData = {
+          email: form.getValues().email,
+          password: form.getValues().password
+        };
         
-        // Invalidate auth cache to trigger useAuth to refetch
-        queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+        try {
+          const signInResponse = await apiRequest("POST", "/api/auth/signin", signInData);
+          const result = await signInResponse.json();
+          
+          // Invalidate auth cache to trigger useAuth to refetch
+          queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+          
+          toast({
+            title: "Welcome to Sage-Startups!",
+            description: "Your free account has been created and you're now signed in.",
+          });
+          
+          // Redirect to dashboard
+          setLocation("/");
+        } catch (signInError) {
+          toast({
+            title: "Account created successfully!",
+            description: "Please sign in with your new account.",
+          });
+          setLocation("/signin");
+        }
+      } else {
+        // For paid tiers, sign in first then redirect to payment
+        const signInData = {
+          email: form.getValues().email,
+          password: form.getValues().password
+        };
         
-        toast({
-          title: "Welcome to Sage-Startups!",
-          description: "Your account has been created and you're now signed in.",
-        });
-        
-        // Redirect to dashboard
-        setLocation("/");
-      } catch (signInError) {
-        // If auto sign-in fails, show success message and redirect to sign-in
-        toast({
-          title: "Account created successfully!",
-          description: "Please sign in with your new account.",
-        });
-        setLocation("/signin");
+        try {
+          const signInResponse = await apiRequest("POST", "/api/auth/signin", signInData);
+          
+          // Invalidate auth cache
+          queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+          
+          toast({
+            title: "Account created!",
+            description: `Please complete your ${selectedTier} subscription payment.`,
+          });
+          
+          // Redirect to checkout with selected tier
+          setLocation(`/checkout?tier=${selectedTier}&plan=monthly`);
+        } catch (signInError) {
+          toast({
+            title: "Account created!",
+            description: "Please sign in and complete your subscription.",
+          });
+          setLocation("/signin");
+        }
       }
     },
     onError: (error: Error) => {

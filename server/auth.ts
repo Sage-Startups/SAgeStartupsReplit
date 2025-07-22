@@ -52,6 +52,9 @@ export class AuthService {
       const userId = uuidv4();
       const verificationToken = this.generateVerificationToken();
 
+      // For paid tiers, create user with 'free' initially until payment is complete
+      const initialTier = userData.subscriptionTier === 'free' ? 'free' : 'free';
+      
       // Create user
       const newUser = await storage.createUser({
         id: userId,
@@ -60,9 +63,10 @@ export class AuthService {
         firstName: userData.firstName,
         lastName: userData.lastName,
         company: userData.company || null,
-        subscriptionTier: userData.subscriptionTier,
+        subscriptionTier: initialTier,
         emailVerificationToken: verificationToken,
         emailVerified: true, // Auto-verify for immediate access
+        pendingSubscription: userData.subscriptionTier !== 'free' ? userData.subscriptionTier : null,
       });
 
       // Send welcome email (without verification requirement)

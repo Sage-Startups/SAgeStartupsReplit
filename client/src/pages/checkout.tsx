@@ -128,14 +128,38 @@ export default function Checkout() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Get selected plan from sessionStorage
+    // Get selected plan from sessionStorage or URL parameters
+    let plan: any;
     const selectedPlan = sessionStorage.getItem('selectedPlan');
-    if (!selectedPlan) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tierFromUrl = urlParams.get('tier');
+    const planFromUrl = urlParams.get('plan') || 'monthly';
+    
+    if (selectedPlan) {
+      plan = JSON.parse(selectedPlan);
+    } else if (tierFromUrl) {
+      // Create plan object from URL parameters (for signup redirects)
+      const tierPricing = {
+        pro: { monthly: 24, yearly: 240 },
+        premium: { monthly: 44, yearly: 432 }
+      };
+      
+      const isYearly = planFromUrl === 'yearly';
+      const pricing = tierPricing[tierFromUrl as 'pro' | 'premium'];
+      const price = isYearly ? pricing.yearly : pricing.monthly;
+      
+      plan = {
+        tier: tierFromUrl,
+        billingCycle: planFromUrl,
+        name: `${tierFromUrl.charAt(0).toUpperCase() + tierFromUrl.slice(1)} Plan`,
+        price: price,
+        description: `${tierFromUrl === 'pro' ? '30' : '60+'} AI bots for your business`
+      };
+    } else {
       window.location.href = '/';
       return;
     }
 
-    const plan = JSON.parse(selectedPlan);
     setPlanDetails(plan);
 
     // Create payment intent
