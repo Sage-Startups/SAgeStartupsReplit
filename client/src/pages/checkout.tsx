@@ -73,15 +73,7 @@ const CheckoutForm = ({ planDetails }: { planDetails: any }) => {
             </div>
             <div className="text-right">
               <div className="text-2xl font-bold">
-                ${(() => {
-                  const displayPrice = planDetails.billingCycle === 'yearly' ? Math.round(planDetails.price / 12) : planDetails.price;
-                  console.log('💰 Display price calculation:', {
-                    originalPrice: planDetails.price,
-                    billingCycle: planDetails.billingCycle,
-                    displayPrice
-                  });
-                  return displayPrice;
-                })()}
+                ${planDetails.billingCycle === 'yearly' ? Math.round(planDetails.price / 12) : planDetails.price}
               </div>
               <div className="text-sm text-gray-600">
                 /{planDetails.billingCycle === 'yearly' ? 'month (billed yearly)' : 'month'}
@@ -143,12 +135,9 @@ export default function Checkout() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Clear any old sessionStorage data to prevent pricing issues
-    sessionStorage.removeItem('selectedPlan');
-    
-    // Get selected plan from URL parameters only (more reliable)
+    // Get selected plan from sessionStorage or URL parameters
     let plan: any;
-    const selectedPlan = null; // Disable sessionStorage for now
+    const selectedPlan = sessionStorage.getItem('selectedPlan');
     const urlParams = new URLSearchParams(window.location.search);
     const tierFromUrl = urlParams.get('tier');
     const planFromUrl = urlParams.get('plan') || 'monthly';
@@ -178,7 +167,7 @@ export default function Checkout() {
       return;
     }
 
-    console.log('🔍 Plan details for checkout:', plan);
+
     setPlanDetails(plan);
 
     // Create payment intent

@@ -562,7 +562,8 @@ export default function Account() {
                                     price: isYearlyBilling ? fullYearlyPrice : plan.monthlyPrice,
                                     yearlyDiscount: isYearlyBilling ? totalYearlyDiscount : 0
                                   }));
-                                  window.location.href = '/checkout';
+                                  const billingCycle = isYearlyBilling ? 'yearly' : 'monthly';
+                                  window.location.href = `/checkout?tier=${plan.tier}&plan=${billingCycle}`;
                                 }
                               }}
                             >
