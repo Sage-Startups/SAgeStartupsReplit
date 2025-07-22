@@ -97,6 +97,15 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
         });
       } catch (priceError: any) {
         console.error(`❌ Invalid Price ID ${stripePriceId}:`, priceError.message);
+        
+        // Check if it's a Product ID instead of Price ID
+        if (stripePriceId.startsWith('prod_')) {
+          return res.status(400).json({ 
+            message: `Configuration Error: "${stripePriceId}" is a Product ID, but we need a Price ID. Price IDs start with "price_", not "prod_". Please check your Stripe dashboard and get the Price ID for this product.`,
+            error: 'Invalid Price ID format'
+          });
+        }
+        
         return res.status(400).json({ 
           message: `Invalid Price ID: ${stripePriceId}. Please check your Stripe dashboard.`,
           error: priceError.message
