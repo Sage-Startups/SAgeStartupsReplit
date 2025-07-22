@@ -18,6 +18,8 @@ import BusinessSuite from "@/pages/business-suite";
 import Account from "@/pages/account";
 import SuperAdmin from "@/pages/super-admin";
 import Checkout from "@/pages/checkout";
+import FinancialDashboard from "@/pages/financial-dashboard";
+import TaskManager from "@/pages/task-manager";
 
 
 
@@ -43,6 +45,8 @@ function Router() {
           <Route path="/checkout" component={Checkout} />
 
           <Route path="/super-admin" component={SuperAdmin} />
+          <Route path="/financial-dashboard" component={FinancialDashboard} />
+          <Route path="/task-manager" component={TaskManager} />
           <Route path="/section/:sectionId" component={Section} />
           <Route path="/bot/:botId" component={Bot} />
           <Route path="/project/:projectId" component={ProjectSessions} />

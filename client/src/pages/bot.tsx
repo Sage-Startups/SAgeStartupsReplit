@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useSearch, useLocation } from "wouter";
 import { MainNavigation } from "@/components/main-navigation";
-import { BotDropdownInterface } from "@/components/bot-dropdown-interface";
+import { EnhancedBotInterface } from "@/components/enhanced-bot-interface";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -408,7 +408,7 @@ export default function Bot() {
           {/* Main Content - Chat Interface */}
           <div className="lg:col-span-2">
             {activeSessionId ? (
-              <BotDropdownInterface 
+              <EnhancedBotInterface 
                 sessionId={activeSessionId}
                 botName={bot.name}
                 botId={bot.id}

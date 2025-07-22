@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -348,6 +349,18 @@ export default function BusinessSuite() {
                             className="w-full" 
                             variant={tool.comingSoon ? "outline" : "default"}
                             disabled={tool.comingSoon}
+                            onClick={() => {
+                              if (tool.id === 'financial-dashboard') {
+                                setLocation('/financial-dashboard');
+                              } else if (tool.id === 'task-management') {
+                                setLocation('/task-manager');
+                              } else if (!tool.comingSoon) {
+                                toast({
+                                  title: "Coming Soon",
+                                  description: `${tool.name} functionality will be available soon!`,
+                                });
+                              }
+                            }}
                           >
                             {tool.comingSoon ? "Coming Soon" : "Open Tool"}
                             {!tool.comingSoon && <ArrowRight className="w-4 h-4 ml-2" />}
