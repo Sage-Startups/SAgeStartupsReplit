@@ -12,11 +12,11 @@ export function SageIcon({ className = "w-5 h-5" }: SageIconProps) {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      {/* Custom "S" icon matching the favicon design */}
+      {/* Clear "S" icon matching the improved favicon */}
       <path
-        d="M6 9c0-1.5 1.2-2.7 2.7-2.7h6.6c1.5 0 2.7 1.2 2.7 2.7s-1.2 2.7-2.7 2.7h-3.8v0.6h3.8c1.5 0 2.7 1.2 2.7 2.7s-1.2 2.7-2.7 2.7h-6.6c-1.5 0-2.7-1.2-2.7-2.7"
+        d="M7 9c0-1.1 1.1-2 2-2h6c1.1 0 2 0.9 2 2s-0.9 2-2 2h-6c-1.1 0-2 0.9-2 2s0.9 2 2 2h6c1.1 0 2 0.9 2 2s-0.9 2-2 2h-6c-1.1 0-2-0.9-2-2"
         stroke="currentColor"
-        strokeWidth="1.5"
+        strokeWidth="2"
         strokeLinecap="round"
         fill="none"
       />

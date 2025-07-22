@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Brain } from "lucide-react";
+import { SageIcon } from "@/components/ui/sage-icon";
 import { Button } from "@/components/ui/button";
 
 export function Navbar() {
@@ -9,8 +9,10 @@ export function Navbar() {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
-              <Brain className="text-primary text-2xl mr-2" />
-              <h1 className="text-xl font-bold text-gray-900">BrandAI Pro</h1>
+              <div className="w-8 h-8 bg-green-700 rounded-lg flex items-center justify-center mr-3">
+                <SageIcon className="w-5 h-5 text-green-100" />
+              </div>
+              <h1 className="text-xl font-bold text-gray-900">Sage-Startups</h1>
             </Link>
           </div>
           <div className="hidden md:block">
