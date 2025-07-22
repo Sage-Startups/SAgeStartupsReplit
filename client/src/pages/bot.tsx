@@ -2,6 +2,10 @@ import { useState, useEffect } from "react";
 import { useParams, Link, useSearch, useLocation } from "wouter";
 import { MainNavigation } from "@/components/main-navigation";
 import { EnhancedBotInterface } from "@/components/enhanced-bot-interface";
+import { MarketingStrategyBot } from "@/components/bot-interfaces/MarketingStrategyBot";
+import { BrandingBot } from "@/components/bot-interfaces/BrandingBot";
+import { ContentCreatorBot } from "@/components/bot-interfaces/ContentCreatorBot";
+import { SEOExpertBot } from "@/components/bot-interfaces/SEOExpertBot";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -408,12 +412,49 @@ export default function Bot() {
           {/* Main Content - Chat Interface */}
           <div className="lg:col-span-2">
             {activeSessionId ? (
-              <EnhancedBotInterface 
-                sessionId={activeSessionId}
-                botName={bot.name}
-                botId={bot.id}
-                botColor={bot.color}
-              />
+              <>
+                {/* Marketing Strategy Bot */}
+                {bot.id === 'marketing-strategy' && (
+                  <MarketingStrategyBot 
+                    sessionId={activeSessionId}
+                    botName={bot.name}
+                  />
+                )}
+                
+                {/* Brand Identity Bot */}
+                {bot.id === 'brand-identity' && (
+                  <BrandingBot 
+                    sessionId={activeSessionId}
+                    botName={bot.name}
+                  />
+                )}
+                
+                {/* Content Creator Bot */}
+                {(bot.id === 'content-creator' || bot.id === 'blog-writer' || bot.id === 'social-media') && (
+                  <ContentCreatorBot 
+                    sessionId={activeSessionId}
+                    botName={bot.name}
+                  />
+                )}
+                
+                {/* SEO Expert Bot */}
+                {(bot.id === 'seo-content' || bot.id === 'keyword-research') && (
+                  <SEOExpertBot 
+                    sessionId={activeSessionId}
+                    botName={bot.name}
+                  />
+                )}
+                
+                {/* Default Enhanced Bot Interface for others */}
+                {!['marketing-strategy', 'brand-identity', 'content-creator', 'blog-writer', 'social-media', 'seo-content', 'keyword-research'].includes(bot.id) && (
+                  <EnhancedBotInterface 
+                    sessionId={activeSessionId}
+                    botName={bot.name}
+                    botId={bot.id}
+                    botColor={bot.color}
+                  />
+                )}
+              </>
             ) : (
               <Card className="h-96">
                 <CardContent className="flex items-center justify-center h-full">
