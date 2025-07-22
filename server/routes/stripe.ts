@@ -11,7 +11,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2024-12-18.acacia",
 });
 
-// Pricing configuration
+// Pricing configuration - Updated with correct Price IDs
 const PRICING_CONFIG = {
   free: {
     monthlyPrice: 0,
@@ -22,14 +22,14 @@ const PRICING_CONFIG = {
   pro: {
     monthlyPrice: 24,
     yearlyPrice: 20, // $240/year = $20/month
-    stripePriceId: process.env.STRIPE_PRO_MONTHLY_PRICE_ID,
-    stripeYearlyPriceId: process.env.STRIPE_PRO_YEARLY_PRICE_ID
+    stripePriceId: 'price_1RncgSGTriQojbPQX65SA4Do',
+    stripeYearlyPriceId: 'price_1RnchDGTriQojbPQ75f5koOK'
   },
   premium: {
     monthlyPrice: 44,
     yearlyPrice: 36, // $432/year = $36/month
-    stripePriceId: process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID,
-    stripeYearlyPriceId: process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID
+    stripePriceId: 'price_1RnchqGTriQojbPQVhsCJgGX',
+    stripeYearlyPriceId: 'price_1RnciZGTriQojbPQUUDxXW1Y'
   }
 };
 
