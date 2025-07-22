@@ -559,8 +559,8 @@ export default function Account() {
                                     tier: plan.tier,
                                     billingCycle: isYearlyBilling ? 'yearly' : 'monthly',
                                     name: plan.name,
-                                    price: currentPrice,
-                                    yearlyDiscount: isYearlyBilling ? (plan.monthlyPrice - plan.yearlyPrice) * 12 : 0
+                                    price: isYearlyBilling ? fullYearlyPrice : plan.monthlyPrice,
+                                    yearlyDiscount: isYearlyBilling ? totalYearlyDiscount : 0
                                   }));
                                   window.location.href = '/checkout';
                                 }
