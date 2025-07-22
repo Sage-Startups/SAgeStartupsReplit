@@ -4,6 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import { Loader2, Zap, Check } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useForm } from "react-hook-form";
@@ -34,21 +36,24 @@ const subscriptionTiers = [
   {
     id: "free",
     name: "Free",
-    price: "$0/month",
+    monthlyPrice: 0,
+    yearlyPrice: 0,
     description: "8 AI bots to get started",
     features: ["8 AI bots", "Basic support", "Email notifications"]
   },
   {
     id: "pro",
     name: "Pro",
-    price: "$24/month",
+    monthlyPrice: 24,
+    yearlyPrice: 240,
     description: "30 AI bots for growing businesses",
     features: ["30 AI bots", "Priority support", "Advanced analytics", "Custom branding"]
   },
   {
     id: "premium",
     name: "Premium",
-    price: "$44/month",
+    monthlyPrice: 44,
+    yearlyPrice: 432,
     description: "All 60+ AI bots for enterprises",
     features: ["60+ AI bots", "24/7 support", "Custom integrations", "Team collaboration"]
   }
@@ -60,6 +65,7 @@ export default function SignUp() {
   const queryClient = useQueryClient();
   const [error, setError] = useState<string>("");
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [isYearly, setIsYearly] = useState(false);
 
   const form = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
@@ -134,8 +140,9 @@ export default function SignUp() {
             description: `Please complete your ${selectedTier} subscription payment.`,
           });
           
-          // Redirect to checkout with selected tier
-          setLocation(`/checkout?tier=${selectedTier}&plan=monthly`);
+          // Redirect to checkout with selected tier and billing cycle
+          const billingCycle = isYearly ? 'yearly' : 'monthly';
+          setLocation(`/checkout?tier=${selectedTier}&plan=${billingCycle}`);
         } catch (signInError) {
           toast({
             title: "Account created!",
@@ -333,6 +340,24 @@ export default function SignUp() {
                               </p>
                             </div>
                           )}
+                          
+                          {/* Yearly/Monthly Toggle */}
+                          {!isPreSelected && (
+                            <div className="flex items-center justify-center space-x-3 mb-4 p-3 bg-gray-50 rounded-lg">
+                              <span className={`text-sm ${!isYearly ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>Monthly</span>
+                              <Switch
+                                checked={isYearly}
+                                onCheckedChange={setIsYearly}
+                                className="data-[state=checked]:bg-blue-600"
+                              />
+                              <span className={`text-sm ${isYearly ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>Yearly</span>
+                              {isYearly && (
+                                <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200">
+                                  Save 20%
+                                </Badge>
+                              )}
+                            </div>
+                          )}
                           <div className="grid gap-4">
                             {subscriptionTiers.map((tier) => {
                               const isDisabled = isPreSelected && tier.id !== tierFromUrl;
@@ -352,7 +377,14 @@ export default function SignUp() {
                                     <div>
                                       <div className="flex items-center space-x-2">
                                         <h3 className="font-semibold">{tier.name}</h3>
-                                        <span className="text-sm font-medium text-blue-600">{tier.price}</span>
+                                        <span className="text-sm font-medium text-blue-600">
+                                          {tier.id === 'free' ? 'Free' : `$${isYearly ? tier.yearlyPrice : tier.monthlyPrice}/${isYearly ? 'year' : 'month'}`}
+                                        </span>
+                                        {tier.id !== 'free' && isYearly && (
+                                          <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200 text-xs">
+                                            Save 20%
+                                          </Badge>
+                                        )}
                                       </div>
                                       <p className="text-sm text-gray-600 mt-1">{tier.description}</p>
                                       <div className="flex flex-wrap gap-2 mt-2">
