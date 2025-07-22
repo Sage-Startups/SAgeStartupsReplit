@@ -51,6 +51,12 @@ export interface IStorage {
   getAllSubscriptionPlans(): Promise<SubscriptionPlan[]>;
   createAuditLog(log: Partial<AuditLog>): Promise<void>;
   getSystemMetrics(): Promise<any>;
+  
+  // Admin reset operations
+  resetAllUsers(): Promise<void>;
+  resetAllPayments(): Promise<void>;
+  resetAllSessions(): Promise<void>;
+  resetAllConversions(): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -290,14 +296,28 @@ export class DatabaseStorage implements IStorage {
     };
   }
 
-  async getUserByEmail(email: string): Promise<User | undefined> {
-    const result = await db.select().from(users).where(eq(users.email, email));
-    return result[0];
+  // Admin reset operations
+  async resetAllUsers(): Promise<void> {
+    // Delete all non-admin users and their associated data
+    await db.delete(users);
   }
 
-  async createUser(userData: any): Promise<User> {
-    const [newUser] = await db.insert(users).values(userData).returning();
-    return newUser;
+  async resetAllPayments(): Promise<void> {
+    // Delete all payment records
+    await db.delete(payments);
+  }
+
+  async resetAllSessions(): Promise<void> {
+    // Delete all bot sessions and their messages
+    await db.delete(chatMessages);
+    await db.delete(botSessions);
+    await db.delete(generatedAssets);
+  }
+
+  async resetAllConversions(): Promise<void> {
+    // Reset all user analytics and metrics
+    await db.delete(userAnalytics);
+    await db.delete(founderMetrics);
   }
 }
 

@@ -739,6 +739,94 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Reset all users data (except admin accounts)
+  app.delete("/api/admin/users/reset", requireAuth, requireSuperAdmin, async (req: any, res) => {
+    try {
+      await storage.resetAllUsers();
+      
+      // Log the action
+      await storage.createAuditLog({
+        userId: req.session.userId,
+        action: 'reset',
+        resource: 'users',
+        resourceId: 'all',
+        details: { action: 'bulk_user_reset' },
+        ipAddress: req.ip
+      });
+      
+      res.json({ message: "All user data reset successfully" });
+    } catch (error) {
+      console.error("Failed to reset users:", error);
+      res.status(500).json({ error: "Failed to reset users" });
+    }
+  });
+
+  // Reset all revenue/payment data
+  app.delete("/api/admin/revenue/reset", requireAuth, requireSuperAdmin, async (req: any, res) => {
+    try {
+      await storage.resetAllPayments();
+      
+      // Log the action
+      await storage.createAuditLog({
+        userId: req.session.userId,
+        action: 'reset',
+        resource: 'payments',
+        resourceId: 'all',
+        details: { action: 'bulk_payment_reset' },
+        ipAddress: req.ip
+      });
+      
+      res.json({ message: "All revenue data reset successfully" });
+    } catch (error) {
+      console.error("Failed to reset revenue:", error);
+      res.status(500).json({ error: "Failed to reset revenue" });
+    }
+  });
+
+  // Reset all session data
+  app.delete("/api/admin/sessions/reset", requireAuth, requireSuperAdmin, async (req: any, res) => {
+    try {
+      await storage.resetAllSessions();
+      
+      // Log the action
+      await storage.createAuditLog({
+        userId: req.session.userId,
+        action: 'reset',
+        resource: 'sessions',
+        resourceId: 'all',
+        details: { action: 'bulk_session_reset' },
+        ipAddress: req.ip
+      });
+      
+      res.json({ message: "All session data reset successfully" });
+    } catch (error) {
+      console.error("Failed to reset sessions:", error);
+      res.status(500).json({ error: "Failed to reset sessions" });
+    }
+  });
+
+  // Reset all conversion data
+  app.delete("/api/admin/conversions/reset", requireAuth, requireSuperAdmin, async (req: any, res) => {
+    try {
+      await storage.resetAllConversions();
+      
+      // Log the action
+      await storage.createAuditLog({
+        userId: req.session.userId,
+        action: 'reset',
+        resource: 'conversions',
+        resourceId: 'all',
+        details: { action: 'bulk_conversion_reset' },
+        ipAddress: req.ip
+      });
+      
+      res.json({ message: "All conversion data reset successfully" });
+    } catch (error) {
+      console.error("Failed to reset conversions:", error);
+      res.status(500).json({ error: "Failed to reset conversions" });
+    }
+  });
+
   // Reset user password endpoint
   app.post("/api/admin/users/:userId/reset-password", requireAuth, requireSuperAdmin, async (req: any, res) => {
     try {

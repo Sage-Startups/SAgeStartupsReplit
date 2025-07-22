@@ -302,14 +302,36 @@ export default function SuperAdmin() {
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center">
-            <Shield className="w-8 h-8 mr-3 text-red-600" />
-            Super Admin Dashboard
-          </h1>
-          <p className="text-gray-600 mt-2">
-            Complete system administration and management
-          </p>
+        <div className="mb-8 flex items-start justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 flex items-center">
+              <Shield className="w-8 h-8 mr-3 text-red-600" />
+              Super Admin Dashboard
+            </h1>
+            <p className="text-gray-600 mt-2">
+              Complete system administration and management
+            </p>
+          </div>
+          <div className="flex space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+                queryClient.invalidateQueries({ queryKey: ["/api/admin/metrics"] });
+                queryClient.invalidateQueries({ queryKey: ["/api/admin/payments"] });
+                queryClient.invalidateQueries({ queryKey: ["/api/admin/plans"] });
+                queryClient.invalidateQueries({ queryKey: ["/api/admin/audit-logs"] });
+                toast({
+                  title: "Data Refreshed",
+                  description: "All admin data has been refreshed successfully.",
+                });
+              }}
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Refresh All Data
+            </Button>
+          </div>
         </div>
 
         {/* System Metrics Overview */}
@@ -317,12 +339,60 @@ export default function SuperAdmin() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <Card>
               <CardContent className="p-6">
-                <div className="flex items-center">
-                  <Users className="w-8 h-8 text-blue-600" />
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Total Users</p>
-                    <p className="text-2xl font-bold">{metrics.totalUsers}</p>
-                    <p className="text-sm text-green-600">{metrics.activeUsers} active</p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <Users className="w-8 h-8 text-blue-600" />
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-600">Total Users</p>
+                      <p className="text-2xl font-bold">{metrics.totalUsers}</p>
+                      <p className="text-sm text-green-600">{metrics.activeUsers} active</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col space-y-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0"
+                      onClick={() => {
+                        queryClient.invalidateQueries({ queryKey: ["/api/admin/metrics"] });
+                        toast({ title: "User metrics refreshed" });
+                      }}
+                    >
+                      <RefreshCw className="h-3 w-3" />
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-red-600 hover:text-red-700">
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Reset User Data?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This will permanently delete all user accounts except admin accounts. This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={async () => {
+                              try {
+                                await apiRequest("DELETE", "/api/admin/users/reset");
+                                queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+                                queryClient.invalidateQueries({ queryKey: ["/api/admin/metrics"] });
+                                toast({ title: "User data reset successfully" });
+                              } catch (error: any) {
+                                toast({ title: "Error", description: error.message, variant: "destructive" });
+                              }
+                            }}
+                            className="bg-red-600 hover:bg-red-700"
+                          >
+                            Reset Users
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </div>
               </CardContent>
@@ -330,12 +400,60 @@ export default function SuperAdmin() {
             
             <Card>
               <CardContent className="p-6">
-                <div className="flex items-center">
-                  <DollarSign className="w-8 h-8 text-green-600" />
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Revenue</p>
-                    <p className="text-2xl font-bold">${metrics.totalRevenue}</p>
-                    <p className="text-sm text-green-600">${metrics.monthlyRevenue} this month</p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <DollarSign className="w-8 h-8 text-green-600" />
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-600">Revenue</p>
+                      <p className="text-2xl font-bold">${metrics.totalRevenue}</p>
+                      <p className="text-sm text-green-600">${metrics.monthlyRevenue} this month</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col space-y-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0"
+                      onClick={() => {
+                        queryClient.invalidateQueries({ queryKey: ["/api/admin/metrics"] });
+                        toast({ title: "Revenue metrics refreshed" });
+                      }}
+                    >
+                      <RefreshCw className="h-3 w-3" />
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-red-600 hover:text-red-700">
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Reset Revenue Data?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This will permanently delete all payment records and reset revenue metrics. This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={async () => {
+                              try {
+                                await apiRequest("DELETE", "/api/admin/revenue/reset");
+                                queryClient.invalidateQueries({ queryKey: ["/api/admin/payments"] });
+                                queryClient.invalidateQueries({ queryKey: ["/api/admin/metrics"] });
+                                toast({ title: "Revenue data reset successfully" });
+                              } catch (error: any) {
+                                toast({ title: "Error", description: error.message, variant: "destructive" });
+                              }
+                            }}
+                            className="bg-red-600 hover:bg-red-700"
+                          >
+                            Reset Revenue
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </div>
               </CardContent>
@@ -343,12 +461,59 @@ export default function SuperAdmin() {
             
             <Card>
               <CardContent className="p-6">
-                <div className="flex items-center">
-                  <Activity className="w-8 h-8 text-purple-600" />
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Sessions</p>
-                    <p className="text-2xl font-bold">{metrics.totalSessions}</p>
-                    <p className="text-sm text-blue-600">{metrics.totalMessages} messages</p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <Activity className="w-8 h-8 text-purple-600" />
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-600">Sessions</p>
+                      <p className="text-2xl font-bold">{metrics.totalSessions}</p>
+                      <p className="text-sm text-blue-600">{metrics.totalMessages} messages</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col space-y-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0"
+                      onClick={() => {
+                        queryClient.invalidateQueries({ queryKey: ["/api/admin/metrics"] });
+                        toast({ title: "Session metrics refreshed" });
+                      }}
+                    >
+                      <RefreshCw className="h-3 w-3" />
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-red-600 hover:text-red-700">
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Reset Session Data?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This will permanently delete all user sessions and chat messages. This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={async () => {
+                              try {
+                                await apiRequest("DELETE", "/api/admin/sessions/reset");
+                                queryClient.invalidateQueries({ queryKey: ["/api/admin/metrics"] });
+                                toast({ title: "Session data reset successfully" });
+                              } catch (error: any) {
+                                toast({ title: "Error", description: error.message, variant: "destructive" });
+                              }
+                            }}
+                            className="bg-red-600 hover:bg-red-700"
+                          >
+                            Reset Sessions
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </div>
               </CardContent>
@@ -356,12 +521,59 @@ export default function SuperAdmin() {
             
             <Card>
               <CardContent className="p-6">
-                <div className="flex items-center">
-                  <TrendingUp className="w-8 h-8 text-orange-600" />
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Conversion</p>
-                    <p className="text-2xl font-bold">{metrics.conversionRate}%</p>
-                    <p className="text-sm text-red-600">{metrics.churnRate}% churn</p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <TrendingUp className="w-8 h-8 text-orange-600" />
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-600">Conversion</p>
+                      <p className="text-2xl font-bold">{metrics.conversionRate}%</p>
+                      <p className="text-sm text-red-600">{metrics.churnRate}% churn</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col space-y-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0"
+                      onClick={() => {
+                        queryClient.invalidateQueries({ queryKey: ["/api/admin/metrics"] });
+                        toast({ title: "Conversion metrics refreshed" });
+                      }}
+                    >
+                      <RefreshCw className="h-3 w-3" />
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-red-600 hover:text-red-700">
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Reset Conversion Data?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This will permanently reset all conversion tracking and analytics data. This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={async () => {
+                              try {
+                                await apiRequest("DELETE", "/api/admin/conversions/reset");
+                                queryClient.invalidateQueries({ queryKey: ["/api/admin/metrics"] });
+                                toast({ title: "Conversion data reset successfully" });
+                              } catch (error: any) {
+                                toast({ title: "Error", description: error.message, variant: "destructive" });
+                              }
+                            }}
+                            className="bg-red-600 hover:bg-red-700"
+                          >
+                            Reset Conversions
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </div>
               </CardContent>
