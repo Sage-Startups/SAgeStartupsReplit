@@ -35,7 +35,8 @@ import {
   AlertTriangle,
   Download,
   Trash2,
-  Upload
+  Upload,
+  AlertCircle
 } from "lucide-react";
 
 interface UserProfile {
@@ -768,11 +769,11 @@ export default function Account() {
               Open Stripe Dashboard
             </Button>
             <Button
-              onClick={() => window.open('/api/admin/stripe-config', '_blank')}
+              onClick={() => window.location.href = '/stripe-config'}
               variant="outline"
               className="border-red-300 text-red-700 hover:bg-red-100"
             >
-              View Current Config
+              Edit Price IDs
             </Button>
           </div>
         </div>
