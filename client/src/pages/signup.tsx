@@ -70,7 +70,12 @@ export default function SignUp() {
       password: "",
       confirmPassword: "",
       company: "",
-      subscriptionTier: "free",
+      subscriptionTier: (() => {
+        // Get tier from URL parameters if present
+        const urlParams = new URLSearchParams(window.location.search);
+        const tierFromUrl = urlParams.get('tier');
+        return tierFromUrl && ['pro', 'premium'].includes(tierFromUrl) ? tierFromUrl : 'free';
+      })(),
     },
   });
 
@@ -311,51 +316,72 @@ export default function SignUp() {
                   <FormField
                     control={form.control}
                     name="subscriptionTier"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Choose Your Plan</FormLabel>
-                        <div className="grid gap-4">
-                          {subscriptionTiers.map((tier) => (
-                            <div
-                              key={tier.id}
-                              className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                                field.value === tier.id
-                                  ? "border-blue-500 bg-blue-50"
-                                  : "border-gray-200 hover:border-gray-300"
-                              }`}
-                              onClick={() => field.onChange(tier.id)}
-                            >
-                              <div className="flex items-center justify-between">
-                                <div>
-                                  <div className="flex items-center space-x-2">
-                                    <h3 className="font-semibold">{tier.name}</h3>
-                                    <span className="text-sm font-medium text-blue-600">{tier.price}</span>
-                                  </div>
-                                  <p className="text-sm text-gray-600 mt-1">{tier.description}</p>
-                                  <div className="flex flex-wrap gap-2 mt-2">
-                                    {tier.features.map((feature, index) => (
-                                      <span
-                                        key={index}
-                                        className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded"
-                                      >
-                                        {feature}
-                                      </span>
-                                    ))}
+                    render={({ field }) => {
+                      // Check if tier is pre-selected from URL
+                      const urlParams = new URLSearchParams(window.location.search);
+                      const tierFromUrl = urlParams.get('tier');
+                      const isPreSelected = tierFromUrl && ['pro', 'premium'].includes(tierFromUrl);
+                      
+                      return (
+                        <FormItem>
+                          <FormLabel>Choose Your Plan</FormLabel>
+                          {isPreSelected && (
+                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                              <p className="text-sm text-blue-800">
+                                You've selected the <strong>{tierFromUrl?.charAt(0).toUpperCase() + tierFromUrl?.slice(1)} Plan</strong>. 
+                                After account creation, you'll be redirected to complete your subscription.
+                              </p>
+                            </div>
+                          )}
+                          <div className="grid gap-4">
+                            {subscriptionTiers.map((tier) => {
+                              const isDisabled = isPreSelected && tier.id !== tierFromUrl;
+                              return (
+                                <div
+                                  key={tier.id}
+                                  className={`border rounded-lg p-4 transition-colors ${
+                                    field.value === tier.id
+                                      ? "border-blue-500 bg-blue-50"
+                                      : isDisabled 
+                                        ? "border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed"
+                                        : "border-gray-200 hover:border-gray-300 cursor-pointer"
+                                  }`}
+                                  onClick={() => !isDisabled && field.onChange(tier.id)}
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <div>
+                                      <div className="flex items-center space-x-2">
+                                        <h3 className="font-semibold">{tier.name}</h3>
+                                        <span className="text-sm font-medium text-blue-600">{tier.price}</span>
+                                      </div>
+                                      <p className="text-sm text-gray-600 mt-1">{tier.description}</p>
+                                      <div className="flex flex-wrap gap-2 mt-2">
+                                        {tier.features.map((feature, index) => (
+                                          <span
+                                            key={index}
+                                            className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded"
+                                          >
+                                            {feature}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    </div>
+                                    <input
+                                      type="radio"
+                                      checked={field.value === tier.id}
+                                      onChange={() => !isDisabled && field.onChange(tier.id)}
+                                      disabled={isDisabled}
+                                      className="h-4 w-4 text-blue-600"
+                                    />
                                   </div>
                                 </div>
-                                <input
-                                  type="radio"
-                                  checked={field.value === tier.id}
-                                  onChange={() => field.onChange(tier.id)}
-                                  className="h-4 w-4 text-blue-600"
-                                />
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                              );
+                            })}
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
                   />
                 </div>
 

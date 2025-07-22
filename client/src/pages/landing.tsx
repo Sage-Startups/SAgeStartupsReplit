@@ -81,13 +81,14 @@ export default function Landing() {
   };
 
   const handlePlanSelection = (tier: string) => {
-    // Store selected plan and billing cycle in sessionStorage
-    sessionStorage.setItem('selectedPlan', JSON.stringify({
-      tier,
-      billingCycle: isYearly ? 'yearly' : 'monthly'
-    }));
-    // Redirect to signup
-    window.location.href = '/signup';
+    if (tier === 'free') {
+      // Free tier goes to general signup page
+      window.location.href = '/signup';
+    } else {
+      // Paid tiers go directly to signup with tier pre-selected
+      const billingCycle = isYearly ? 'yearly' : 'monthly';
+      window.location.href = `/signup?tier=${tier}&plan=${billingCycle}`;
+    }
   };
   
   return (

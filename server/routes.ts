@@ -60,6 +60,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Stripe payment routes
   registerStripeRoutes(app, requireAuth);
+  
+  // Import and mount webhook routes
+  const { webhookRoutes } = await import('./routes/webhooks');
+  app.use(webhookRoutes);
 
 
 

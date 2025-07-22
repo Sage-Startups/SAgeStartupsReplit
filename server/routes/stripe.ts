@@ -130,11 +130,11 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
       });
       console.log(`✅ Stripe subscription created:`, subscription.id);
 
-      // Save subscription info to user
+      // Save subscription ID but DON'T upgrade tier until payment is confirmed
       await storage.updateUser(userId, { 
         stripeSubscriptionId: subscription.id,
-        subscriptionTier: tier,
-        subscriptionStatus: subscription.status === 'active' ? 'active' : 'pending'
+        subscriptionStatus: subscription.status === 'active' ? 'active' : 'pending',
+        pendingSubscription: tier // Store the tier they're trying to upgrade to
       });
 
       const latestInvoice = subscription.latest_invoice as Stripe.Invoice;
