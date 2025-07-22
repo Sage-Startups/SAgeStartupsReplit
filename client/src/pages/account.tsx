@@ -476,7 +476,7 @@ export default function Account() {
                         tier: 'pro',
                         name: 'Pro Plan',
                         monthlyPrice: 24,
-                        yearlyPrice: 20,
+                        yearlyPrice: 240,
                         features: ['30 AI bots access', 'Advanced asset generation', 'Priority support', 'Team collaboration', 'Advanced analytics'],
                         popular: true
                       },
@@ -484,14 +484,15 @@ export default function Account() {
                         tier: 'premium',
                         name: 'Premium Plan',
                         monthlyPrice: 44,
-                        yearlyPrice: 36,
+                        yearlyPrice: 432,
                         features: ['All 60+ bots', 'Fastest AI responses', 'Premium asset generation', 'Advanced analytics', 'Priority support'],
                         popular: false
                       }
                     ].map((plan) => {
                       const isCurrent = currentProfile.subscriptionTier === plan.tier;
-                      const currentPrice = isYearlyBilling ? plan.yearlyPrice : plan.monthlyPrice;
-                      const yearlyDiscount = plan.monthlyPrice > 0 ? Math.round(((plan.monthlyPrice - plan.yearlyPrice) / plan.monthlyPrice) * 100) : 0;
+                      const currentPrice = isYearlyBilling ? Math.round(plan.yearlyPrice / 12) : plan.monthlyPrice;
+                      const fullYearlyPrice = plan.yearlyPrice;
+                      const totalYearlyDiscount = plan.monthlyPrice > 0 ? (plan.monthlyPrice * 12) - plan.yearlyPrice : 0;
                       
                       return (
                         <div key={plan.tier} className={`relative p-4 border rounded-lg ${isCurrent ? 'border-blue-500 bg-blue-50' : plan.popular ? 'border-blue-300 bg-blue-50/50' : 'border-gray-200'}`}>
@@ -512,9 +513,9 @@ export default function Account() {
                               <span className="text-gray-600">
                                 {plan.monthlyPrice === 0 ? '/free' : isYearlyBilling ? '/month (billed yearly)' : '/month'}
                               </span>
-                              {isYearlyBilling && plan.monthlyPrice > 0 && yearlyDiscount > 0 && (
+                              {isYearlyBilling && plan.monthlyPrice > 0 && totalYearlyDiscount > 0 && (
                                 <div className="text-sm text-green-600 mt-1">
-                                  Save ${(plan.monthlyPrice - plan.yearlyPrice) * 12}/year ({yearlyDiscount}% off)
+                                  Save ${totalYearlyDiscount}/year (billed ${fullYearlyPrice} annually)
                                 </div>
                               )}
                             </div>
