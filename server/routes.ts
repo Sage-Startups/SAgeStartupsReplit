@@ -61,27 +61,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Stripe payment routes
   registerStripeRoutes(app, requireAuth);
 
-  // Admin route to update Stripe configuration
-  app.post('/api/admin/update-stripe-config', requireAuth, async (req: any, res) => {
-    try {
-      // In a real app, you'd want to check if user is admin
-      const { STRIPE_PRO_MONTHLY_PRICE_ID, STRIPE_PRO_YEARLY_PRICE_ID, STRIPE_PREMIUM_MONTHLY_PRICE_ID, STRIPE_PREMIUM_YEARLY_PRICE_ID } = req.body;
-      
-      // For now, just return success - in production you'd update environment variables
-      // or store in database configuration table
-      console.log('Stripe Price IDs received:', {
-        STRIPE_PRO_MONTHLY_PRICE_ID,
-        STRIPE_PRO_YEARLY_PRICE_ID,
-        STRIPE_PREMIUM_MONTHLY_PRICE_ID,
-        STRIPE_PREMIUM_YEARLY_PRICE_ID
-      });
-      
-      res.json({ message: 'Configuration updated successfully' });
-    } catch (error) {
-      console.error('Error updating Stripe config:', error);
-      res.status(500).json({ message: 'Failed to update configuration' });
-    }
-  });
+
 
   // Auth routes (now handled by authRoutes)
   // Keep this for backwards compatibility with Replit Auth
