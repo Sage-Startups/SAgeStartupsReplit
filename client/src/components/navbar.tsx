@@ -9,8 +9,11 @@ export function Navbar() {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
-              <Brain className="text-primary text-2xl mr-2" />
-              <h1 className="text-xl font-bold text-gray-900">BrandAI Pro</h1>
+              <img 
+                src="/sage-logo.png" 
+                alt="Sage-Startups Logo" 
+                className="h-8 object-contain"
+              />
             </Link>
           </div>
           <div className="hidden md:block">

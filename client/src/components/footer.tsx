@@ -7,8 +7,11 @@ export function Footer() {
         <div className="grid md:grid-cols-4 gap-8">
           <div>
             <div className="flex items-center mb-4">
-              <Brain className="text-primary text-2xl mr-2" />
-              <h3 className="text-xl font-bold">Sage-Startups</h3>
+              <img 
+                src="/sage-logo.png" 
+                alt="Sage-Startups Logo" 
+                className="h-8 object-contain brightness-0 invert"
+              />
             </div>
             <p className="text-gray-400 mb-4">
               AI-powered branding automation for the next generation of startups.
