@@ -7,6 +7,7 @@ import { setupAuth, isAuthenticated } from "./replitAuth";
 import { bots } from "../client/src/lib/bot-definitions";
 import authRoutes from "./authRoutes";
 import { AuthService } from "./auth";
+import { registerStripeRoutes } from "./routes/stripe";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { v4 as uuidv4 } from "uuid";
@@ -52,10 +53,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(401).json({ message: "User not found" });
     }
 
-    req.user = { claims: { sub: user.id } };
+    req.user = { claims: { sub: user.id }, id: user.id };
     req.currentUser = user;
     next();
   };
+
+  // Stripe payment routes
+  registerStripeRoutes(app, requireAuth);
 
   // Auth routes (now handled by authRoutes)
   // Keep this for backwards compatibility with Replit Auth

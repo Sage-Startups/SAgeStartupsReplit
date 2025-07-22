@@ -60,12 +60,18 @@ interface UserProfile {
   lastActive?: string;
 }
 
+function getInitialTab() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('tab') || 'profile';
+}
+
 export default function Account() {
   const { user, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [editedProfile, setEditedProfile] = useState<Partial<UserProfile>>({});
+  const [isYearlyBilling, setIsYearlyBilling] = useState(false);
 
   // Fetch user profile
   const { data: profile, isLoading } = useQuery<UserProfile>({
@@ -204,7 +210,7 @@ export default function Account() {
           </p>
         </div>
 
-        <Tabs defaultValue="profile" className="space-y-6">
+        <Tabs defaultValue={getInitialTab()} className="space-y-6">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="subscription">Subscription</TabsTrigger>
@@ -437,31 +443,130 @@ export default function Account() {
                   <CardDescription>Upgrade or downgrade your subscription</CardDescription>
                 </CardHeader>
                 <CardContent>
+                  {/* Billing Toggle */}
+                  <div className="flex items-center justify-center space-x-4 mb-6">
+                    <span className={`text-sm ${!isYearlyBilling ? 'text-gray-900 font-semibold' : 'text-gray-500'}`}>
+                      Monthly
+                    </span>
+                    <Switch 
+                      checked={isYearlyBilling}
+                      onCheckedChange={setIsYearlyBilling}
+                      className="mx-2"
+                    />
+                    <span className={`text-sm ${isYearlyBilling ? 'text-gray-900 font-semibold' : 'text-gray-500'}`}>
+                      Yearly
+                    </span>
+                    <Badge className="ml-2 bg-green-100 text-green-800">
+                      Save 20%
+                    </Badge>
+                  </div>
+
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {['free', 'pro', 'premium'].map((tier) => {
-                      const planInfo = getSubscriptionInfo(tier);
-                      const isCurrent = currentProfile.subscriptionTier === tier;
+                    {[
+                      {
+                        tier: 'free',
+                        name: 'Free Trial',
+                        monthlyPrice: 0,
+                        yearlyPrice: 0,
+                        features: ['8 AI bots access', 'Basic asset generation', 'Standard support', 'Project management'],
+                        popular: false
+                      },
+                      {
+                        tier: 'pro',
+                        name: 'Pro Plan',
+                        monthlyPrice: 24,
+                        yearlyPrice: 20,
+                        features: ['30 AI bots access', 'Advanced asset generation', 'Priority support', 'Team collaboration', 'Advanced analytics'],
+                        popular: true
+                      },
+                      {
+                        tier: 'premium',
+                        name: 'Premium Plan',
+                        monthlyPrice: 44,
+                        yearlyPrice: 36,
+                        features: ['All 60+ bots', 'Fastest AI responses', 'Premium asset generation', 'Advanced analytics', 'Priority support'],
+                        popular: false
+                      }
+                    ].map((plan) => {
+                      const isCurrent = currentProfile.subscriptionTier === plan.tier;
+                      const currentPrice = isYearlyBilling ? plan.yearlyPrice : plan.monthlyPrice;
+                      const yearlyDiscount = plan.monthlyPrice > 0 ? Math.round(((plan.monthlyPrice - plan.yearlyPrice) / plan.monthlyPrice) * 100) : 0;
                       
                       return (
-                        <div key={tier} className={`p-4 border rounded-lg ${isCurrent ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}>
-                          <h3 className="font-semibold">{planInfo.name}</h3>
-                          <p className="text-2xl font-bold text-blue-600">{planInfo.price}</p>
-                          <ul className="mt-2 space-y-1 text-sm">
-                            {planInfo.features.map((feature, index) => (
-                              <li key={index} className="flex items-center">
-                                <Check className="w-3 h-3 text-green-600 mr-1" />
-                                {feature}
-                              </li>
-                            ))}
-                          </ul>
-                          <Button 
-                            className="w-full mt-4" 
-                            variant={isCurrent ? "outline" : "default"}
-                            disabled={isCurrent || updateSubscriptionMutation.isPending}
-                            onClick={() => updateSubscriptionMutation.mutate(tier)}
-                          >
-                            {isCurrent ? 'Current Plan' : 'Select Plan'}
-                          </Button>
+                        <div key={plan.tier} className={`relative p-4 border rounded-lg ${isCurrent ? 'border-blue-500 bg-blue-50' : plan.popular ? 'border-blue-300 bg-blue-50/50' : 'border-gray-200'}`}>
+                          {plan.popular && !isCurrent && (
+                            <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-500">
+                              Most Popular
+                            </Badge>
+                          )}
+                          {isCurrent && (
+                            <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-green-500">
+                              Current Plan
+                            </Badge>
+                          )}
+                          <div className="pt-2">
+                            <h3 className="font-semibold text-lg">{plan.name}</h3>
+                            <div className="mt-2">
+                              <span className="text-2xl font-bold text-blue-600">${currentPrice}</span>
+                              <span className="text-gray-600">
+                                {plan.monthlyPrice === 0 ? '/free' : isYearlyBilling ? '/month (billed yearly)' : '/month'}
+                              </span>
+                              {isYearlyBilling && plan.monthlyPrice > 0 && yearlyDiscount > 0 && (
+                                <div className="text-sm text-green-600 mt-1">
+                                  Save ${(plan.monthlyPrice - plan.yearlyPrice) * 12}/year ({yearlyDiscount}% off)
+                                </div>
+                              )}
+                            </div>
+                            <ul className="mt-4 space-y-2 text-sm">
+                              {plan.features.map((feature, index) => (
+                                <li key={index} className="flex items-center">
+                                  <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                                  {feature}
+                                </li>
+                              ))}
+                            </ul>
+                            <Button 
+                              className="w-full mt-4" 
+                              variant={isCurrent ? "outline" : plan.popular ? "default" : "outline"}
+                              disabled={isCurrent}
+                              onClick={() => {
+                                if (plan.tier === 'free') {
+                                  // Handle downgrade to free
+                                  const confirmed = confirm('Are you sure you want to downgrade to the free plan? This will cancel your current subscription.');
+                                  if (confirmed) {
+                                    // Call API to downgrade
+                                    apiRequest('POST', '/api/stripe/cancel-subscription')
+                                      .then(() => {
+                                        toast({
+                                          title: "Subscription cancelled",
+                                          description: "Your subscription has been cancelled successfully."
+                                        });
+                                        queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] });
+                                      })
+                                      .catch((error) => {
+                                        toast({
+                                          title: "Error",
+                                          description: "Failed to cancel subscription. Please try again.",
+                                          variant: "destructive"
+                                        });
+                                      });
+                                  }
+                                } else {
+                                  // For paid plans, redirect to checkout
+                                  sessionStorage.setItem('selectedPlan', JSON.stringify({
+                                    tier: plan.tier,
+                                    billingCycle: isYearlyBilling ? 'yearly' : 'monthly',
+                                    name: plan.name,
+                                    price: currentPrice,
+                                    yearlyDiscount: isYearlyBilling ? (plan.monthlyPrice - plan.yearlyPrice) * 12 : 0
+                                  }));
+                                  window.location.href = '/checkout';
+                                }
+                              }}
+                            >
+                              {isCurrent ? 'Current Plan' : `Upgrade to ${plan.name}`}
+                            </Button>
+                          </div>
                         </div>
                       );
                     })}

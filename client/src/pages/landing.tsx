@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { Check, Star, Zap, Users, BarChart, Rocket, ArrowRight, Megaphone, Palette, Sparkles, PenTool, TrendingUp } from "lucide-react";
 import { sections, bots } from "@/lib/bot-definitions";
 import { Link } from "wouter";
@@ -15,6 +17,79 @@ const iconMap = {
 };
 
 export default function Landing() {
+  const [isYearly, setIsYearly] = useState(false);
+  
+  // Pricing data with monthly and yearly options
+  const pricingPlans = [
+    {
+      name: "Free Trial",
+      monthlyPrice: 0,
+      yearlyPrice: 0,
+      description: "Perfect for getting started",
+      features: [
+        "8 AI bots access",
+        "Basic asset generation", 
+        "Standard support",
+        "Project management",
+        "Export capabilities"
+      ],
+      buttonText: "Start Free Trial",
+      popular: false,
+      tier: "free"
+    },
+    {
+      name: "Pro Plan", 
+      monthlyPrice: 24,
+      yearlyPrice: 20, // $240/year = $20/month
+      description: "Best for growing startups",
+      features: [
+        "30 AI bots access",
+        "Advanced asset generation",
+        "Priority support", 
+        "Team collaboration",
+        "Advanced analytics",
+        "Brand guidelines"
+      ],
+      buttonText: "Choose Pro",
+      popular: true,
+      tier: "pro"
+    },
+    {
+      name: "Premium Plan",
+      monthlyPrice: 44,
+      yearlyPrice: 36, // $432/year = $36/month  
+      description: "Complete branding solution",
+      features: [
+        "All 60+ bots",
+        "Fastest AI responses",
+        "Premium asset generation",
+        "Advanced analytics",
+        "Priority support",
+        "White-label options"
+      ],
+      buttonText: "Choose Premium", 
+      popular: false,
+      tier: "premium"
+    }
+  ];
+
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handlePlanSelection = (tier: string) => {
+    // Store selected plan and billing cycle in sessionStorage
+    sessionStorage.setItem('selectedPlan', JSON.stringify({
+      tier,
+      billingCycle: isYearly ? 'yearly' : 'monthly'
+    }));
+    // Redirect to signup
+    window.location.href = '/signup';
+  };
+  
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       {/* Header */}
@@ -26,7 +101,13 @@ export default function Landing() {
             </div>
             <span className="text-xl font-bold">Sage-Startups</span>
           </div>
-          <div className="space-x-4">
+          <div className="hidden md:flex items-center space-x-6">
+            <Button variant="ghost" onClick={() => scrollToSection('features')}>
+              Features
+            </Button>
+            <Button variant="ghost" onClick={() => scrollToSection('pricing')}>
+              Pricing
+            </Button>
             <Button variant="ghost" asChild>
               <Link href="/signin">Sign In</Link>
             </Button>
@@ -78,7 +159,7 @@ export default function Landing() {
       </section>
 
       {/* Features Section */}
-      <section className="py-16 bg-gray-50">
+      <section id="features" className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
@@ -130,133 +211,82 @@ export default function Landing() {
       </section>
 
       {/* Pricing Section */}
-      <section className="py-20">
+      <section id="pricing" className="py-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
               Choose Your Perfect Plan
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
               Start with our free trial and upgrade as you grow. All plans include full chat history and asset generation.
             </p>
+            
+            {/* Billing Toggle */}
+            <div className="flex items-center justify-center space-x-4">
+              <span className={`text-sm ${!isYearly ? 'text-gray-900 font-semibold' : 'text-gray-500'}`}>
+                Monthly
+              </span>
+              <Switch 
+                checked={isYearly}
+                onCheckedChange={setIsYearly}
+                className="mx-2"
+              />
+              <span className={`text-sm ${isYearly ? 'text-gray-900 font-semibold' : 'text-gray-500'}`}>
+                Yearly
+              </span>
+              <Badge className="ml-2 bg-green-100 text-green-800">
+                Save 20%
+              </Badge>
+            </div>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {/* Free Trial */}
-            <Card className="border-2 hover:border-blue-200 transition-colors">
-              <CardHeader className="text-center">
-                <CardTitle className="text-xl">Free Trial</CardTitle>
-                <div className="mt-4">
-                  <span className="text-3xl font-bold">$0</span>
-                  <span className="text-gray-600">/month</span>
-                </div>
-                <CardDescription>Perfect for trying out our platform</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-center">
-                    <Check className="w-5 h-5 text-green-500 mr-3" />
-                    <span>2 bots per section (8 total)</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Check className="w-5 h-5 text-green-500 mr-3" />
-                    <span>Unlimited conversations</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Check className="w-5 h-5 text-green-500 mr-3" />
-                    <span>Basic asset generation</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Check className="w-5 h-5 text-green-500 mr-3" />
-                    <span>Project management</span>
-                  </div>
-                </div>
-                <Button className="w-full" asChild>
-                  <a href="/api/login">Start Free Trial</a>
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Pro Plan */}
-            <Card className="border-2 border-blue-500 relative hover:border-blue-600 transition-colors">
-              <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-500">
-                Most Popular
-              </Badge>
-              <CardHeader className="text-center">
-                <CardTitle className="text-xl">Pro Plan</CardTitle>
-                <div className="mt-4">
-                  <span className="text-3xl font-bold">$24</span>
-                  <span className="text-gray-600">/month</span>
-                </div>
-                <CardDescription>Great for growing startups</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-center">
-                    <Check className="w-5 h-5 text-green-500 mr-3" />
-                    <span>50% of all bots (30 total)</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Check className="w-5 h-5 text-green-500 mr-3" />
-                    <span>Priority AI responses</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Check className="w-5 h-5 text-green-500 mr-3" />
-                    <span>Advanced asset generation</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Check className="w-5 h-5 text-green-500 mr-3" />
-                    <span>Analytics dashboard</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Check className="w-5 h-5 text-green-500 mr-3" />
-                    <span>Email support</span>
-                  </div>
-                </div>
-                <Button className="w-full" asChild>
-                  <a href="/api/login">Choose Pro</a>
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Premium Plan */}
-            <Card className="border-2 hover:border-purple-200 transition-colors">
-              <CardHeader className="text-center">
-                <CardTitle className="text-xl">Premium Plan</CardTitle>
-                <div className="mt-4">
-                  <span className="text-3xl font-bold">$44</span>
-                  <span className="text-gray-600">/month</span>
-                </div>
-                <CardDescription>Complete branding solution</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-center">
-                    <Check className="w-5 h-5 text-green-500 mr-3" />
-                    <span>All 60+ bots</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Check className="w-5 h-5 text-green-500 mr-3" />
-                    <span>Fastest AI responses</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Check className="w-5 h-5 text-green-500 mr-3" />
-                    <span>Premium asset generation</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Check className="w-5 h-5 text-green-500 mr-3" />
-                    <span>Advanced analytics</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Check className="w-5 h-5 text-green-500 mr-3" />
-                    <span>Priority support</span>
-                  </div>
-                </div>
-                <Button className="w-full" variant="outline" asChild>
-                  <a href="/api/login">Choose Premium</a>
-                </Button>
-              </CardContent>
-            </Card>
+            {pricingPlans.map((plan) => {
+              const currentPrice = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
+              const yearlyDiscount = plan.monthlyPrice > 0 ? Math.round(((plan.monthlyPrice - plan.yearlyPrice) / plan.monthlyPrice) * 100) : 0;
+              
+              return (
+                <Card key={plan.tier} className={`relative ${plan.popular ? 'ring-2 ring-blue-500 shadow-lg' : 'shadow-sm'}`}>
+                  {plan.popular && (
+                    <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-500">
+                      Most Popular
+                    </Badge>
+                  )}
+                  <CardHeader className="text-center">
+                    <CardTitle className="text-xl">{plan.name}</CardTitle>
+                    <div className="mt-4">
+                      <span className="text-3xl font-bold">${currentPrice}</span>
+                      <span className="text-gray-600">
+                        {plan.monthlyPrice === 0 ? '/free' : isYearly ? '/month (billed yearly)' : '/month'}
+                      </span>
+                      {isYearly && plan.monthlyPrice > 0 && yearlyDiscount > 0 && (
+                        <div className="text-sm text-green-600 mt-1">
+                          Save ${(plan.monthlyPrice - plan.yearlyPrice) * 12}/year ({yearlyDiscount}% off)
+                        </div>
+                      )}
+                    </div>
+                    <CardDescription>{plan.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-3">
+                      {plan.features.map((feature, index) => (
+                        <div key={index} className="flex items-center">
+                          <Check className="w-5 h-5 text-green-500 mr-3" />
+                          <span>{feature}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <Button 
+                      className="w-full"
+                      variant={plan.popular ? "default" : "outline"}
+                      onClick={() => handlePlanSelection(plan.tier)}
+                    >
+                      {plan.buttonText}
+                    </Button>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </div>
       </section>

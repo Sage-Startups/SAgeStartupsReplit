@@ -96,7 +96,10 @@ export function MainNavigation() {
 
           {/* User Menu */}
           <div className="flex items-center space-x-4">
-            <Badge className={subInfo.color}>
+            <Badge 
+              className={`${subInfo.color} cursor-pointer hover:opacity-80 transition-opacity`}
+              onClick={() => setLocation('/account?tab=subscription')}
+            >
               <subInfo.icon className="w-4 h-4 mr-1" />
               {subInfo.name}
             </Badge>
@@ -124,7 +127,7 @@ export function MainNavigation() {
                   <User className="w-4 h-4 mr-2" />
                   Account Settings
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setLocation('/account?tab=subscription')}>
                   <Crown className="w-4 h-4 mr-2" />
                   Subscription: {subInfo.name}
                 </DropdownMenuItem>
