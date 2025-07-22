@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useSearch, useLocation } from "wouter";
-import { Navbar } from "@/components/navbar";
+import { MainNavigation } from "@/components/main-navigation";
 import { BotDropdownInterface } from "@/components/bot-dropdown-interface";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -70,7 +70,7 @@ export default function Bot() {
   if (!bot) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navbar />
+        <MainNavigation />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900">Bot not found</h1>
@@ -87,7 +87,7 @@ export default function Bot() {
   if (!authLoading && user && !hasAccess) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navbar />
+        <MainNavigation />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="max-w-2xl mx-auto text-center">
             <div className="bg-white rounded-lg shadow-sm p-8">
@@ -219,7 +219,7 @@ export default function Bot() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
+      <MainNavigation />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}

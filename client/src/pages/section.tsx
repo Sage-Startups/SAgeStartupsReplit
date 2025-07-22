@@ -1,5 +1,5 @@
 import { useParams, Link } from "wouter";
-import { Navbar } from "@/components/navbar";
+import { MainNavigation } from "@/components/main-navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Search, Calendar, Eye, Star, Rocket, Target, BarChart, CheckCircle, FileText, Hash, MessageSquare, Image, Camera, Video, Edit3, Globe, Share2, Heart, Lightbulb, ChevronRight, Zap, Shield, Sparkles } from "lucide-react";
@@ -50,7 +50,7 @@ export default function Section() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
+      <MainNavigation />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}

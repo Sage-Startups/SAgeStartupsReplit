@@ -13,6 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 const signUpSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -56,6 +57,7 @@ const subscriptionTiers = [
 export default function SignUp() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [error, setError] = useState<string>("");
   const [showConfirmation, setShowConfirmation] = useState(false);
 
@@ -78,12 +80,35 @@ export default function SignUp() {
     mutationFn: async (data: SignUpFormData) => {
       return await apiRequest("POST", "/api/auth/signup", data);
     },
-    onSuccess: () => {
-      setShowConfirmation(true);
-      toast({
-        title: "Account created successfully!",
-        description: "Please check your email for verification instructions.",
-      });
+    onSuccess: async () => {
+      // Automatically sign in the user after successful registration
+      const signInData = {
+        email: form.getValues().email,
+        password: form.getValues().password
+      };
+      
+      try {
+        const signInResponse = await apiRequest("POST", "/api/auth/signin", signInData);
+        const result = await signInResponse.json();
+        
+        // Invalidate auth cache to trigger useAuth to refetch
+        queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+        
+        toast({
+          title: "Welcome to Sage-Startups!",
+          description: "Your account has been created and you're now signed in.",
+        });
+        
+        // Redirect to dashboard
+        setLocation("/");
+      } catch (signInError) {
+        // If auto sign-in fails, show success message and redirect to sign-in
+        toast({
+          title: "Account created successfully!",
+          description: "Please sign in with your new account.",
+        });
+        setLocation("/signin");
+      }
     },
     onError: (error: Error) => {
       setError(error.message);

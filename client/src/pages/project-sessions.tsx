@@ -1,5 +1,5 @@
 import { useParams, Link } from "wouter";
-import { Navbar } from "@/components/navbar";
+import { MainNavigation } from "@/components/main-navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -54,7 +54,7 @@ export default function ProjectSessions() {
   if (!project) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navbar />
+        <MainNavigation />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900">Project not found</h1>
@@ -78,7 +78,7 @@ export default function ProjectSessions() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
+      <MainNavigation />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
