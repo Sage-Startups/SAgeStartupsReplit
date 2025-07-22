@@ -72,15 +72,22 @@ const CheckoutForm = ({ planDetails }: { planDetails: any }) => {
               <p className="text-sm text-gray-600">{planDetails.description}</p>
             </div>
             <div className="text-right">
-              <div className="text-2xl font-bold">${planDetails.price}</div>
-              <div className="text-sm text-gray-600">
-                /{planDetails.billingCycle}
+              <div className="text-2xl font-bold">
+                ${planDetails.billingCycle === 'yearly' ? Math.round(planDetails.price / 12) : planDetails.price}
               </div>
+              <div className="text-sm text-gray-600">
+                /{planDetails.billingCycle === 'yearly' ? 'month (billed yearly)' : 'month'}
+              </div>
+              {planDetails.billingCycle === 'yearly' && (
+                <div className="text-sm text-green-600 mt-1">
+                  Billed ${planDetails.price} annually
+                </div>
+              )}
             </div>
           </div>
           {planDetails.billingCycle === 'yearly' && (
             <Badge className="bg-green-100 text-green-800">
-              Save ${planDetails.yearlyDiscount}/year with yearly billing
+              Save 20% with yearly billing
             </Badge>
           )}
         </CardContent>
@@ -110,7 +117,7 @@ const CheckoutForm = ({ planDetails }: { planDetails: any }) => {
           disabled={!stripe || !elements || isProcessing}
         >
           <Lock className="w-4 h-4 mr-2" />
-          {isProcessing ? 'Processing...' : `Subscribe for $${planDetails.price}/${planDetails.billingCycle}`}
+          {isProcessing ? 'Processing...' : `Subscribe for $${planDetails.billingCycle === 'yearly' ? Math.round(planDetails.price / 12) + '/month (billed $' + planDetails.price + ' yearly)' : planDetails.price + '/month'}`}
         </Button>
 
         <p className="text-xs text-gray-500 text-center">
