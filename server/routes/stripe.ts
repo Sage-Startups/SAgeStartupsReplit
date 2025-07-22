@@ -21,13 +21,13 @@ const PRICING_CONFIG = {
   },
   pro: {
     monthlyPrice: 24,
-    yearlyPrice: 20, // $240/year = $20/month
+    yearlyPrice: 240, // $240/year total (20% discount)
     stripePriceId: 'price_1RncgSGTriQojbPQX65SA4Do',
     stripeYearlyPriceId: 'price_1RnchDGTriQojbPQ75f5koOK'
   },
   premium: {
     monthlyPrice: 44,
-    yearlyPrice: 36, // $432/year = $36/month
+    yearlyPrice: 432, // $432/year total (20% discount)
     stripePriceId: 'price_1RnchqGTriQojbPQVhsCJgGX',
     stripeYearlyPriceId: 'price_1RnciZGTriQojbPQUUDxXW1Y'
   }

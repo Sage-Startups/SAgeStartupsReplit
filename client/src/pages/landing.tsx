@@ -40,7 +40,7 @@ export default function Landing() {
     {
       name: "Pro Plan", 
       monthlyPrice: 24,
-      yearlyPrice: 20, // $240/year = $20/month
+      yearlyPrice: 240, // $240/year total (20% discount)
       description: "Best for growing startups",
       features: [
         "30 AI bots access",
@@ -57,7 +57,7 @@ export default function Landing() {
     {
       name: "Premium Plan",
       monthlyPrice: 44,
-      yearlyPrice: 36, // $432/year = $36/month  
+      yearlyPrice: 432, // $432/year total (20% discount)
       description: "Complete branding solution",
       features: [
         "All 60+ bots",
@@ -243,8 +243,10 @@ export default function Landing() {
 
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {pricingPlans.map((plan) => {
-              const currentPrice = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
-              const yearlyDiscount = plan.monthlyPrice > 0 ? Math.round(((plan.monthlyPrice - plan.yearlyPrice) / plan.monthlyPrice) * 100) : 0;
+              // For display: show yearly price divided by 12 for monthly equivalent, or full yearly price
+              const currentPrice = isYearly ? Math.round(plan.yearlyPrice / 12) : plan.monthlyPrice;
+              const fullYearlyPrice = plan.yearlyPrice;
+              const totalYearlyDiscount = plan.monthlyPrice > 0 ? (plan.monthlyPrice * 12) - plan.yearlyPrice : 0;
               
               return (
                 <Card key={plan.tier} className={`relative ${plan.popular ? 'ring-2 ring-blue-500 shadow-lg' : 'shadow-sm'}`}>
@@ -260,9 +262,9 @@ export default function Landing() {
                       <span className="text-gray-600">
                         {plan.monthlyPrice === 0 ? '/free' : isYearly ? '/month (billed yearly)' : '/month'}
                       </span>
-                      {isYearly && plan.monthlyPrice > 0 && yearlyDiscount > 0 && (
+                      {isYearly && plan.monthlyPrice > 0 && totalYearlyDiscount > 0 && (
                         <div className="text-sm text-green-600 mt-1">
-                          Save ${(plan.monthlyPrice - plan.yearlyPrice) * 12}/year ({yearlyDiscount}% off)
+                          Save ${totalYearlyDiscount}/year (billed ${fullYearlyPrice} annually)
                         </div>
                       )}
                     </div>
