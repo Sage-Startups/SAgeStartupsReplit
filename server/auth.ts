@@ -135,7 +135,7 @@ export class AuthService {
 
     const msg = {
       to: email,
-      from: process.env.SENDGRID_FROM_EMAIL || 'noreply@sage-startups.com', // Use your verified sender
+      from: 'contact@sage-startups.com', // Verified sender address
       subject: 'Welcome to Sage-Startups! Please verify your email',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
