@@ -232,6 +232,50 @@ export function EnhancedBotInterface({ sessionId, botName, botId, botColor }: En
 
   const options = getEnhancedOptionsForBot(botId);
 
+  // Load existing messages for this session
+  const { data: messages = [] } = useQuery({
+    queryKey: ['/api/sessions', sessionId, 'messages'],
+    enabled: !!sessionId
+  });
+
+  // Load previous results when session loads
+  useEffect(() => {
+    if (messages.length > 0) {
+      // Find the last assistant message and set as result
+      const lastAssistantMessage = messages
+        .filter((msg: any) => msg.role === 'assistant')
+        .pop();
+      
+      if (lastAssistantMessage) {
+        const structuredResult = parseAIResponse(lastAssistantMessage.content);
+        setResult(structuredResult);
+        setCompletionProgress(100);
+      }
+
+      // Try to restore form data from first user message
+      const firstUserMessage = messages.find((msg: any) => msg.role === 'user');
+      if (firstUserMessage) {
+        const content = firstUserMessage.content;
+        const businessMatch = content.match(/Business:\s*(.+)/);
+        const industryMatch = content.match(/Industry:\s*(.+)/);
+        const targetMatch = content.match(/Target Audience:\s*(.+)/);
+        const goalMatch = content.match(/Goal:\s*(.+)/);
+        const infoMatch = content.match(/Additional Info:\s*(.+)/);
+        
+        if (businessMatch) setBusinessName(businessMatch[1].trim());
+        if (industryMatch) setIndustry(industryMatch[1].trim());
+        if (targetMatch) setTargetAudience(targetMatch[1].trim());
+        if (goalMatch) setSelectedOption(goalMatch[1].trim());
+        if (infoMatch) setAdditionalInfo(infoMatch[1].trim());
+        
+        // Set to step 3 if data is loaded
+        if (businessMatch && industryMatch && targetMatch) {
+          setCurrentStep(3);
+        }
+      }
+    }
+  }, [messages]);
+
   // Simulate progress animation
   useEffect(() => {
     if (result && completionProgress < 100) {
@@ -249,6 +293,13 @@ Industry: ${industry}
 Target Audience: ${targetAudience}
 Goal: ${selectedOption}
 Additional Info: ${additionalInfo}`;
+
+      // Update session title with descriptive name
+      const selectedOptionObj = options.find((opt: any) => opt.value === selectedOption);
+      const sessionTitle = `${botName}: ${selectedOptionObj?.label || selectedOption} for ${businessName}`;
+      await apiRequest('PUT', `/api/sessions/${sessionId}`, { 
+        sessionTitle 
+      });
 
       const response = await apiRequest('POST', `/api/sessions/${sessionId}/messages`, {
         content: message,

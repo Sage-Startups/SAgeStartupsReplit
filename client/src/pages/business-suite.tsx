@@ -180,6 +180,7 @@ const categories = [
 export default function BusinessSuite() {
   const { user, isLoading: authLoading } = useAuth();
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   if (authLoading) {
