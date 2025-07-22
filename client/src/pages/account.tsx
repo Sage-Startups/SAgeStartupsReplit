@@ -743,40 +743,7 @@ export default function Account() {
           </TabsContent>
         </Tabs>
 
-        {/* Quick Stripe Fix Panel */}
-        <div className="mt-8 bg-red-50 border border-red-200 rounded-lg p-6">
-          <div className="flex items-center mb-4">
-            <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
-            <h3 className="text-lg font-semibold text-red-800">Stripe Configuration Issue</h3>
-          </div>
-          <p className="text-red-700 mb-4">
-            The current Price IDs are Product IDs (start with "prod_") instead of Price IDs (should start with "price_").
-          </p>
-          <div className="space-y-2 text-sm text-red-600">
-            <p><strong>Steps to fix:</strong></p>
-            <ol className="list-decimal list-inside space-y-1 ml-4">
-              <li>Go to <a href="https://dashboard.stripe.com/products" target="_blank" className="underline">Stripe Dashboard → Products</a></li>
-              <li>Click on each product you created</li>
-              <li>In the product details, find the "Pricing" section</li>
-              <li>Copy the Price ID (starts with "price_", not "prod_")</li>
-            </ol>
-          </div>
-          <div className="mt-4 flex space-x-2">
-            <Button
-              onClick={() => window.open('https://dashboard.stripe.com/products', '_blank')}
-              className="bg-red-600 hover:bg-red-700 text-white"
-            >
-              Open Stripe Dashboard
-            </Button>
-            <Button
-              onClick={() => window.location.href = '/stripe-config'}
-              variant="outline"
-              className="border-red-300 text-red-700 hover:bg-red-100"
-            >
-              Edit Price IDs
-            </Button>
-          </div>
-        </div>
+
       </div>
     </div>
   );

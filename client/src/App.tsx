@@ -18,7 +18,7 @@ import BusinessSuite from "@/pages/business-suite";
 import Account from "@/pages/account";
 import SuperAdmin from "@/pages/super-admin";
 import Checkout from "@/pages/checkout";
-import StripeConfig from "@/pages/stripe-config";
+
 
 
 function Router() {
@@ -40,7 +40,7 @@ function Router() {
           <Route path="/business-suite" component={BusinessSuite} />
           <Route path="/account" component={Account} />
           <Route path="/checkout" component={Checkout} />
-          <Route path="/stripe-config" component={StripeConfig} />
+
           <Route path="/super-admin" component={SuperAdmin} />
           <Route path="/section/:sectionId" component={Section} />
           <Route path="/bot/:botId" component={Bot} />
