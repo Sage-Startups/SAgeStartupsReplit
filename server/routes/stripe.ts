@@ -22,14 +22,14 @@ const PRICING_CONFIG = {
   pro: {
     monthlyPrice: 24,
     yearlyPrice: 20, // $240/year = $20/month
-    stripePriceId: process.env.STRIPE_PRO_MONTHLY_PRICE_ID,
-    stripeYearlyPriceId: process.env.STRIPE_PRO_YEARLY_PRICE_ID
+    stripePriceId: process.env.STRIPE_PRO_MONTHLY_PRICE_ID || 'price_1QhvTxBUgEEKZ1UaXXXXXXXX', // Fallback for development
+    stripeYearlyPriceId: process.env.STRIPE_PRO_YEARLY_PRICE_ID || 'price_1QhvTxBUgEEKZ1UaYYYYYYYY' // Fallback for development
   },
   premium: {
     monthlyPrice: 44,
     yearlyPrice: 36, // $432/year = $36/month
-    stripePriceId: process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID,
-    stripeYearlyPriceId: process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID
+    stripePriceId: process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID || 'price_1QhvTxBUgEEKZ1UaZZZZZZZZ', // Fallback for development
+    stripeYearlyPriceId: process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID || 'price_1QhvTxBUgEEKZ1UaAAAAAAAA' // Fallback for development
   }
 };
 
