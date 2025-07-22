@@ -58,7 +58,16 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
       const price = billingCycle === 'yearly' ? pricingConfig.yearlyPrice : pricingConfig.monthlyPrice;
       const stripePriceId = billingCycle === 'yearly' ? pricingConfig.stripeYearlyPriceId : pricingConfig.stripePriceId;
 
+      console.log(`🔍 Stripe subscription request:`, {
+        tier,
+        billingCycle,
+        price,
+        stripePriceId,
+        env: process.env.NODE_ENV
+      });
+
       if (!stripePriceId) {
+        console.error(`❌ Price ID not configured for ${tier} ${billingCycle}`);
         return res.status(400).json({ message: "Price ID not configured for this plan" });
       }
 
@@ -77,7 +86,25 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
         await storage.updateUser(userId, { stripeCustomerId });
       }
 
+      // Verify price exists in Stripe first
+      try {
+        const stripePrice = await stripe.prices.retrieve(stripePriceId);
+        console.log(`✅ Price ID validated:`, {
+          id: stripePrice.id,
+          amount: stripePrice.unit_amount,
+          currency: stripePrice.currency,
+          mode: stripePrice.livemode ? 'live' : 'test'
+        });
+      } catch (priceError: any) {
+        console.error(`❌ Invalid Price ID ${stripePriceId}:`, priceError.message);
+        return res.status(400).json({ 
+          message: `Invalid Price ID: ${stripePriceId}. Please check your Stripe dashboard.`,
+          error: priceError.message
+        });
+      }
+
       // Create subscription
+      console.log(`🚀 Creating Stripe subscription with Price ID: ${stripePriceId}`);
       const subscription = await stripe.subscriptions.create({
         customer: stripeCustomerId,
         items: [{
@@ -92,6 +119,7 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
           billingCycle,
         },
       });
+      console.log(`✅ Stripe subscription created:`, subscription.id);
 
       // Save subscription info to user
       await storage.updateUser(userId, { 
@@ -111,8 +139,17 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
       });
 
     } catch (error: any) {
-      console.error("Stripe subscription error:", error);
-      res.status(400).json({ message: error.message });
+      console.error("❌ Stripe subscription error:", {
+        message: error.message,
+        code: error.code,
+        param: error.param,
+        type: error.type
+      });
+      res.status(400).json({ 
+        message: error.message || "Failed to create subscription",
+        code: error.code,
+        param: error.param
+      });
     }
   });
 
