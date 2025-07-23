@@ -30,9 +30,7 @@ export function SEOExpertBot({ sessionId, botName }: SEOExpertBotProps) {
     targetAudience: '',
     mainKeywords: '',
     competitors: '',
-    goals: '',
-    currentTraffic: '',
-    targetTraffic: ''
+    goals: ''
   });
   const [seoResults, setSeoResults] = useState<any>(null);
   const [auditProgress, setAuditProgress] = useState(0);
@@ -40,13 +38,13 @@ export function SEOExpertBot({ sessionId, botName }: SEOExpertBotProps) {
   const { toast } = useToast();
 
   // Load existing session
-  const { data: messages = [] } = useQuery({
+  const { data: messages = [] } = useQuery<any[]>({
     queryKey: ['/api/sessions', sessionId, 'messages'],
     enabled: !!sessionId
   });
 
   useEffect(() => {
-    if (messages && messages.length > 0) {
+    if (messages && Array.isArray(messages) && messages.length > 0) {
       const lastMessage = messages[messages.length - 1] as any;
       if (lastMessage.role === 'assistant') {
         try {
@@ -85,15 +83,13 @@ export function SEOExpertBot({ sessionId, botName }: SEOExpertBotProps) {
         - Current Main Keywords: ${websiteInfo.mainKeywords}
         - Known Competitors: ${websiteInfo.competitors}
         - SEO Goals: ${websiteInfo.goals}
-        - Current Monthly Traffic: ${websiteInfo.currentTraffic}
-        - Target Monthly Traffic: ${websiteInfo.targetTraffic}
         - Analysis Date: ${currentDate}
         
         **CRITICAL REQUIREMENTS:**
         1. Research REAL industry trends for ${websiteInfo.industry} in 2025
         2. Generate UNIQUE keyword opportunities specific to this website's niche
         3. Create personalized competitor analysis for: ${websiteInfo.competitors}
-        4. Calculate realistic traffic growth projections from ${websiteInfo.currentTraffic} to ${websiteInfo.targetTraffic}
+        4. Provide realistic SEO growth recommendations and potential outcomes
         5. Provide industry-specific technical SEO recommendations
         6. Generate custom content strategy based on their target audience: ${websiteInfo.targetAudience}
         7. Create 90-day action plan with specific, measurable tasks
@@ -117,9 +113,6 @@ export function SEOExpertBot({ sessionId, botName }: SEOExpertBotProps) {
     },
     onSuccess: (data) => {
       // Generate dynamic values based on user inputs
-      const currentTrafficNum = parseInt(websiteInfo.currentTraffic.replace(/[^0-9]/g, '')) || 10000;
-      const targetTrafficNum = parseInt(websiteInfo.targetTraffic.replace(/[^0-9]/g, '')) || 100000;
-      const growthNeeded = Math.round(((targetTrafficNum - currentTrafficNum) / currentTrafficNum) * 100);
       
       // Generate industry-specific base scores
       const industryBaseScores = {
@@ -131,7 +124,7 @@ export function SEOExpertBot({ sessionId, botName }: SEOExpertBotProps) {
         'default': { base: 70, variance: 15 }
       };
       
-      const industryKey = websiteInfo.industry.toLowerCase();
+      const industryKey = websiteInfo.industry.toLowerCase() as keyof typeof industryBaseScores;
       const { base, variance } = industryBaseScores[industryKey] || industryBaseScores.default;
       const overallScore = Math.max(40, Math.min(95, base + Math.floor(Math.random() * variance) - Math.floor(variance/2)));
       
@@ -170,8 +163,8 @@ export function SEOExpertBot({ sessionId, botName }: SEOExpertBotProps) {
         ]
       };
       
-      const baseKeywords = industryKeywords[industryKey] || industryKeywords.default;
-      const keywordOpportunities = baseKeywords.map(kw => ({
+      const baseKeywords = industryKeywords[industryKey as keyof typeof industryKeywords] || industryKeywords.default;
+      const keywordOpportunities = baseKeywords.map((kw: any) => ({
         keyword: `${kw.base} ${websiteInfo.industry}`,
         volume: kw.volume + Math.floor(Math.random() * 3000) - 1500,
         difficulty: Math.max(20, Math.min(90, kw.difficulty + Math.floor(Math.random() * 20) - 10)),
@@ -183,7 +176,6 @@ export function SEOExpertBot({ sessionId, botName }: SEOExpertBotProps) {
       const competitorData = competitorList.slice(0, 3).map((comp, i) => ({
         name: comp,
         score: Math.max(overallScore - 10, Math.min(95, overallScore + 15 + Math.floor(Math.random() * 20) - 10)),
-        traffic: `${Math.floor((currentTrafficNum * (1.5 + i * 0.5)) / 1000)}K/mo`,
         keywords: Math.floor(500 + Math.random() * 1000 + i * 300)
       }));
       
@@ -191,19 +183,16 @@ export function SEOExpertBot({ sessionId, botName }: SEOExpertBotProps) {
       competitorData.push({
         name: websiteInfo.url || "Your Site",
         score: overallScore,
-        traffic: `${Math.floor(currentTrafficNum / 1000)}K/mo`,
         keywords: Math.floor(300 + Math.random() * 400)
       });
       
-      // Generate traffic projections based on current and target
-      const monthlyGrowth = (targetTrafficNum - currentTrafficNum) / 6;
+      // Generate SEO improvement projections
       const projections = [];
       const scoreGrowth = (95 - overallScore) / 6;
       
       for (let i = 1; i <= 6; i++) {
         projections.push({
           month: `Month ${i}`,
-          traffic: Math.round(currentTrafficNum + (monthlyGrowth * i)),
           ranking: Math.min(95, Math.round(overallScore + (scoreGrowth * i)))
         });
       }
@@ -376,22 +365,7 @@ export function SEOExpertBot({ sessionId, botName }: SEOExpertBotProps) {
                     placeholder="Current focus keywords"
                   />
                 </div>
-                <div>
-                  <Label>Current Monthly Traffic</Label>
-                  <Input
-                    value={websiteInfo.currentTraffic}
-                    onChange={(e) => setWebsiteInfo(prev => ({ ...prev, currentTraffic: e.target.value }))}
-                    placeholder="e.g., 10,000 visits"
-                  />
-                </div>
-                <div>
-                  <Label>Target Monthly Traffic</Label>
-                  <Input
-                    value={websiteInfo.targetTraffic}
-                    onChange={(e) => setWebsiteInfo(prev => ({ ...prev, targetTraffic: e.target.value }))}
-                    placeholder="e.g., 50,000 visits"
-                  />
-                </div>
+
               </div>
 
               <div>
@@ -556,11 +530,11 @@ export function SEOExpertBot({ sessionId, botName }: SEOExpertBotProps) {
                 </CardContent>
               </Card>
 
-              {/* Traffic Projections */}
+              {/* SEO Score Improvement Projections */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Traffic Growth Projection</CardTitle>
-                  <CardDescription>Expected traffic growth with SEO improvements</CardDescription>
+                  <CardTitle>SEO Score Improvement Projection</CardTitle>
+                  <CardDescription>Expected SEO score improvements over time</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="h-64">
@@ -569,10 +543,10 @@ export function SEOExpertBot({ sessionId, botName }: SEOExpertBotProps) {
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="month" />
                         <YAxis />
-                        <Tooltip formatter={(value: any) => value.toLocaleString()} />
+                        <Tooltip formatter={(value: any) => `${value} SEO Score`} />
                         <Area 
                           type="monotone" 
-                          dataKey="traffic" 
+                          dataKey="ranking" 
                           stroke="#10b981" 
                           fill="#10b981" 
                           fillOpacity={0.3}
