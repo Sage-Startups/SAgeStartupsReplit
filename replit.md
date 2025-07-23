@@ -70,6 +70,8 @@ Preferred communication style: Simple, everyday language.
 - ✅ **REDESIGNED LOGO DESIGN ASSISTANT**: Created advanced logo bot with brand color preferences, logo type selection, style choices, inspirations input, and DALL-E 3 integration for AI-generated logos with 3 redesign attempts max
 - ✅ **REDESIGNED BRAND VOICE GENERATOR**: Built comprehensive brand voice bot with multi-step questionnaire, tone/formality preferences, generates personalized voice profiles with examples and downloadable guidelines
 - ✅ **REMOVED BOT PROGRAMMING PAGE**: Deleted unused bot programming interface and cleaned up navigation and routes
+- ✅ **REDESIGNED AD COPY GENERATOR**: Created advanced ad copy bot with platform-specific outputs (Google ads, Instagram content), A/B testing capabilities, tone selection, and AI-powered content generation
+- ✅ **REDESIGNED CREATIVE CONCEPT BOT**: Built comprehensive creative ideation bot for marketing campaigns, brand names, slogans, with multiple concept generation, visual/tone suggestions, hashtags, and implementation roadmaps
 
 ## System Architecture
 

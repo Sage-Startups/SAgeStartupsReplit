@@ -234,12 +234,12 @@ export const bots: BotDefinition[] = [
     name: 'Ad Copy Generator',
     description: 'Persuasive ad content',
     section: 'advertising',
-    icon: 'edit',
+    icon: 'megaphone',
     color: 'text-success',
     features: ['Ad copywriting', 'CTA optimization', 'Platform adaptation', 'Performance optimization']
   },
   {
-    id: 'creative-concepts',
+    id: 'creative-concept',
     name: 'Creative Concept Bot',
     description: 'Innovative ad ideas',
     section: 'advertising',

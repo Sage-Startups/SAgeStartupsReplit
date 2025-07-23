@@ -8,6 +8,8 @@ import { ContentCreatorBot } from "@/components/bot-interfaces/ContentCreatorBot
 import { SEOExpertBot } from "@/components/bot-interfaces/SEOExpertBot";
 import { LogoDesignBot } from "@/components/bot-interfaces/LogoDesignBot";
 import { BrandVoiceBot } from "@/components/bot-interfaces/BrandVoiceBot";
+import AdCopyGeneratorBot from "@/components/bot-interfaces/AdCopyGeneratorBot";
+import CreativeConceptBot from "@/components/bot-interfaces/CreativeConceptBot";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -463,8 +465,24 @@ export default function Bot() {
                   />
                 )}
                 
+                {/* Ad Copy Generator Bot */}
+                {bot.id === 'ad-copy' && (
+                  <AdCopyGeneratorBot 
+                    sessionId={activeSessionId}
+                    initialData={(sessions.find(s => s.id === activeSessionId) as any)?.data}
+                  />
+                )}
+                
+                {/* Creative Concept Bot */}
+                {bot.id === 'creative-concept' && (
+                  <CreativeConceptBot 
+                    sessionId={activeSessionId}
+                    initialData={(sessions.find(s => s.id === activeSessionId) as any)?.data}
+                  />
+                )}
+                
                 {/* Default Enhanced Bot Interface for others */}
-                {!['marketing-strategy', 'brand-identity', 'content-creator', 'blog-writer', 'social-media', 'seo-content', 'keyword-research', 'logo-design', 'brand-voice'].includes(bot.id) && (
+                {!['marketing-strategy', 'brand-identity', 'content-creator', 'blog-writer', 'social-media', 'seo-content', 'keyword-research', 'logo-design', 'brand-voice', 'ad-copy', 'creative-concept'].includes(bot.id) && (
                   <EnhancedBotInterface 
                     sessionId={activeSessionId}
                     botName={bot.name}
