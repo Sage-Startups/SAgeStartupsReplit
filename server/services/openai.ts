@@ -19,24 +19,33 @@ export async function generateBotResponse(
   userMessage: string
 ): Promise<string> {
   try {
+    console.log('OpenAI service called for botId:', botId);
+    console.log('User message:', userMessage);
+    
     const systemPrompt = getBotSystemPrompt(botId, 'general');
+    console.log('System prompt generated:', systemPrompt);
     
     const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
       { role: "system", content: systemPrompt },
       { role: "user", content: userMessage }
     ];
+    console.log('Messages prepared for OpenAI:', messages);
 
+    console.log('Calling OpenAI API...');
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages,
       temperature: 0.7,
       max_tokens: 1500,
     });
+    console.log('OpenAI response received:', response);
 
     const content = response.choices[0].message.content || "";
+    console.log('Extracted content:', content);
     
     return content;
   } catch (error) {
+    console.error('Error in generateBotResponse:', error);
     throw new Error(`Failed to generate bot response: ${error.message}`);
   }
 }

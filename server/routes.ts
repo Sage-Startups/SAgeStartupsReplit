@@ -496,26 +496,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/sessions/:sessionId/messages", requireAuth, async (req: any, res) => {
     try {
+      console.log('Message route started, sessionId:', req.params.sessionId);
+      console.log('Request body:', req.body);
+      
       const sessionId = parseInt(req.params.sessionId);
       const userId = req.user.claims.sub;
       
+      console.log('Parsing request data...');
       const validatedData = insertChatMessageSchema.parse({
         ...req.body,
         sessionId
       });
+      console.log('Validated data:', validatedData);
 
+      console.log('Creating user message...');
       // Save user message
       const userMessage = await storage.createChatMessage(validatedData);
+      console.log('User message created:', userMessage);
 
+      console.log('Getting bot session...');
       // Get bot session to determine bot context
       const session = await storage.getBotSession(sessionId);
       if (!session) {
+        console.log('Session not found for sessionId:', sessionId);
         return res.status(404).json({ message: "Session not found" });
       }
+      console.log('Bot session found:', session);
 
+      console.log('Generating AI response for botId:', session.botId);
       // Generate AI response
       const botResponse = await generateBotResponse(session.botId, validatedData.content);
+      console.log('Bot response generated:', botResponse);
       
+      console.log('Creating AI message...');
       // Save AI response
       const aiMessage = await storage.createChatMessage({
         sessionId,
@@ -523,15 +536,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         content: botResponse,
         metadata: null
       });
+      console.log('AI message created:', aiMessage);
 
+      console.log('Updating analytics...');
       // Update analytics
       const analytics = await storage.getUserAnalytics(userId);
       await storage.updateUserAnalytics(userId, {
         totalMessages: (analytics?.totalMessages || 0) + 2
       });
+      console.log('Analytics updated');
 
-      res.json({ userMessage, aiMessage });
+      const response = { userMessage, aiMessage };
+      console.log('Sending response:', response);
+      res.json(response);
     } catch (error) {
+      console.error('Error in message route:', error);
       res.status(400).json({ message: error instanceof Error ? error.message : 'An error occurred' });
     }
   });
