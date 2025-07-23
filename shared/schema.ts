@@ -163,6 +163,25 @@ export const generatedAssets = pgTable("generated_assets", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Bot Programs - For programming bots to do specific jobs
+export const botPrograms = pgTable("bot_programs", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  botId: varchar("bot_id").notNull(),
+  name: varchar("name").notNull(),
+  description: text("description"),
+  trigger: varchar("trigger").notNull(), // 'manual', 'scheduled', 'event', 'api'
+  schedule: varchar("schedule"), // Cron expression for scheduled triggers
+  event: varchar("event"), // Event name for event-based triggers
+  enabled: boolean("enabled").default(true),
+  instructions: text("instructions").notNull(),
+  parameters: jsonb("parameters"),
+  lastRun: timestamp("last_run"),
+  status: varchar("status").default('idle'), // 'idle', 'running', 'completed', 'failed'
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
 // UpsertUser for authentication system
 export const upsertUserSchema = createInsertSchema(users).pick({
   id: true,
@@ -200,6 +219,19 @@ export const insertGeneratedAssetSchema = createInsertSchema(generatedAssets).pi
   title: true,
 });
 
+export const insertBotProgramSchema = createInsertSchema(botPrograms).pick({
+  userId: true,
+  botId: true,
+  name: true,
+  description: true,
+  trigger: true,
+  schedule: true,
+  event: true,
+  enabled: true,
+  instructions: true,
+  parameters: true,
+});
+
 export const insertUserAnalyticsSchema = createInsertSchema(userAnalytics).pick({
   userId: true,
   totalSessions: true,
@@ -220,6 +252,8 @@ export type InsertGeneratedAsset = z.infer<typeof insertGeneratedAssetSchema>;
 export type GeneratedAsset = typeof generatedAssets.$inferSelect;
 export type InsertUserAnalytics = z.infer<typeof insertUserAnalyticsSchema>;
 export type UserAnalytics = typeof userAnalytics.$inferSelect;
+export type InsertBotProgram = z.infer<typeof insertBotProgramSchema>;
+export type BotProgram = typeof botPrograms.$inferSelect;
 
 export const founderMetrics = pgTable('founder_metrics', {
   id: serial('id').primaryKey(),
