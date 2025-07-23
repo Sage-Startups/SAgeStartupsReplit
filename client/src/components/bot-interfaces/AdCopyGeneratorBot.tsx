@@ -123,21 +123,45 @@ Make the copy platform-specific and optimized for ${adData.platform}.`,
       });
     },
     onSuccess: async (response: any) => {
+      console.log('Ad generation response:', response);
+      
+      if (!response?.aiMessage?.content) {
+        console.error('Invalid response structure:', response);
+        toast({
+          title: "Generation Failed",
+          description: "Invalid response from AI service",
+          variant: "destructive",
+        });
+        return;
+      }
+      
       const aiResponse = response.aiMessage;
+      console.log('AI response content:', aiResponse.content);
+      
       // Parse AI response to extract structured ad copy
       const ads = parseAIResponse(aiResponse.content);
+      console.log('Parsed ads:', ads);
+      
       setGeneratedAds(ads);
       setStep(3);
-      await saveSessionMutation.mutateAsync();
+      
+      try {
+        await saveSessionMutation.mutateAsync();
+      } catch (saveError) {
+        console.error('Save error:', saveError);
+        // Continue even if save fails
+      }
+      
       toast({
         title: "Ad Copy Generated",
         description: "Your A/B test versions are ready!",
       });
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      console.error('Ad generation error:', error);
       toast({
         title: "Generation Failed",
-        description: "Failed to generate ad copy. Please try again.",
+        description: `Failed to generate ad copy: ${error.message || 'Please try again.'}`,
         variant: "destructive",
       });
     }
@@ -145,31 +169,77 @@ Make the copy platform-specific and optimized for ${adData.platform}.`,
 
   // Parse AI response into structured format
   const parseAIResponse = (content: string): GeneratedAd => {
-    // This is a simplified parser - in production, you'd want more robust parsing
-    const sections = content.split(/Version [AB]:|A\/B Version [AB]:/i);
+    // More robust parsing with fallbacks
+    const sections = content.split(/(?:Version [AB]:|A\/B Version [AB]:|VERSION [AB])/i);
     
     const parseVersion = (text: string) => {
-      const headlines = text.match(/Headline[s]?:?\s*(.+?)(?=Primary|Body|Description|Hooks|$)/i);
-      const primaryText = text.match(/(?:Primary Text|Body Copy):?\s*(.+?)(?=Description|Hooks|Carousel|$)/i);
-      const description = text.match(/Description:?\s*(.+?)(?=Hooks|Carousel|$)/i);
-      const hooks = text.match(/(?:Hooks?|Openers?):?\s*((?:.+\n?)+?)(?=Carousel|Reels|$)/i);
-      const carousel = text.match(/Carousel Captions?:?\s*((?:.+\n?)+?)(?=Reels|$)/i);
-      const reels = text.match(/(?:Reels Text|Instagram Reels):?\s*(.+?)$/i);
+      if (!text || text.trim().length === 0) {
+        return {
+          headline: `${adData.product} - ${adData.usp}`,
+          primaryText: `Transform your experience with ${adData.product}. ${adData.cta}`,
+          hooks: [`Discover ${adData.product}`, `${adData.usp}`, `Perfect for ${adData.targetAudience}`],
+          carouselCaptions: undefined,
+          reelsText: undefined
+        };
+      }
+
+      // Extract content with more flexible patterns
+      const extractSection = (pattern: RegExp, defaultValue = '') => {
+        const match = text.match(pattern);
+        return match?.[1]?.trim() || defaultValue;
+      };
+
+      const extractList = (pattern: RegExp) => {
+        const match = text.match(pattern);
+        if (!match?.[1]) return [];
+        return match[1].split('\n')
+          .filter(item => item.trim())
+          .map(item => item.replace(/^[-•*\d.]\s*/, '').trim())
+          .filter(item => item.length > 0);
+      };
+
+      const headline = extractSection(/(?:Headline[s]?|Title):?\s*(.+?)(?=\n|Primary|Body|Description|Hooks|$)/i, 
+        `${adData.product} - ${adData.usp}`);
+      
+      const primaryText = extractSection(/(?:Primary Text|Body Copy|Text):?\s*((?:.|\n)*?)(?=Description|Hooks|Carousel|Reels|$)/i,
+        `Transform your experience with ${adData.product}. ${adData.cta}`);
+      
+      const description = extractSection(/Description:?\s*(.+?)(?=\n|Hooks|Carousel|Reels|$)/i);
+      
+      const hooks = extractList(/(?:Hooks?|Openers?):?\s*((?:.|\n)*?)(?=Carousel|Reels|Caption|$)/i);
+      if (hooks.length === 0) {
+        hooks.push(`Discover ${adData.product}`, `${adData.usp}`, `Perfect for ${adData.targetAudience}`);
+      }
+
+      const carouselCaptions = adData.platform === 'instagram' ? 
+        extractList(/(?:Carousel Captions?|Instagram Carousel):?\s*((?:.|\n)*?)(?=Reels|$)/i) : undefined;
+      
+      const reelsText = adData.platform === 'instagram' ? 
+        extractSection(/(?:Reels Text|Instagram Reels|Reels):?\s*(.+?)$/i) : undefined;
 
       return {
-        headline: headlines?.[1]?.trim() || 'Compelling Headline',
-        primaryText: primaryText?.[1]?.trim() || 'Engaging primary text',
-        description: description?.[1]?.trim(),
-        hooks: hooks?.[1]?.split('\n').filter(h => h.trim()).map(h => h.replace(/^[-•*]\s*/, '').trim()) || [],
-        carouselCaptions: carousel?.[1]?.split('\n').filter(c => c.trim()).map(c => c.replace(/^[-•*\d.]\s*/, '').trim()),
-        reelsText: reels?.[1]?.trim()
+        headline,
+        primaryText,
+        description: description || undefined,
+        hooks: hooks.slice(0, 4), // Limit to 4 hooks
+        carouselCaptions: carouselCaptions?.slice(0, 5), // Limit to 5 captions
+        reelsText
       };
     };
 
-    return {
-      versionA: parseVersion(sections[1] || content),
-      versionB: parseVersion(sections[2] || content)
-    };
+    // Parse both versions with fallbacks
+    const versionA = parseVersion(sections[1] || sections[0] || content);
+    const versionB = parseVersion(sections[2] || sections[0] || content);
+
+    // Ensure versions are different
+    if (versionA.headline === versionB.headline) {
+      versionB.headline = `${versionA.headline} - Alternative`;
+    }
+    if (versionA.primaryText === versionB.primaryText) {
+      versionB.primaryText = `${adData.product} delivers ${adData.usp}. ${adData.cta}`;
+    }
+
+    return { versionA, versionB };
   };
 
   const handleNext = () => {
