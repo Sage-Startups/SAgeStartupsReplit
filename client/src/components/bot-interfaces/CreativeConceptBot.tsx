@@ -126,12 +126,33 @@ Make each concept distinct and creative, tailored to the ${conceptData.projectTy
       });
     },
     onSuccess: async (response: any) => {
-      const aiResponse = response.aiMessage;
+      console.log('Concept generation response:', response);
+      
+      // Handle both old and new response formats
+      const aiMessage = response.aiMessage || response;
+      
+      if (!aiMessage?.content) {
+        console.error('Invalid response structure:', response);
+        toast({
+          title: "Generation Failed",
+          description: "Invalid response from AI service",
+          variant: "destructive",
+        });
+        return;
+      }
+      
       // Parse AI response to extract structured concepts
-      const concepts = parseAIResponse(aiResponse.content);
+      const concepts = parseAIResponse(aiMessage.content);
       setGeneratedConcepts(concepts);
       setStep(3);
-      await saveSessionMutation.mutateAsync();
+      
+      try {
+        await saveSessionMutation.mutateAsync();
+      } catch (saveError) {
+        console.error('Save error:', saveError);
+        // Continue even if save fails
+      }
+      
       toast({
         title: "Concepts Generated",
         description: "Your creative concepts are ready!",

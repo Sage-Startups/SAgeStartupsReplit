@@ -125,7 +125,10 @@ Make the copy platform-specific and optimized for ${adData.platform}.`,
     onSuccess: async (response: any) => {
       console.log('Ad generation response:', response);
       
-      if (!response?.aiMessage?.content) {
+      // Handle both old and new response formats
+      const aiMessage = response.aiMessage || response;
+      
+      if (!aiMessage?.content) {
         console.error('Invalid response structure:', response);
         toast({
           title: "Generation Failed",
@@ -135,11 +138,10 @@ Make the copy platform-specific and optimized for ${adData.platform}.`,
         return;
       }
       
-      const aiResponse = response.aiMessage;
-      console.log('AI response content:', aiResponse.content);
+      console.log('AI response content:', aiMessage.content);
       
       // Parse AI response to extract structured ad copy
-      const ads = parseAIResponse(aiResponse.content);
+      const ads = parseAIResponse(aiMessage.content);
       console.log('Parsed ads:', ads);
       
       setGeneratedAds(ads);
