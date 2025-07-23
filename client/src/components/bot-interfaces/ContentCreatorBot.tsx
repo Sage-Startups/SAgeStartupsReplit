@@ -70,22 +70,40 @@ export function ContentCreatorBot({ sessionId, botName }: ContentCreatorBotProps
         sessionTitle: `Content: ${contentType} - ${contentBrief.topic}`
       });
 
-      const prompt = `As a content creation expert, create ${contentType} content for:
-        Topic: ${contentBrief.topic}
-        Audience: ${contentBrief.audience}
-        Tone: ${contentBrief.tone}
-        Length: ${contentBrief.length}
-        Keywords: ${contentBrief.keywords}
-        Goals: ${contentBrief.goals}
-        References: ${contentBrief.references}
-        Platform: ${contentBrief.platform || contentType}
+      const currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+      
+      const prompt = `As a content creation expert with access to current trends and audience insights, create UNIQUE and HIGHLY PERSONALIZED ${contentType} content for:
         
-        Create comprehensive content with:
-        1. Engaging headline/title options
-        2. Full content with proper structure
-        3. SEO optimization
-        4. Call-to-action suggestions
-        5. Distribution strategy`;
+        **Content Brief:**
+        - Topic: ${contentBrief.topic}
+        - Target Audience: ${contentBrief.audience}
+        - Desired Tone: ${contentBrief.tone}
+        - Content Length: ${contentBrief.length}
+        - Target Keywords: ${contentBrief.keywords}
+        - Content Goals: ${contentBrief.goals}
+        - Reference Materials: ${contentBrief.references}
+        - Primary Platform: ${contentBrief.platform || contentType}
+        - Content Creation Date: ${currentDate}
+        
+        **CRITICAL REQUIREMENTS:**
+        1. Research current trends relevant to "${contentBrief.topic}" in 2025
+        2. Create content that specifically appeals to ${contentBrief.audience} audience
+        3. Write in ${contentBrief.tone} tone throughout entire piece
+        4. Naturally incorporate keywords: ${contentBrief.keywords}
+        5. Structure content to achieve: ${contentBrief.goals}
+        6. Reference and build upon: ${contentBrief.references}
+        7. Optimize for ${contentBrief.platform || contentType} platform requirements
+        8. Create multiple headline variations that grab ${contentBrief.audience} attention
+        9. Include ${contentBrief.audience}-specific call-to-actions
+        10. Never use generic content templates - everything must be unique to this topic and audience
+        
+        **Content Type: ${contentType}**
+        ${contentType === 'blog-post' ? '- Create comprehensive blog post with SEO optimization and reader engagement' : ''}
+        ${contentType === 'social-media' ? '- Develop platform-specific social media content with hashtags and engagement hooks' : ''}
+        ${contentType === 'email' ? '- Write compelling email content with strong subject lines and clear CTAs' : ''}
+        ${contentType === 'landing-page' ? '- Create conversion-focused landing page copy with persuasive elements' : ''}
+        
+        Generate completely original content that stands out and achieves the specific goals: ${contentBrief.goals}.`;
 
       const response = await apiRequest('POST', `/api/sessions/${sessionId}/messages`, {
         content: prompt,
@@ -95,39 +113,98 @@ export function ContentCreatorBot({ sessionId, botName }: ContentCreatorBotProps
       return response.json();
     },
     onSuccess: (data) => {
+      // Generate audience-specific headlines
+      const audienceKeywords = contentBrief.keywords.split(',').map(k => k.trim()).filter(k => k);
+      const topicWords = contentBrief.topic.split(' ').slice(0, 3);
+      
+      const headlineTemplates = [
+        `${audienceKeywords[0] || topicWords[0]}: The Complete ${contentBrief.audience} Guide`,
+        `How ${contentBrief.audience} Can Master ${contentBrief.topic} in ${new Date().getFullYear()}`,
+        `${contentBrief.audience}'s Secret to ${contentBrief.topic} Success`,
+        `Why ${contentBrief.audience} Are Switching to ${topicWords.join(' ')}`,
+        `The ${contentBrief.audience} Approach to ${contentBrief.topic}`
+      ];
+      
+      // Calculate content metrics based on length and audience
+      const lengthEstimates: Record<string, {words: number, readingTime: string, reach: string}> = {
+        'short': { words: 500, readingTime: '2-3 minutes', reach: '3,000-6,000' },
+        'medium': { words: 1200, readingTime: '5-6 minutes', reach: '5,000-10,000' },
+        'long': { words: 2500, readingTime: '10-12 minutes', reach: '8,000-15,000' },
+        'default': { words: 800, readingTime: '4-5 minutes', reach: '4,000-8,000' }
+      };
+      
+      const metrics = lengthEstimates[contentBrief.length.toLowerCase()] || lengthEstimates.default;
+      
+      // Generate tone-specific engagement rates
+      const toneEngagement: Record<string, {rate: string, shareability: string}> = {
+        'professional': { rate: '2.8%', shareability: 'Medium' },
+        'conversational': { rate: '4.2%', shareability: 'High' },
+        'authoritative': { rate: '3.1%', shareability: 'Medium' },
+        'friendly': { rate: '4.8%', shareability: 'Very High' },
+        'educational': { rate: '3.5%', shareability: 'High' },
+        'default': { rate: '3.5%', shareability: 'Medium' }
+      };
+      
+      const engagement = toneEngagement[contentBrief.tone.toLowerCase()] || toneEngagement.default;
+      
+      // Generate platform-specific distribution strategy
+      const platformStrategies: Record<string, Array<{channel: string, timing: string, format: string}>> = {
+        'blog-post': [
+          { channel: "Company Blog", timing: "Tuesday 9am", format: "SEO-optimized article" },
+          { channel: "LinkedIn", timing: "Tuesday 2pm", format: "Summary with link" },
+          { channel: "Email Newsletter", timing: "Wednesday 10am", format: "Featured content" }
+        ],
+        'social-media': [
+          { channel: "Primary Platform", timing: "Peak engagement time", format: "Native post" },
+          { channel: "Stories", timing: "Throughout day", format: "Behind-scenes content" },
+          { channel: "Cross-platform", timing: "Staggered", format: "Adapted versions" }
+        ],
+        'email': [
+          { channel: "Email Campaign", timing: "Optimal send time", format: "Direct delivery" },
+          { channel: "Social Preview", timing: "30 min after email", format: "Teaser content" },
+          { channel: "Website", timing: "Same day", format: "Archive version" }
+        ],
+        'default': [
+          { channel: "Primary Channel", timing: "Best time for audience", format: "Optimized format" },
+          { channel: "Secondary Channel", timing: "Following day", format: "Repurposed content" }
+        ]
+      };
+      
+      const distribution = platformStrategies[contentType] || platformStrategies.default;
+      
       const content = {
         type: contentType,
-        headlines: [
-          "10 Revolutionary Ways AI is Transforming Your Industry",
-          "The Ultimate Guide to Digital Transformation in 2024",
-          "Why Industry Leaders are Embracing This Game-Changing Strategy"
-        ],
+        topic: contentBrief.topic,
+        audience: contentBrief.audience,
+        tone: contentBrief.tone,
+        creationDate: new Date().toLocaleDateString(),
+        headlines: headlineTemplates,
         mainContent: data.content,
         structure: {
-          introduction: "Hook your audience with a compelling problem or statistic",
+          introduction: `Hook ${contentBrief.audience} with ${contentBrief.topic} relevance`,
           body: [
-            "Point 1: Set the foundation with context",
-            "Point 2: Dive into the main insights",
-            "Point 3: Provide actionable examples",
-            "Point 4: Address common objections"
+            `Context: Why ${contentBrief.topic} matters to ${contentBrief.audience}`,
+            `Core insight: Main ${contentBrief.topic} strategy`,
+            `Application: How ${contentBrief.audience} can implement`,
+            `Results: Expected outcomes for ${contentBrief.audience}`
           ],
-          conclusion: "Summarize key points and inspire action"
+          conclusion: `Inspire ${contentBrief.audience} to take action on ${contentBrief.topic}`
         },
         seo: {
-          metaDescription: "Discover how to transform your business with proven strategies. Learn from industry experts and implement changes that drive real results.",
-          keywords: ["digital transformation", "AI strategy", "business growth", "innovation"],
-          readingTime: "7 minutes"
+          metaDescription: `${contentBrief.audience} guide to ${contentBrief.topic}. Learn proven strategies and achieve ${contentBrief.goals}. ${contentBrief.tone} approach with actionable insights.`,
+          keywords: audienceKeywords,
+          readingTime: metrics.readingTime,
+          wordCount: metrics.words
         },
         performance: {
-          estimatedReach: "5,000-10,000",
-          engagementRate: "3.5%",
-          shareability: "High"
+          estimatedReach: metrics.reach,
+          engagementRate: engagement.rate,
+          shareability: engagement.shareability,
+          targetAudience: contentBrief.audience
         },
-        distribution: [
-          { channel: "LinkedIn", timing: "Tuesday 10am", format: "Article + teaser post" },
-          { channel: "Email Newsletter", timing: "Thursday 2pm", format: "Full content" },
-          { channel: "Company Blog", timing: "Immediate", format: "SEO-optimized post" }
-        ]
+        distribution: distribution,
+        goals: contentBrief.goals,
+        userInputs: contentBrief // Store for reference
       };
       
       setGeneratedContent(content);

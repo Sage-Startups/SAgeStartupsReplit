@@ -74,23 +74,38 @@ export function BrandingBot({ sessionId, botName }: BrandingBotProps) {
         await new Promise(resolve => setTimeout(resolve, 150));
       }
 
-      const prompt = `As a branding expert, create a comprehensive brand identity for:
-        Business: ${brandAssessment.businessName}
-        Tagline: ${brandAssessment.tagline}
-        Industry: ${brandAssessment.industry}
-        Target Audience: ${brandAssessment.targetAudience}
-        Brand Personality: ${selectedPersonality.join(', ')}
-        Core Values: ${brandAssessment.values}
-        Current Branding Issues: ${brandAssessment.currentBranding}
-        Competitors: ${brandAssessment.competitors}
-        Inspiration: ${brandAssessment.inspiration}
+      const currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+      
+      const prompt = `As a branding expert with access to current design trends and market research, create a COMPLETELY UNIQUE and PERSONALIZED brand identity for:
         
-        Create:
-        1. Brand strategy and positioning
-        2. Visual identity guidelines (colors, typography, style)
-        3. Logo concepts and variations
-        4. Brand voice and messaging
-        5. Implementation roadmap`;
+        **Business Profile:**
+        - Business Name: ${brandAssessment.businessName}
+        - Current Tagline: ${brandAssessment.tagline}
+        - Industry: ${brandAssessment.industry}
+        - Target Audience: ${brandAssessment.targetAudience}
+        - Selected Brand Personality: ${selectedPersonality.join(', ')}
+        - Core Values: ${brandAssessment.values}
+        - Current Branding Challenges: ${brandAssessment.currentBranding}
+        - Key Competitors: ${brandAssessment.competitors}
+        - Design Inspiration: ${brandAssessment.inspiration}
+        - Brand Creation Date: ${currentDate}
+        
+        **CRITICAL REQUIREMENTS:**
+        1. Research current ${brandAssessment.industry} industry branding trends for 2025
+        2. Create brand positioning that differentiates from competitors: ${brandAssessment.competitors}
+        3. Design color palette that resonates with ${brandAssessment.targetAudience} audience
+        4. Generate typography choices that reflect ${selectedPersonality.join(' and ')} personality
+        5. Create messaging that addresses their current challenges: ${brandAssessment.currentBranding}
+        6. Incorporate inspiration from: ${brandAssessment.inspiration}
+        7. Develop brand voice that appeals to ${brandAssessment.targetAudience}
+        8. Address specific industry requirements for ${brandAssessment.industry}
+        9. Never use generic brand templates - everything must be unique to ${brandAssessment.businessName}
+        10. Create implementation plan that considers their ${brandAssessment.industry} market dynamics
+        
+        **Brand Personality Focus: ${selectedPersonality.join(', ')}**
+        Ensure every element reflects these personality traits in a way that's authentic to the ${brandAssessment.industry} industry.
+        
+        Create a comprehensive, completely unique brand identity that stands out in the ${brandAssessment.industry} market.`;
 
       const response = await apiRequest('POST', `/api/sessions/${sessionId}/messages`, {
         content: prompt,
@@ -100,48 +115,107 @@ export function BrandingBot({ sessionId, botName }: BrandingBotProps) {
       return response.json();
     },
     onSuccess: (data) => {
+      // Generate industry-specific color palettes
+      const industryColorPalettes: Record<string, Array<{name: string, hex: string, usage: string}>> = {
+        'technology': [
+          { name: "Tech Blue", hex: "#0066CC", usage: "Primary brand color" },
+          { name: "Innovation Orange", hex: "#FF6B35", usage: "Accent and energy" },
+          { name: "Neutral Gray", hex: "#F8F9FA", usage: "Backgrounds" }
+        ],
+        'healthcare': [
+          { name: "Medical Teal", hex: "#20B2AA", usage: "Trust and healing" },
+          { name: "Wellness Green", hex: "#32CD32", usage: "Health and vitality" },
+          { name: "Clean White", hex: "#FFFFFF", usage: "Cleanliness" }
+        ],
+        'finance': [
+          { name: "Trust Navy", hex: "#003366", usage: "Stability and trust" },
+          { name: "Growth Gold", hex: "#FFD700", usage: "Prosperity" },
+          { name: "Professional Gray", hex: "#E5E5E5", usage: "Sophistication" }
+        ],
+        'retail': [
+          { name: "Shopping Red", hex: "#E74C3C", usage: "Energy and urgency" },
+          { name: "Luxury Purple", hex: "#9B59B6", usage: "Premium feel" },
+          { name: "Warm Beige", hex: "#F5F5DC", usage: "Comfort" }
+        ],
+        'education': [
+          { name: "Knowledge Blue", hex: "#3498DB", usage: "Learning and growth" },
+          { name: "Wisdom Orange", hex: "#E67E22", usage: "Creativity" },
+          { name: "Study Green", hex: "#27AE60", usage: "Success" }
+        ],
+        'default': [
+          { name: "Brand Primary", hex: "#2563EB", usage: "Main brand color" },
+          { name: "Brand Secondary", hex: "#10B981", usage: "Supporting color" },
+          { name: "Brand Neutral", hex: "#F3F4F6", usage: "Background" }
+        ]
+      };
+      
+      // Generate personality-based brand voice
+      const personalityVoice: Record<string, {tone: string, principles: string[]}> = {
+        'professional': { tone: "Authoritative yet approachable", principles: ["Clear communication", "Expert guidance", "Reliable solutions"] },
+        'friendly': { tone: "Warm and conversational", principles: ["Personal connection", "Helpful support", "Positive energy"] },
+        'innovative': { tone: "Forward-thinking and dynamic", principles: ["Cutting-edge solutions", "Creative approaches", "Future-focused"] },
+        'trustworthy': { tone: "Reliable and transparent", principles: ["Honest communication", "Consistent delivery", "Ethical practices"] },
+        'creative': { tone: "Inspiring and imaginative", principles: ["Original thinking", "Artistic expression", "Bold ideas"] },
+        'default': { tone: "Balanced and versatile", principles: ["Clear messaging", "Customer-focused", "Professional approach"] }
+      };
+      
+      // Select appropriate color palette and voice based on industry and personality
+      const industryKey = brandAssessment.industry.toLowerCase();
+      const colorPalette = industryColorPalettes[industryKey] || industryColorPalettes.default;
+      
+      const primaryPersonality = selectedPersonality[0]?.toLowerCase() || 'default';
+      const voiceProfile = personalityVoice[primaryPersonality] || personalityVoice.default;
+      
+      // Generate positioning based on competitors and values
+      const competitorList = brandAssessment.competitors.split(',').map(c => c.trim()).filter(c => c);
+      const uniquePositioning = `${brandAssessment.values.split(',')[0]?.trim() || 'Value-driven'}, differentiated from ${competitorList[0] || 'competitors'} through ${selectedPersonality.join(' and ').toLowerCase()} approach`;
+      
+      // Generate typography based on personality
+      const personalityTypography: Record<string, {heading: string, body: string, accent: string}> = {
+        'professional': { heading: "Source Sans Pro (Bold)", body: "Source Sans Pro (Regular)", accent: "Merriweather" },
+        'friendly': { heading: "Poppins (Bold)", body: "Open Sans (Regular)", accent: "Comforter" },
+        'innovative': { heading: "Montserrat (Bold)", body: "Lato (Regular)", accent: "Space Grotesk" },
+        'creative': { heading: "Playfair Display (Bold)", body: "Source Serif Pro (Regular)", accent: "Dancing Script" },
+        'trustworthy': { heading: "Roboto (Bold)", body: "Roboto (Regular)", accent: "Crimson Text" },
+        'default': { heading: "Inter (Bold)", body: "Inter (Regular)", accent: "Playfair Display" }
+      };
+      
+      const typography = personalityTypography[primaryPersonality] || personalityTypography.default;
+      
       const results = {
+        businessName: brandAssessment.businessName,
+        industry: brandAssessment.industry,
+        targetAudience: brandAssessment.targetAudience,
+        selectedPersonality: selectedPersonality,
+        creationDate: new Date().toLocaleDateString(),
         brandStrategy: {
-          positioning: "Premium, innovative, customer-centric",
-          uniqueValue: "Combining cutting-edge technology with human touch",
-          marketDifferentiation: "Only solution that offers both automation and personalization"
+          positioning: uniquePositioning,
+          uniqueValue: `Combining ${brandAssessment.values} with ${selectedPersonality.join(' and ').toLowerCase()} approach to serve ${brandAssessment.targetAudience}`,
+          marketDifferentiation: `Unique ${brandAssessment.industry} solution that addresses ${brandAssessment.currentBranding} through ${selectedPersonality.join(', ').toLowerCase()} brand personality`
         },
         visualIdentity: {
-          primaryColors: [
-            { name: "Deep Blue", hex: "#1E40AF", usage: "Primary brand color" },
-            { name: "Electric Purple", hex: "#7C3AED", usage: "Accent and CTAs" },
-            { name: "Soft Gray", hex: "#F3F4F6", usage: "Backgrounds" }
-          ],
-          typography: {
-            heading: "Inter (Bold)",
-            body: "Inter (Regular)",
-            accent: "Playfair Display"
-          },
+          primaryColors: colorPalette,
+          typography: typography,
           logoVariations: [
-            { type: "Primary", description: "Full logo with icon and text" },
-            { type: "Icon Only", description: "Standalone symbol for apps" },
-            { type: "Wordmark", description: "Text-only version" }
+            { type: "Primary Logo", description: `Full ${brandAssessment.businessName} logo with icon and wordmark` },
+            { type: "Icon Mark", description: `Standalone symbol for ${brandAssessment.industry} applications` },
+            { type: "Wordmark", description: `Text-only version for ${brandAssessment.targetAudience} communications` }
           ]
         },
         brandVoice: {
-          tone: "Professional yet approachable",
-          principles: [
-            "Clear and concise",
-            "Empowering and supportive",
-            "Forward-thinking",
-            "Human-centered"
-          ],
+          tone: voiceProfile.tone,
+          principles: voiceProfile.principles,
           doList: [
-            "Use active voice",
-            "Be conversational",
-            "Show empathy",
-            "Inspire action"
+            `Speak directly to ${brandAssessment.targetAudience}`,
+            `Reflect ${selectedPersonality.join(' and ').toLowerCase()} personality`,
+            `Address ${brandAssessment.industry} industry needs`,
+            `Differentiate from ${competitorList[0] || 'competitors'}`
           ],
           dontList: [
-            "Use jargon",
-            "Be overly formal",
-            "Make assumptions",
-            "Sound robotic"
+            `Sound like ${competitorList[0] || 'generic competitors'}`,
+            `Ignore ${brandAssessment.targetAudience} preferences`,
+            `Contradict ${brandAssessment.values}`,
+            `Use inappropriate ${brandAssessment.industry} language`
           ]
         },
         implementation: {
