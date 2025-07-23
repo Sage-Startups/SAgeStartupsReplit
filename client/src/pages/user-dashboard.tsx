@@ -39,7 +39,30 @@ import {
   ChevronDown,
   ChevronRight,
   Trash2,
-  MoreVertical
+  MoreVertical,
+  Target,
+  Search,
+  Mail,
+  Eye,
+  Star,
+  Rocket,
+  Map,
+  Calculator,
+  MessageCircle,
+  Type,
+  Building,
+  FolderOpen,
+  Shield,
+  Briefcase,
+  Video,
+  BarChart3,
+  PieChart,
+  Lightbulb,
+  BookOpen,
+  Mic,
+  Image,
+  Volume2,
+  Gauge
 } from "lucide-react";
 
 interface UserAnalytics {
