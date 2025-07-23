@@ -8,7 +8,7 @@ import { bots } from "../client/src/lib/bot-definitions";
 import authRoutes from "./authRoutes";
 import { AuthService } from "./auth";
 import { registerStripeRoutes } from "./routes/stripe";
-import { registerBotProgramRoutes } from "./routes/bot-programs";
+
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { v4 as uuidv4 } from "uuid";
@@ -63,8 +63,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Stripe payment routes
   registerStripeRoutes(app, requireAuth);
   
-  // Bot programming routes
-  registerBotProgramRoutes(app);
+
   
   // Import and mount webhook routes
   const { webhookRoutes } = await import('./routes/webhooks');

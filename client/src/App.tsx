@@ -20,7 +20,7 @@ import SuperAdmin from "@/pages/super-admin";
 import Checkout from "@/pages/checkout";
 import FinancialDashboard from "@/pages/financial-dashboard";
 import TaskManager from "@/pages/task-manager";
-import BotProgramming from "@/pages/bot-programming";
+
 
 
 
@@ -48,7 +48,7 @@ function Router() {
           <Route path="/super-admin" component={SuperAdmin} />
           <Route path="/financial-dashboard" component={FinancialDashboard} />
           <Route path="/task-manager" component={TaskManager} />
-          <Route path="/bot-programming" component={BotProgramming} />
+
           <Route path="/section/:sectionId" component={Section} />
           <Route path="/bot/:botId" component={Bot} />
           <Route path="/project/:projectId" component={ProjectSessions} />
