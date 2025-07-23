@@ -13,7 +13,8 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { 
   Search, TrendingUp, Globe, Link, FileText, AlertCircle,
   CheckCircle, ArrowUp, ArrowDown, Minus, Target, Zap,
-  BarChart3, Eye, Clock, Award, RefreshCw, Download
+  BarChart3, Eye, Clock, Award, RefreshCw, Download,
+  AlertTriangle, X
 } from "lucide-react";
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from "recharts";
 
@@ -197,6 +198,93 @@ export function SEOExpertBot({ sessionId, botName }: SEOExpertBotProps) {
         });
       }
       
+      // Generate specific issues for each category
+      const generateIssues = (category: string, numIssues: number, numCritical: number) => {
+        const issueDatabase = {
+          technical: [
+            "Missing meta descriptions on 12 pages",
+            "Duplicate title tags found on 5 pages", 
+            "No XML sitemap detected",
+            "Missing robots.txt file",
+            "Internal links with missing alt text",
+            "Broken internal links found",
+            "Missing canonical tags",
+            "Schema markup not implemented",
+            "404 errors on important pages",
+            "Redirect chains affecting crawlability"
+          ],
+          content: [
+            "Thin content on product pages (under 200 words)",
+            "Missing H1 tags on 8 pages",
+            "Keyword cannibalization detected",
+            "Low-quality content identified",
+            "Missing focus keywords in content",
+            "Outdated blog posts need refreshing",
+            "No internal linking strategy",
+            "Content gaps in key topics"
+          ],
+          performance: [
+            "Page load speed over 4 seconds",
+            "Large image files not optimized",
+            "Too many HTTP requests",
+            "No browser caching enabled",
+            "Render-blocking JavaScript",
+            "Unoptimized CSS files",
+            "No image compression",
+            "Server response time too slow"
+          ],
+          mobile: [
+            "Not mobile-friendly design",
+            "Touch elements too close together",
+            "Text too small to read on mobile",
+            "Content wider than screen",
+            "Mobile usability issues",
+            "No viewport meta tag",
+            "Pop-ups blocking mobile content"
+          ],
+          backlinks: [
+            "Low domain authority backlinks",
+            "Missing backlinks from industry sites",
+            "No local citation building",
+            "Competitor gap in link profile",
+            "Toxic backlinks need disavowing",
+            "Anchor text diversity issues",
+            "No link building strategy"
+          ]
+        };
+
+        const categoryIssues = issueDatabase[category as keyof typeof issueDatabase] || [];
+        const shuffled = [...categoryIssues].sort(() => Math.random() - 0.5);
+        const selectedIssues = shuffled.slice(0, numIssues);
+        const criticalIssues = selectedIssues.slice(0, numCritical);
+        
+        return {
+          all: selectedIssues,
+          critical: criticalIssues,
+          regular: selectedIssues.slice(numCritical)
+        };
+      };
+
+      const technicalIssueCount = Math.floor(Math.random() * 8) + 3;
+      const technicalCriticalCount = Math.floor(Math.random() * 3) + 1;
+      const technicalIssues = generateIssues('technical', technicalIssueCount, technicalCriticalCount);
+
+      const contentIssueCount = Math.floor(Math.random() * 6) + 2;
+      const contentCriticalCount = Math.floor(Math.random() * 2);
+      const contentIssues = generateIssues('content', contentIssueCount, contentCriticalCount);
+
+      const performanceIssueCount = Math.floor(Math.random() * 5) + 1;
+      const performanceCriticalCount = Math.floor(Math.random() * 2) + 1;
+      const performanceIssues = generateIssues('performance', performanceIssueCount, performanceCriticalCount);
+
+      const mobileIssueCount = Math.floor(Math.random() * 4) + 1;
+      const mobileCriticalCount = Math.floor(Math.random() * 2);
+      const mobileIssues = generateIssues('mobile', mobileIssueCount, mobileCriticalCount);
+
+      const backlinksIssueCount = Math.floor(Math.random() * 7) + 2;
+      const backlinksCriticalCount = Math.floor(Math.random() * 3);
+      const backlinksIssues = generateIssues('backlinks', backlinksIssueCount, backlinksCriticalCount);
+
       const results = {
         type: analysisType,
         overallScore: overallScore,
@@ -205,11 +293,36 @@ export function SEOExpertBot({ sessionId, botName }: SEOExpertBotProps) {
         industry: websiteInfo.industry,
         analysisDate: new Date().toLocaleDateString(),
         audit: {
-          technical: { score: technicalScore, issues: Math.floor((100 - technicalScore) / 3), critical: Math.floor((100 - technicalScore) / 15) },
-          content: { score: contentScore, issues: Math.floor((100 - contentScore) / 2.5), critical: Math.floor((100 - contentScore) / 10) },
-          performance: { score: performanceScore, issues: Math.floor((100 - performanceScore) / 4), critical: Math.floor((100 - performanceScore) / 20) },
-          mobile: { score: mobileScore, issues: Math.floor((100 - mobileScore) / 5), critical: Math.floor((100 - mobileScore) / 25) },
-          backlinks: { score: backlinksScore, issues: Math.floor((100 - backlinksScore) / 3), critical: Math.floor((100 - backlinksScore) / 12) }
+          technical: {
+            score: technicalScore,
+            issues: technicalIssueCount,
+            critical: technicalCriticalCount,
+            issueDetails: technicalIssues
+          },
+          content: {
+            score: contentScore,
+            issues: contentIssueCount,
+            critical: contentCriticalCount,
+            issueDetails: contentIssues
+          },
+          performance: {
+            score: performanceScore,
+            issues: performanceIssueCount,
+            critical: performanceCriticalCount,
+            issueDetails: performanceIssues
+          },
+          mobile: {
+            score: mobileScore,
+            issues: mobileIssueCount,
+            critical: mobileCriticalCount,
+            issueDetails: mobileIssues
+          },
+          backlinks: {
+            score: backlinksScore,
+            issues: backlinksIssueCount,
+            critical: backlinksCriticalCount,
+            issueDetails: backlinksIssues
+          }
         },
         keywords: {
           opportunities: keywordOpportunities,
@@ -588,9 +701,41 @@ export function SEOExpertBot({ sessionId, botName }: SEOExpertBotProps) {
                         </div>
                       </div>
                       <Progress value={data.score} className="h-2" />
-                      <p className="text-sm text-gray-600 mt-2">
-                        Found {data.issues} issues ({data.critical} critical) that need attention
-                      </p>
+                      
+                      {/* Critical Issues */}
+                      {data.issueDetails?.critical && data.issueDetails.critical.length > 0 && (
+                        <div className="mt-3">
+                          <h5 className="font-medium text-red-700 mb-2 flex items-center gap-1">
+                            <AlertTriangle className="w-4 h-4" />
+                            Critical Issues ({data.issueDetails.critical.length})
+                          </h5>
+                          <ul className="space-y-1">
+                            {data.issueDetails.critical.map((issue: string, idx: number) => (
+                              <li key={idx} className="text-sm text-red-600 flex items-start gap-2">
+                                <X className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                                {issue}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      
+                      {/* Regular Issues */}
+                      {data.issueDetails?.regular && data.issueDetails.regular.length > 0 && (
+                        <div className="mt-3">
+                          <h5 className="font-medium text-orange-700 mb-2">
+                            Issues to Address ({data.issueDetails.regular.length})
+                          </h5>
+                          <ul className="space-y-1">
+                            {data.issueDetails.regular.map((issue: string, idx: number) => (
+                              <li key={idx} className="text-sm text-orange-600 flex items-start gap-2">
+                                <AlertCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                                {issue}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </CardContent>
