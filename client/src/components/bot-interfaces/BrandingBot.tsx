@@ -209,7 +209,7 @@ export function BrandingBot({ sessionId, botName }: BrandingBotProps) {
         <CardHeader>
           <CardTitle className="text-2xl flex items-center gap-2">
             <Palette className="w-8 h-8" />
-            {botName} - Brand Identity Master
+            {botName}
           </CardTitle>
           <CardDescription className="text-purple-100">
             I create stunning brand identities that capture your essence and resonate with your audience

@@ -13,7 +13,8 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { 
   Target, TrendingUp, Users, Zap, Calendar, BarChart3, 
   Lightbulb, CheckCircle, ArrowRight, Brain, Rocket, 
-  Globe, DollarSign, Activity, AlertCircle
+  Globe, DollarSign, Activity, AlertCircle, Download,
+  Share2, Printer, FileText
 } from "lucide-react";
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
@@ -78,28 +79,46 @@ export function MarketingStrategyBot({ sessionId, botName }: MarketingStrategyBo
         await new Promise(resolve => setTimeout(resolve, 200));
       }
 
-      const prompt = `As a marketing strategy expert, create a comprehensive marketing strategy for:
-        Business: ${businessProfile.name}
-        Industry: ${businessProfile.industry}
-        Stage: ${businessProfile.stage}
-        Budget: ${businessProfile.budget}
-        Current Revenue: ${businessProfile.currentRevenue}
-        Target Revenue: ${businessProfile.targetRevenue}
-        Timeline: ${businessProfile.timeline}
-        Goals: ${marketingGoals.join(', ')}
-        Competitors: ${businessProfile.competitors}
-        Unique Value: ${businessProfile.uniqueValue}
-        Challenges: ${businessProfile.challenges}
+      const currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+      
+      const prompt = `As a marketing strategy expert with real-time market research capabilities, create a UNIQUE and PERSONALIZED marketing strategy for:
         
-        Create a detailed, actionable marketing strategy with:
-        1. Market analysis and positioning
-        2. Target audience personas
-        3. Channel-specific strategies
-        4. Budget allocation
-        5. Timeline with milestones
-        6. KPIs and success metrics
-        7. Growth projections
-        8. Risk mitigation strategies`;
+        **Brand Profile:**
+        - Business Name: ${businessProfile.name}
+        - Industry: ${businessProfile.industry}
+        - Business Stage: ${businessProfile.stage}
+        - Marketing Budget: ${businessProfile.budget}
+        - Current Monthly Revenue: ${businessProfile.currentRevenue}
+        - Target Monthly Revenue: ${businessProfile.targetRevenue}
+        - Timeline: ${businessProfile.timeline}
+        - Primary Goals: ${marketingGoals.join(', ')}
+        - Competitors: ${businessProfile.competitors}
+        - Unique Value Proposition: ${businessProfile.uniqueValue}
+        - Current Challenges & Brand Story: ${businessProfile.challenges}
+        - Strategy Creation Date: ${currentDate}
+        
+        **CRITICAL INSTRUCTIONS:**
+        1. Research current market trends for the ${businessProfile.industry} industry in 2025
+        2. Include REAL market data, statistics, and growth projections specific to their industry
+        3. Create a COMPLETELY UNIQUE strategy - no generic templates
+        4. Make the executive summary specific to ${businessProfile.name}'s brand story and goals
+        5. Break down implementation timeline into weekly tasks for the first month, then monthly
+        6. Generate specific, measurable KPIs based on their current revenue (${businessProfile.currentRevenue}) and target (${businessProfile.targetRevenue})
+        7. Research and include actual competitor analysis for: ${businessProfile.competitors}
+        8. Calculate realistic ROI projections based on industry benchmarks
+        9. Include specific marketing channels that work best for ${businessProfile.stage} stage companies in ${businessProfile.industry}
+        10. Address their specific challenges: ${businessProfile.challenges}
+        
+        Format the response as a professional marketing strategy document with:
+        - Executive Summary (personalized to ${businessProfile.name})
+        - Market Research & Industry Analysis (with 2025 data)
+        - Competitor Analysis (specific to mentioned competitors)
+        - Target Audience Personas (3-4 detailed personas)
+        - Channel-Specific Strategies (with budget allocation)
+        - Implementation Timeline (weekly for month 1, then monthly)
+        - Expected Outcomes (with researched industry benchmarks)
+        - Risk Mitigation Strategies
+        - Key Action Items (specific to their situation)`;
 
       const response = await apiRequest('POST', `/api/sessions/${sessionId}/messages`, {
         content: prompt,
@@ -170,17 +189,103 @@ export function MarketingStrategyBot({ sessionId, botName }: MarketingStrategyBo
     );
   };
 
+  const handleDownload = (format: 'pdf' | 'word') => {
+    const strategyContent = `
+Marketing Strategy for ${businessProfile.name}
+Created on: ${new Date().toLocaleDateString()}
+
+EXECUTIVE SUMMARY
+${strategy.content}
+
+MARKET POSITION
+- Current Market Share: ${strategy.marketPosition.currentShare}%
+- Target Market Share: ${strategy.marketPosition.targetShare}%
+- Growth Potential: ${strategy.marketPosition.growthRate}%
+
+TARGET AUDIENCE
+${strategy.audiencePersonas.map((p: any) => `- ${p.name}: ${p.percentage}% (Value: ${p.value})`).join('\n')}
+
+CHANNEL STRATEGY
+${strategy.channelStrategy.map((c: any) => `- ${c.channel}: ${c.budget}% of budget, ${c.roi}% ROI`).join('\n')}
+
+TIMELINE
+${strategy.timeline.map((t: any) => `- ${t.month}: ${t.focus} - Revenue Target: $${t.revenue.toLocaleString()}`).join('\n')}
+    `.trim();
+
+    if (format === 'pdf') {
+      // Create a blob with the content
+      const blob = new Blob([strategyContent], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+      
+      // Create a temporary link and trigger download
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${businessProfile.name.replace(/\s+/g, '_')}_Marketing_Strategy.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Download Started",
+        description: "Your marketing strategy is being downloaded as a text file.",
+      });
+    } else {
+      // For Word format, also download as text for now
+      const blob = new Blob([strategyContent], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+      
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${businessProfile.name.replace(/\s+/g, '_')}_Marketing_Strategy.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Download Started",
+        description: "Your marketing strategy is being downloaded as a text file.",
+      });
+    }
+  };
+
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: `Marketing Strategy for ${businessProfile.name}`,
+        text: `Check out this comprehensive marketing strategy with ${strategy.marketPosition.growthRate}% growth potential!`,
+        url: window.location.href
+      }).catch(console.error);
+    } else {
+      // Fallback: copy to clipboard
+      navigator.clipboard.writeText(window.location.href);
+      toast({
+        title: "Link Copied!",
+        description: "The strategy link has been copied to your clipboard.",
+      });
+    }
+  };
+
+  const handlePrint = () => {
+    window.print();
+    toast({
+      title: "Print Dialog Opened",
+      description: "Your marketing strategy is ready to print.",
+    });
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Header */}
       <Card className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
         <CardHeader>
           <CardTitle className="text-2xl flex items-center gap-2">
-            <Brain className="w-8 h-8" />
-            {botName} - Marketing Strategy Master
+            <Rocket className="w-8 h-8" />
+            {botName}
           </CardTitle>
           <CardDescription className="text-purple-100">
-            I specialize in creating data-driven marketing strategies that deliver measurable growth
+            I create personalized, data-driven marketing strategies tailored specifically for your brand's unique needs and goals
           </CardDescription>
         </CardHeader>
       </Card>
@@ -412,6 +517,42 @@ export function MarketingStrategyBot({ sessionId, botName }: MarketingStrategyBo
                 </Badge>
               </div>
             </CardHeader>
+            <CardContent>
+              <div className="flex gap-3">
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => handleDownload('pdf')}
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Download PDF
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => handleDownload('word')}
+                >
+                  <FileText className="w-4 h-4 mr-2" />
+                  Download Word
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => handleShare()}
+                >
+                  <Share2 className="w-4 h-4 mr-2" />
+                  Share
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => handlePrint()}
+                >
+                  <Printer className="w-4 h-4 mr-2" />
+                  Print
+                </Button>
+              </div>
+            </CardContent>
           </Card>
 
           <Tabs defaultValue="overview" className="space-y-6">

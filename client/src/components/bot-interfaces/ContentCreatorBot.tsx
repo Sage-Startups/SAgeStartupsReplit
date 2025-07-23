@@ -191,7 +191,7 @@ export function ContentCreatorBot({ sessionId, botName }: ContentCreatorBotProps
         <CardHeader>
           <CardTitle className="text-2xl flex items-center gap-2">
             <Edit3 className="w-8 h-8" />
-            {botName} - Content Creation Master
+            {botName}
           </CardTitle>
           <CardDescription className="text-indigo-100">
             I create compelling content that engages your audience and drives results

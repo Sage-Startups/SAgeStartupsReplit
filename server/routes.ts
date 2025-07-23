@@ -273,27 +273,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Only allow direct updates for downgrades to free tier
       if (tier === 'free') {
-        const updatedUser = await storage.upsertUser({
+        // For downgrades, keep the current tier until subscription expires
+        let updateData: any = {
           ...user,
-          subscriptionTier: 'free',
-          subscriptionStatus: 'active',
-          subscriptionExpires: null,
-          stripeSubscriptionId: null // Clear Stripe subscription
-        });
+          subscriptionStatus: 'cancelling', // Mark as cancelling
+          nextTier: 'free' // Set the tier they'll move to after expiration
+        };
         
-        // Cancel Stripe subscription if exists
+        // Cancel Stripe subscription at period end if exists
         if (user.stripeSubscriptionId) {
           try {
             const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
               apiVersion: "2025-06-30.basil"
             });
-            await stripe.subscriptions.cancel(user.stripeSubscriptionId);
+            // Cancel at period end instead of immediately
+            await stripe.subscriptions.update(user.stripeSubscriptionId, {
+              cancel_at_period_end: true
+            });
           } catch (error) {
             console.error("Error canceling Stripe subscription:", error);
           }
         }
         
-        res.json(updatedUser);
+        const updatedUser = await storage.upsertUser(updateData);
+        res.json({
+          ...updatedUser,
+          message: `Your subscription will be downgraded to free tier at the end of your current billing period${user.subscriptionExpires ? ` on ${new Date(user.subscriptionExpires).toLocaleDateString()}` : ''}`
+        });
       } else {
         // For paid tiers, payment must be processed through Stripe first
         res.status(402).json({ 

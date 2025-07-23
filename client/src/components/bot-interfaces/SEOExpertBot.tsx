@@ -191,7 +191,7 @@ export function SEOExpertBot({ sessionId, botName }: SEOExpertBotProps) {
         <CardHeader>
           <CardTitle className="text-2xl flex items-center gap-2">
             <Search className="w-8 h-8" />
-            {botName} - SEO Optimization Master
+            {botName}
           </CardTitle>
           <CardDescription className="text-green-100">
             I help you dominate search rankings with data-driven SEO strategies

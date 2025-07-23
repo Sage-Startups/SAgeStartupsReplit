@@ -179,12 +179,13 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
       }
 
       if (tier === 'free') {
-        // Cancel subscription
-        await stripe.subscriptions.cancel(user.stripeSubscriptionId);
+        // Cancel subscription at period end
+        await stripe.subscriptions.update(user.stripeSubscriptionId, {
+          cancel_at_period_end: true
+        });
         await storage.updateUser(userId, {
-          subscriptionTier: 'free',
-          subscriptionStatus: 'cancelled',
-          stripeSubscriptionId: null
+          subscriptionStatus: 'cancelling',
+          nextTier: 'free'
         });
       } else {
         // Update subscription
@@ -228,12 +229,15 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
         return res.status(404).json({ message: "Active subscription not found" });
       }
 
-      await stripe.subscriptions.cancel(user.stripeSubscriptionId);
+      // Cancel at period end instead of immediately
+      const subscription = await stripe.subscriptions.update(user.stripeSubscriptionId, {
+        cancel_at_period_end: true
+      });
       
       await storage.updateUser(userId, {
-        subscriptionTier: 'free',
-        subscriptionStatus: 'cancelled',
-        stripeSubscriptionId: null
+        subscriptionStatus: 'cancelling',
+        nextTier: 'free',
+        subscriptionExpires: new Date(subscription.current_period_end * 1000)
       });
 
       res.json({ message: "Subscription cancelled successfully" });

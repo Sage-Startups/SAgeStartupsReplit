@@ -27,7 +27,8 @@ export const users = pgTable("users", {
   timezone: varchar("timezone"),
   language: varchar("language").default("en"),
   subscriptionTier: varchar("subscription_tier", { length: 20 }).notNull().default("free"), // 'free', 'pro', 'premium'
-  subscriptionStatus: varchar("subscription_status", { length: 20 }).notNull().default("active"), // 'active', 'cancelled', 'expired'
+  subscriptionStatus: varchar("subscription_status", { length: 20 }).notNull().default("active"), // 'active', 'cancelling', 'cancelled', 'expired'
+  nextTier: varchar("next_tier", { length: 20 }), // Tier to switch to after expiration
   role: varchar("role", { length: 20 }).notNull().default("client"), // 'super_admin', 'moderator', 'client'
   subscriptionExpires: timestamp("subscription_expires"),
   trialUsed: boolean("trial_used").notNull().default(false),

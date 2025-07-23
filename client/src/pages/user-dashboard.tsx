@@ -470,55 +470,149 @@ export default function UserDashboard() {
                         <CardContent>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {/* Available bots */}
-                        {availableSectionBots.map((bot: any) => (
-                          <div 
-                            key={bot.id}
-                            className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer bg-white"
-                            onClick={() => setLocation(`/bot/${bot.id}`)}
-                          >
-                            <div className="flex items-center justify-between mb-2">
-                              <h4 className="font-medium text-gray-900">{bot.name}</h4>
-                              <ArrowRight className="w-4 h-4 text-gray-400" />
+                        {availableSectionBots.map((bot: any) => {
+                          // Get icon for each bot
+                          const getBotIcon = (iconName: string) => {
+                            const iconMap: { [key: string]: any } = {
+                              'chess': Target,
+                              'search': Search,
+                              'envelope': Mail,
+                              'calendar': Calendar,
+                              'eye': Eye,
+                              'star': Star,
+                              'rocket': Rocket,
+                              'route': Map,
+                              'chart-up': TrendingUp,
+                              'calculator': Calculator,
+                              'palette': Palette,
+                              'comment': MessageCircle,
+                              'swatches': Palette,
+                              'font': Type,
+                              'pencil': PenTool,
+                              'building': Building,
+                              'megaphone': Megaphone,
+                              'folder': FolderOpen,
+                              'shield': Shield,
+                              'briefcase': Briefcase,
+                              'bullseye': Target,
+                              'video': Video,
+                              'newspaper': FileText,
+                              'chart-bar': BarChart3,
+                              'bar-chart': BarChart3,
+                              'chart-pie': PieChart,
+                              'lightbulb': Lightbulb,
+                              'book': BookOpen,
+                              'users': Users,
+                              'microphone': Mic,
+                              'image': Image,
+                              'speaker': Volume2,
+                              'gauge': Gauge
+                            };
+                            return iconMap[iconName] || Zap;
+                          };
+                          
+                          const BotIcon = getBotIcon(bot.icon);
+                          
+                          return (
+                            <div 
+                              key={bot.id}
+                              className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer bg-white"
+                              onClick={() => setLocation(`/bot/${bot.id}`)}
+                            >
+                              <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center gap-2">
+                                  <BotIcon className="w-4 h-4 text-gray-600" />
+                                  <h4 className="font-medium text-gray-900">{bot.name}</h4>
+                                </div>
+                                <ArrowRight className="w-4 h-4 text-gray-400" />
+                              </div>
+                              <p className="text-sm text-gray-600 mb-3">{bot.description}</p>
+                              <div className="flex flex-wrap gap-1">
+                                {bot.features?.slice(0, 2).map((feature: any, i: number) => (
+                                  <Badge key={i} variant="outline" className="text-xs">
+                                    {feature}
+                                  </Badge>
+                                ))}
+                              </div>
                             </div>
-                            <p className="text-sm text-gray-600 mb-3">{bot.description}</p>
-                            <div className="flex flex-wrap gap-1">
-                              {bot.features?.slice(0, 2).map((feature: any, i: number) => (
-                                <Badge key={i} variant="outline" className="text-xs">
-                                  {feature}
-                                </Badge>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                         
                         {/* Locked bots */}
-                        {lockedSectionBots.map((bot: any) => (
-                          <div 
-                            key={`locked-${bot.id}`}
-                            className="p-4 border border-dashed rounded-lg bg-gray-50 relative opacity-60"
-                          >
-                            <div className="absolute top-2 right-2">
-                              <Lock className="w-4 h-4 text-gray-400" />
+                        {lockedSectionBots.map((bot: any) => {
+                          // Get icon for each bot
+                          const getBotIcon = (iconName: string) => {
+                            const iconMap: { [key: string]: any } = {
+                              'chess': Target,
+                              'search': Search,
+                              'envelope': Mail,
+                              'calendar': Calendar,
+                              'eye': Eye,
+                              'star': Star,
+                              'rocket': Rocket,
+                              'route': Map,
+                              'chart-up': TrendingUp,
+                              'calculator': Calculator,
+                              'palette': Palette,
+                              'comment': MessageCircle,
+                              'swatches': Palette,
+                              'font': Type,
+                              'pencil': PenTool,
+                              'building': Building,
+                              'megaphone': Megaphone,
+                              'folder': FolderOpen,
+                              'shield': Shield,
+                              'briefcase': Briefcase,
+                              'bullseye': Target,
+                              'video': Video,
+                              'newspaper': FileText,
+                              'chart-bar': BarChart3,
+                              'bar-chart': BarChart3,
+                              'chart-pie': PieChart,
+                              'lightbulb': Lightbulb,
+                              'book': BookOpen,
+                              'users': Users,
+                              'microphone': Mic,
+                              'image': Image,
+                              'speaker': Volume2,
+                              'gauge': Gauge
+                            };
+                            return iconMap[iconName] || Zap;
+                          };
+                          
+                          const BotIcon = getBotIcon(bot.icon);
+                          
+                          return (
+                            <div 
+                              key={`locked-${bot.id}`}
+                              className="p-4 border border-dashed rounded-lg bg-gray-50 relative opacity-60"
+                            >
+                              <div className="absolute top-2 right-2">
+                                <Lock className="w-4 h-4 text-gray-400" />
+                              </div>
+                              <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center gap-2">
+                                  <BotIcon className="w-4 h-4 text-gray-500" />
+                                  <h4 className="font-medium text-gray-500">{bot.name}</h4>
+                                </div>
+                              </div>
+                              <p className="text-sm text-gray-500 mb-3">{bot.description}</p>
+                              <div className="flex items-center justify-between">
+                                <Badge variant="outline" className="text-xs text-gray-400 border-gray-300">
+                                  {userSubscriptionTier === 'free' ? 'Pro Required' : 'Premium Required'}
+                                </Badge>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline" 
+                                  className="text-xs h-6"
+                                  onClick={() => upgradeMutation.mutate(userSubscriptionTier === 'free' ? 'pro' : 'premium')}
+                                >
+                                  Upgrade
+                                </Button>
+                              </div>
                             </div>
-                            <div className="flex items-center justify-between mb-2">
-                              <h4 className="font-medium text-gray-500">{bot.name}</h4>
-                            </div>
-                            <p className="text-sm text-gray-500 mb-3">{bot.description}</p>
-                            <div className="flex items-center justify-between">
-                              <Badge variant="outline" className="text-xs text-gray-400 border-gray-300">
-                                {userSubscriptionTier === 'free' ? 'Pro Required' : 'Premium Required'}
-                              </Badge>
-                              <Button 
-                                size="sm" 
-                                variant="outline" 
-                                className="text-xs h-6"
-                                onClick={() => upgradeMutation.mutate(userSubscriptionTier === 'free' ? 'pro' : 'premium')}
-                              >
-                                Upgrade
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                         </div>
                         </CardContent>
                       </CollapsibleContent>
