@@ -128,34 +128,90 @@ export function MarketingStrategyBot({ sessionId, botName }: MarketingStrategyBo
       return response.json();
     },
     onSuccess: (data) => {
-      // Parse and structure the response
+      // Generate dynamic values based on the business profile
+      const currentRevenueNum = parseInt(businessProfile.currentRevenue.replace(/[^0-9]/g, '')) || 10000;
+      const targetRevenueNum = parseInt(businessProfile.targetRevenue.replace(/[^0-9]/g, '')) || 100000;
+      const growthRate = Math.round(((targetRevenueNum - currentRevenueNum) / currentRevenueNum) * 100);
+      
+      // Create dynamic timeline based on the selected timeframe
+      const monthlyGrowth = (targetRevenueNum - currentRevenueNum) / 6;
+      const timeline = [];
+      const focuses = ["Foundation & Setup", "Launch Campaign", "Scale Operations", "Optimize Performance", "Expand Reach", "Market Domination"];
+      
+      for (let i = 1; i <= 6; i++) {
+        timeline.push({
+          month: `Month ${i}`,
+          focus: focuses[i - 1],
+          revenue: Math.round(currentRevenueNum + (monthlyGrowth * i))
+        });
+      }
+      
+      // Generate dynamic channel strategy based on budget
+      const budgetAmount = parseInt(businessProfile.budget.replace(/[^0-9]/g, '')) || 5000;
+      let channelStrategy = [];
+      
+      if (budgetAmount < 5000) {
+        channelStrategy = [
+          { channel: "Content Marketing", budget: 40, roi: 280 },
+          { channel: "Social Media", budget: 35, roi: 220 },
+          { channel: "Email Marketing", budget: 15, roi: 320 },
+          { channel: "SEO", budget: 10, roi: 250 }
+        ];
+      } else if (budgetAmount < 20000) {
+        channelStrategy = [
+          { channel: "Social Media Ads", budget: 35, roi: 180 },
+          { channel: "Content Marketing", budget: 25, roi: 220 },
+          { channel: "Google Ads", budget: 25, roi: 150 },
+          { channel: "Email Marketing", budget: 15, roi: 300 }
+        ];
+      } else {
+        channelStrategy = [
+          { channel: "Multi-Channel Ads", budget: 40, roi: 170 },
+          { channel: "Content & SEO", budget: 20, roi: 250 },
+          { channel: "Influencer Marketing", budget: 20, roi: 200 },
+          { channel: "Email & Automation", budget: 20, roi: 280 }
+        ];
+      }
+      
+      // Generate personas based on industry
+      const industryPersonas = {
+        "technology": [
+          { name: "Tech Innovators", percentage: 35, value: "Very High" },
+          { name: "Early Adopters", percentage: 40, value: "High" },
+          { name: "Enterprise Buyers", percentage: 25, value: "Premium" }
+        ],
+        "retail": [
+          { name: "Value Shoppers", percentage: 45, value: "Medium" },
+          { name: "Brand Loyalists", percentage: 30, value: "High" },
+          { name: "Impulse Buyers", percentage: 25, value: "Medium-High" }
+        ],
+        "services": [
+          { name: "Quality Seekers", percentage: 40, value: "High" },
+          { name: "Convenience Focused", percentage: 35, value: "Medium-High" },
+          { name: "Price Conscious", percentage: 25, value: "Medium" }
+        ],
+        "default": [
+          { name: "Primary Audience", percentage: 40, value: "High" },
+          { name: "Secondary Market", percentage: 35, value: "Medium" },
+          { name: "Growth Segment", percentage: 25, value: "High" }
+        ]
+      };
+      
+      const industryKey = businessProfile.industry.toLowerCase();
+      const personas = industryPersonas[industryKey] || industryPersonas.default;
+      
       const strategyData = {
-        overview: "Your custom marketing strategy is ready",
+        overview: `Personalized marketing strategy for ${businessProfile.name}`,
         marketPosition: {
-          currentShare: 5,
-          targetShare: 15,
-          growthRate: 200
+          currentShare: businessProfile.stage === 'startup' ? 2 : 8,
+          targetShare: businessProfile.stage === 'startup' ? 10 : 20,
+          growthRate: growthRate
         },
-        audiencePersonas: [
-          { name: "Early Adopters", percentage: 30, value: "High" },
-          { name: "Price Conscious", percentage: 45, value: "Medium" },
-          { name: "Premium Seekers", percentage: 25, value: "Very High" }
-        ],
-        channelStrategy: [
-          { channel: "Social Media", budget: 35, roi: 250 },
-          { channel: "Content Marketing", budget: 25, roi: 180 },
-          { channel: "Paid Ads", budget: 30, roi: 150 },
-          { channel: "Email", budget: 10, roi: 300 }
-        ],
-        timeline: [
-          { month: "Month 1", focus: "Foundation", revenue: 10000 },
-          { month: "Month 2", focus: "Launch", revenue: 25000 },
-          { month: "Month 3", focus: "Scale", revenue: 50000 },
-          { month: "Month 4", focus: "Optimize", revenue: 80000 },
-          { month: "Month 5", focus: "Expand", revenue: 120000 },
-          { month: "Month 6", focus: "Dominate", revenue: 180000 }
-        ],
-        content: data.content
+        audiencePersonas: personas,
+        channelStrategy: channelStrategy,
+        timeline: timeline,
+        content: data.content,
+        businessProfile: businessProfile // Store for reference
       };
       
       setStrategy(strategyData);
@@ -167,7 +223,7 @@ export function MarketingStrategyBot({ sessionId, botName }: MarketingStrategyBo
       
       toast({
         title: "Strategy Generated! 🚀",
-        description: "Your personalized marketing strategy is ready",
+        description: `Your personalized ${businessProfile.timeline} marketing strategy for ${businessProfile.name} is ready`,
       });
     }
   });
