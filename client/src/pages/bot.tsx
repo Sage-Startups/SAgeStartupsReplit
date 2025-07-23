@@ -6,6 +6,8 @@ import { MarketingStrategyBot } from "@/components/bot-interfaces/MarketingStrat
 import { BrandingBot } from "@/components/bot-interfaces/BrandingBot";
 import { ContentCreatorBot } from "@/components/bot-interfaces/ContentCreatorBot";
 import { SEOExpertBot } from "@/components/bot-interfaces/SEOExpertBot";
+import { LogoDesignBot } from "@/components/bot-interfaces/LogoDesignBot";
+import { BrandVoiceBot } from "@/components/bot-interfaces/BrandVoiceBot";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -445,8 +447,24 @@ export default function Bot() {
                   />
                 )}
                 
+                {/* Logo Design Bot */}
+                {bot.id === 'logo-design' && (
+                  <LogoDesignBot 
+                    sessionId={activeSessionId}
+                    botName={bot.name}
+                  />
+                )}
+                
+                {/* Brand Voice Bot */}
+                {bot.id === 'brand-voice' && (
+                  <BrandVoiceBot 
+                    sessionId={activeSessionId}
+                    botName={bot.name}
+                  />
+                )}
+                
                 {/* Default Enhanced Bot Interface for others */}
-                {!['marketing-strategy', 'brand-identity', 'content-creator', 'blog-writer', 'social-media', 'seo-content', 'keyword-research'].includes(bot.id) && (
+                {!['marketing-strategy', 'brand-identity', 'content-creator', 'blog-writer', 'social-media', 'seo-content', 'keyword-research', 'logo-design', 'brand-voice'].includes(bot.id) && (
                   <EnhancedBotInterface 
                     sessionId={activeSessionId}
                     botName={bot.name}

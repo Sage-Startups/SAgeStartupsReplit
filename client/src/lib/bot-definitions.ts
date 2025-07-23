@@ -142,7 +142,7 @@ export const bots: BotDefinition[] = [
     name: 'Logo Design Assistant',
     description: 'AI-powered logo creation',
     section: 'branding',
-    icon: 'palette',
+    icon: 'brush',
     color: 'text-secondary',
     features: ['Logo concepts', 'Style variations', 'Color schemes', 'Usage guidelines']
   },
@@ -151,7 +151,7 @@ export const bots: BotDefinition[] = [
     name: 'Brand Voice Generator',
     description: 'Tone & personality definition',
     section: 'branding',
-    icon: 'comment',
+    icon: 'bullhorn',
     color: 'text-secondary',
     features: ['Voice definition', 'Tone guidelines', 'Messaging framework', 'Communication style']
   },

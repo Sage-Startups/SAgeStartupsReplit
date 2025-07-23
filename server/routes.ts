@@ -112,7 +112,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
 
-      let availableBots = [];
+      let availableBots: any[] = [];
       
       if (user.subscriptionTier === 'free') {
         // Free tier: 1 bot per section (first bot of each section)
@@ -528,8 +528,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update analytics
       const analytics = await storage.getUserAnalytics(userId);
       await storage.updateUserAnalytics(userId, {
-        totalMessages: (analytics?.totalMessages || 0) + 2,
-        lastActive: new Date()
+        totalMessages: (analytics?.totalMessages || 0) + 2
       });
 
       res.json({ userMessage, aiMessage });
@@ -546,6 +545,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(assets);
     } catch (error) {
       res.status(500).json({ message: error instanceof Error ? error.message : 'An error occurred' });
+    }
+  });
+
+  // Logo Generation Endpoint
+  app.post("/api/sessions/:sessionId/logo-generate", requireAuth, async (req: any, res) => {
+    try {
+      const sessionId = parseInt(req.params.sessionId);
+      const { prompt, logoInfo } = req.body;
+      
+      // Import OpenAI
+      const OpenAI = await import("openai");
+      const openai = new OpenAI.default({ apiKey: process.env.OPENAI_API_KEY });
+      
+      // Generate logo using DALL-E 3
+      const response = await openai.images.generate({
+        model: "dall-e-3",
+        prompt: `Create a professional logo design: ${prompt}. Style should be clean, modern, and suitable for business use. The logo should work well on both light and dark backgrounds.`,
+        n: 1,
+        size: "1024x1024",
+        quality: "standard",
+      });
+      
+      const imageUrl = response.data[0]?.url;
+      
+      // Save generated asset
+      const asset = await storage.createGeneratedAsset({
+        sessionId,
+        assetType: 'logo',
+        title: `Logo for ${logoInfo.brandName}`,
+        content: logoInfo
+      });
+      
+      // Update analytics
+      const userId = req.user.claims.sub;
+      const analytics = await storage.getUserAnalytics(userId);
+      await storage.updateUserAnalytics(userId, {
+        totalAssets: (analytics?.totalAssets || 0) + 1
+      });
+      
+      res.json({ imageUrl, assetId: asset.id });
+    } catch (error) {
+      console.error("Logo generation error:", error);
+      res.status(500).json({ message: error instanceof Error ? error.message : 'Failed to generate logo' });
     }
   });
 
