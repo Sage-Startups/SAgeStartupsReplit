@@ -54,6 +54,10 @@ Preferred communication style: Simple, everyday language.
 - ✅ Each bot now has unique interfaces, workflows, and specialized capabilities tailored to their domain
 - ✅ Bots provide visual outputs including charts, progress indicators, and structured data instead of plain text
 - ✅ Added session loading functionality to all specialized bots to restore previous work
+- ✅ Fixed critical billing bug: upgrade buttons were processing upgrades for free instead of charging through Stripe
+- ✅ Updated /api/user/subscription endpoint to require payment for all paid tier upgrades  
+- ✅ Modified upgrade mutation in user-dashboard to redirect to checkout page when payment is required
+- ✅ Only downgrades to free tier are allowed without payment; all upgrades must go through Stripe checkout
 
 ## System Architecture
 

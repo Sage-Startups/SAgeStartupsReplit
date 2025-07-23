@@ -11,6 +11,7 @@ import { registerStripeRoutes } from "./routes/stripe";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { v4 as uuidv4 } from "uuid";
+import Stripe from "stripe";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Session configuration for custom auth
@@ -259,15 +260,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
 
-      // Update subscription tier (in real app, this would integrate with payment processing)
-      const updatedUser = await storage.upsertUser({
-        ...user,
-        subscriptionTier: tier,
-        subscriptionStatus: 'active',
-        subscriptionExpires: tier === 'free' ? null : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
-      });
+      // Check if this is an upgrade to a paid tier
+      if (tier !== 'free' && user.subscriptionTier !== tier) {
+        // Return a response indicating that payment is required
+        return res.status(402).json({ 
+          message: "Payment required",
+          requiresPayment: true,
+          redirectTo: '/checkout',
+          tier: tier
+        });
+      }
 
-      res.json(updatedUser);
+      // Only allow direct updates for downgrades to free tier
+      if (tier === 'free') {
+        const updatedUser = await storage.upsertUser({
+          ...user,
+          subscriptionTier: 'free',
+          subscriptionStatus: 'active',
+          subscriptionExpires: null,
+          stripeSubscriptionId: null // Clear Stripe subscription
+        });
+        
+        // Cancel Stripe subscription if exists
+        if (user.stripeSubscriptionId) {
+          try {
+            const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+              apiVersion: "2025-06-30.basil"
+            });
+            await stripe.subscriptions.cancel(user.stripeSubscriptionId);
+          } catch (error) {
+            console.error("Error canceling Stripe subscription:", error);
+          }
+        }
+        
+        res.json(updatedUser);
+      } else {
+        // For paid tiers, payment must be processed through Stripe first
+        res.status(402).json({ 
+          message: "Payment required",
+          requiresPayment: true,
+          redirectTo: '/checkout',
+          tier: tier
+        });
+      }
     } catch (error) {
       console.error("Error updating subscription:", error);
       res.status(500).json({ message: "Failed to update subscription" });

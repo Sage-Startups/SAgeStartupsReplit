@@ -94,22 +94,37 @@ export default function UserDashboard() {
   const upgradeMutation = useMutation({
     mutationFn: async (tier: string) => {
       const response = await apiRequest("POST", "/api/user/subscription", { tier });
-      return response.json();
+      const data = await response.json();
+      
+      // Check if payment is required
+      if (response.status === 402 && data.requiresPayment) {
+        // Redirect to checkout page with the tier
+        setLocation(`/checkout?tier=${tier}`);
+        return data;
+      }
+      
+      return data;
     },
-    onSuccess: () => {
-      toast({
-        title: "Subscription Updated",
-        description: "Your subscription has been updated successfully!",
-      });
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/user/bots"] });
+    onSuccess: (data) => {
+      // Only show success if payment wasn't required
+      if (!data.requiresPayment) {
+        toast({
+          title: "Subscription Updated",
+          description: "Your subscription has been updated successfully!",
+        });
+        queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/user/bots"] });
+      }
     },
     onError: (error) => {
-      toast({
-        title: "Error",
-        description: "Failed to update subscription. Please try again.",
-        variant: "destructive",
-      });
+      // Don't show error for payment required responses
+      if (!error.message.includes("402")) {
+        toast({
+          title: "Error",
+          description: "Failed to update subscription. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
   });
 
