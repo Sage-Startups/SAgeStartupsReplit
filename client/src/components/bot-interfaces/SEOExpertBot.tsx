@@ -198,62 +198,67 @@ export function SEOExpertBot({ sessionId, botName }: SEOExpertBotProps) {
         });
       }
       
-      // Generate specific issues for each category
-      const generateIssues = (category: string, numIssues: number, numCritical: number) => {
-        const issueDatabase = {
+      // Generate website-specific issues based on user input
+      const generateSpecificIssues = (category: string, numIssues: number, numCritical: number) => {
+        const websiteUrl = websiteInfo.url || 'your website';
+        const industry = websiteInfo.industry || 'your industry';
+        const keywords = websiteInfo.mainKeywords || 'target keywords';
+        const audience = websiteInfo.targetAudience || 'target audience';
+        
+        const issueTemplates = {
           technical: [
-            "Missing meta descriptions on 12 pages",
-            "Duplicate title tags found on 5 pages", 
-            "No XML sitemap detected",
-            "Missing robots.txt file",
-            "Internal links with missing alt text",
-            "Broken internal links found",
-            "Missing canonical tags",
-            "Schema markup not implemented",
-            "404 errors on important pages",
-            "Redirect chains affecting crawlability"
+            `${websiteUrl} missing meta descriptions on key ${industry} pages`,
+            `Duplicate title tags detected across ${industry} product pages`, 
+            `No XML sitemap found for ${websiteUrl} - search engines can't crawl efficiently`,
+            `Missing robots.txt file preventing proper ${industry} site indexing`,
+            `${industry} images missing alt text for accessibility and SEO`,
+            `Broken internal links found on ${websiteUrl} ${industry} pages`,
+            `Missing canonical tags causing duplicate content issues for ${keywords}`,
+            `No ${industry} schema markup implemented - missing rich snippets opportunity`,
+            `404 errors detected on important ${industry} landing pages`,
+            `Redirect chains affecting ${websiteUrl} crawl efficiency`
           ],
           content: [
-            "Thin content on product pages (under 200 words)",
-            "Missing H1 tags on 8 pages",
-            "Keyword cannibalization detected",
-            "Low-quality content identified",
-            "Missing focus keywords in content",
-            "Outdated blog posts need refreshing",
-            "No internal linking strategy",
-            "Content gaps in key topics"
+            `Thin content detected on ${industry} service pages (under 300 words)`,
+            `Missing H1 tags on ${websiteUrl} ${industry} category pages`,
+            `Keyword cannibalization for "${keywords}" across multiple pages`,
+            `Low-quality content identified that doesn't serve ${audience}`,
+            `"${keywords}" not properly integrated into ${industry} content`,
+            `Outdated ${industry} blog posts need refreshing for current trends`,
+            `No internal linking strategy connecting ${industry} topics`,
+            `Content gaps identified for ${audience} search intent`
           ],
           performance: [
-            "Page load speed over 4 seconds",
-            "Large image files not optimized",
-            "Too many HTTP requests",
-            "No browser caching enabled",
-            "Render-blocking JavaScript",
-            "Unoptimized CSS files",
-            "No image compression",
-            "Server response time too slow"
+            `${websiteUrl} page load speed exceeds 3 seconds (impacts ${industry} conversions)`,
+            `Large ${industry} images not optimized - slowing down ${audience} experience`,
+            `Too many HTTP requests on ${websiteUrl} ${industry} pages`,
+            `No browser caching enabled for ${industry} static resources`,
+            `Render-blocking JavaScript delaying ${websiteUrl} ${industry} page loads`,
+            `Unoptimized CSS files affecting ${audience} page speed experience`,
+            `${industry} images lack compression - affecting mobile ${audience}`,
+            `Server response time too slow for ${websiteUrl} ${industry} pages`
           ],
           mobile: [
-            "Not mobile-friendly design",
-            "Touch elements too close together",
-            "Text too small to read on mobile",
-            "Content wider than screen",
-            "Mobile usability issues",
-            "No viewport meta tag",
-            "Pop-ups blocking mobile content"
+            `${websiteUrl} not optimized for mobile ${audience} in ${industry}`,
+            `Touch elements too close together on ${industry} mobile pages`,
+            `Text too small for ${audience} to read on mobile devices`,
+            `${industry} content wider than mobile screen causing horizontal scroll`,
+            `Mobile usability issues preventing ${audience} from engaging`,
+            `Missing viewport meta tag on ${websiteUrl} ${industry} pages`,
+            `Pop-ups blocking mobile ${audience} from accessing ${industry} content`
           ],
           backlinks: [
-            "Low domain authority backlinks",
-            "Missing backlinks from industry sites",
-            "No local citation building",
-            "Competitor gap in link profile",
-            "Toxic backlinks need disavowing",
-            "Anchor text diversity issues",
-            "No link building strategy"
+            `Low domain authority backlinks not boosting ${industry} rankings`,
+            `Missing backlinks from authoritative ${industry} websites`,
+            `No local citations for ${industry} business in relevant directories`,
+            `Competitor gap: rivals have more ${industry} authority links`,
+            `Toxic backlinks detected that could penalize ${websiteUrl}`,
+            `Anchor text lacks diversity for ${keywords} and ${industry} terms`,
+            `No strategic link building plan for ${industry} authority sites`
           ]
         };
 
-        const categoryIssues = issueDatabase[category as keyof typeof issueDatabase] || [];
+        const categoryIssues = issueTemplates[category as keyof typeof issueTemplates] || [];
         const shuffled = [...categoryIssues].sort(() => Math.random() - 0.5);
         const selectedIssues = shuffled.slice(0, numIssues);
         const criticalIssues = selectedIssues.slice(0, numCritical);
@@ -267,23 +272,23 @@ export function SEOExpertBot({ sessionId, botName }: SEOExpertBotProps) {
 
       const technicalIssueCount = Math.floor(Math.random() * 8) + 3;
       const technicalCriticalCount = Math.floor(Math.random() * 3) + 1;
-      const technicalIssues = generateIssues('technical', technicalIssueCount, technicalCriticalCount);
+      const technicalIssues = generateSpecificIssues('technical', technicalIssueCount, technicalCriticalCount);
 
       const contentIssueCount = Math.floor(Math.random() * 6) + 2;
       const contentCriticalCount = Math.floor(Math.random() * 2);
-      const contentIssues = generateIssues('content', contentIssueCount, contentCriticalCount);
+      const contentIssues = generateSpecificIssues('content', contentIssueCount, contentCriticalCount);
 
       const performanceIssueCount = Math.floor(Math.random() * 5) + 1;
       const performanceCriticalCount = Math.floor(Math.random() * 2) + 1;
-      const performanceIssues = generateIssues('performance', performanceIssueCount, performanceCriticalCount);
+      const performanceIssues = generateSpecificIssues('performance', performanceIssueCount, performanceCriticalCount);
 
       const mobileIssueCount = Math.floor(Math.random() * 4) + 1;
       const mobileCriticalCount = Math.floor(Math.random() * 2);
-      const mobileIssues = generateIssues('mobile', mobileIssueCount, mobileCriticalCount);
+      const mobileIssues = generateSpecificIssues('mobile', mobileIssueCount, mobileCriticalCount);
 
       const backlinksIssueCount = Math.floor(Math.random() * 7) + 2;
       const backlinksCriticalCount = Math.floor(Math.random() * 3);
-      const backlinksIssues = generateIssues('backlinks', backlinksIssueCount, backlinksCriticalCount);
+      const backlinksIssues = generateSpecificIssues('backlinks', backlinksIssueCount, backlinksCriticalCount);
 
       const results = {
         type: analysisType,
