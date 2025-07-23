@@ -100,7 +100,7 @@ export default function CreativeConceptBot({ sessionId, initialData }: { session
   // Generate concepts using AI
   const generateConceptsMutation = useMutation({
     mutationFn: async () => {
-      return apiRequest('POST', `/api/sessions/${sessionId}/messages`, {
+      const response = await apiRequest('POST', `/api/sessions/${sessionId}/messages`, {
         content: `Generate creative concepts for the following project:
 
 Project Type: ${conceptData.projectType}
@@ -124,6 +124,7 @@ Please provide 3 unique creative concepts, each with:
 Make each concept distinct and creative, tailored to the ${conceptData.projectType} project type.`,
         role: 'user'
       });
+      return await response.json();
     },
     onSuccess: async (response: any) => {
       console.log('Concept generation response:', response);

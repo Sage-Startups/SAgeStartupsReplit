@@ -102,7 +102,8 @@ export default function AdCopyGeneratorBot({ sessionId, initialData }: { session
   // Generate ad copy using AI
   const generateAdsMutation = useMutation({
     mutationFn: async () => {
-      return apiRequest('POST', `/api/sessions/${sessionId}/messages`, {
+      console.log('Starting API request...');
+      const response = await apiRequest('POST', `/api/sessions/${sessionId}/messages`, {
         content: `Generate ad copy with the following details:
 Product/Service: ${adData.product}
 Unique Selling Proposition: ${adData.usp}
@@ -121,6 +122,10 @@ ${adData.platform === 'instagram' ? '- 5 carousel caption ideas\n- Instagram Ree
 Make the copy platform-specific and optimized for ${adData.platform}.`,
         role: 'user'
       });
+      console.log('Raw API response:', response);
+      const data = await response.json();
+      console.log('Parsed JSON data:', data);
+      return data;
     },
     onSuccess: async (response: any) => {
       console.log('Ad generation response:', response);
