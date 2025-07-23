@@ -19,6 +19,7 @@ export interface IStorage {
   getProjectsByUserId(userId: string): Promise<Project[]>;
   createProject(project: InsertProject): Promise<Project>;
   updateProject(id: number, updates: Partial<Project>): Promise<Project | undefined>;
+  deleteProject(id: number): Promise<void>;
   
   // Bot session operations
   getBotSession(id: number): Promise<BotSession | undefined>;
@@ -136,6 +137,21 @@ export class DatabaseStorage implements IStorage {
       .where(eq(projects.id, id))
       .returning();
     return updatedProject;
+  }
+
+  async deleteProject(id: number): Promise<void> {
+    // First delete all related bot sessions and their messages
+    const sessions = await this.getBotSessionsByProjectId(id);
+    
+    for (const session of sessions) {
+      // Delete chat messages for each session
+      await this.deleteChatMessagesBySessionId(session.id);
+      // Delete the session
+      await this.deleteBotSession(session.id);
+    }
+    
+    // Finally delete the project
+    await db.delete(projects).where(eq(projects.id, id));
   }
 
   // Bot session operations

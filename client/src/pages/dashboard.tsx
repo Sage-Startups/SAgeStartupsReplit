@@ -4,6 +4,8 @@ import { MainNavigation } from "@/components/main-navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -23,7 +25,9 @@ import {
   Users, 
   PenTool, 
   TrendingUp, 
-  Sparkles
+  Sparkles,
+  Trash2,
+  MoreVertical
 } from "lucide-react";
 
 const iconMap = {
@@ -39,6 +43,7 @@ export default function Dashboard() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [projectName, setProjectName] = useState("");
   const [projectDescription, setProjectDescription] = useState("");
+  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -73,6 +78,28 @@ export default function Dashboard() {
       toast({
         title: "Error",
         description: "Failed to create project. Please try again.",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const deleteProjectMutation = useMutation({
+    mutationFn: async (projectId: number) => {
+      const response = await apiRequest('DELETE', `/api/projects/${projectId}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/projects'] });
+      setProjectToDelete(null);
+      toast({
+        title: "Project deleted!",
+        description: "The project and all its sessions have been deleted."
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to delete project. Please try again.",
         variant: "destructive"
       });
     }
@@ -248,12 +275,32 @@ export default function Dashboard() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {projects.map((project: Project) => (
-                <Card key={project.id} className="hover:shadow-lg transition-shadow cursor-pointer">
+                <Card key={project.id} className="hover:shadow-lg transition-shadow">
                   <CardHeader>
-                    <CardTitle className="text-lg">{project.name}</CardTitle>
-                    {project.description && (
-                      <CardDescription>{project.description}</CardDescription>
-                    )}
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <CardTitle className="text-lg">{project.name}</CardTitle>
+                        {project.description && (
+                          <CardDescription>{project.description}</CardDescription>
+                        )}
+                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            className="text-red-600 focus:text-red-600"
+                            onClick={() => setProjectToDelete(project)}
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete Project
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <div className="text-sm text-gray-500">
@@ -294,6 +341,28 @@ export default function Dashboard() {
             })}
           </div>
         </div>
+        
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={!!projectToDelete} onOpenChange={() => setProjectToDelete(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Project</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete "{projectToDelete?.name}"? This will permanently delete the project and all its sessions, conversations, and generated content. This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => projectToDelete && deleteProjectMutation.mutate(projectToDelete.id)}
+                className="bg-red-600 hover:bg-red-700"
+                disabled={deleteProjectMutation.isPending}
+              >
+                {deleteProjectMutation.isPending ? "Deleting..." : "Delete Project"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );
