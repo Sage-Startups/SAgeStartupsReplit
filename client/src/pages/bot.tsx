@@ -469,7 +469,6 @@ export default function Bot() {
                 {bot.id === 'ad-copy' && (
                   <AdCopyGeneratorBot 
                     sessionId={activeSessionId}
-                    initialData={(sessions.find(s => s.id === activeSessionId) as any)?.data}
                   />
                 )}
                 
@@ -477,7 +476,6 @@ export default function Bot() {
                 {bot.id === 'creative-concept' && (
                   <CreativeConceptBot 
                     sessionId={activeSessionId}
-                    initialData={(sessions.find(s => s.id === activeSessionId) as any)?.data}
                   />
                 )}
                 

@@ -441,9 +441,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/sessions/:sessionId", requireAuth, async (req, res) => {
     try {
       const sessionId = parseInt(req.params.sessionId);
-      const { sessionTitle } = req.body;
+      const { sessionTitle, data } = req.body;
       
-      const updatedSession = await storage.updateBotSession(sessionId, { sessionTitle });
+      const updateData: any = {};
+      if (sessionTitle !== undefined) updateData.sessionTitle = sessionTitle;
+      if (data !== undefined) updateData.data = data;
+      
+      const updatedSession = await storage.updateBotSession(sessionId, updateData);
       if (!updatedSession) {
         return res.status(404).json({ message: "Session not found" });
       }

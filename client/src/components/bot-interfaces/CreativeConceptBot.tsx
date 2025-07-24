@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useToast } from '@/hooks/use-toast';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { 
   Lightbulb, 
@@ -58,18 +58,40 @@ interface GeneratedConcepts {
 
 export default function CreativeConceptBot({ sessionId, initialData }: { sessionId: number; initialData?: any }) {
   const { toast } = useToast();
-  const [step, setStep] = useState(1);
-  const [conceptData, setConceptData] = useState<ConceptData>({
-    projectType: initialData?.projectType || '',
-    brandName: initialData?.brandName || '',
-    industry: initialData?.industry || '',
-    targetAudience: initialData?.targetAudience || '',
-    challenge: initialData?.challenge || '',
-    inspiration: initialData?.inspiration || '',
-    preferences: initialData?.preferences || ''
+  
+  // Load session data if available
+  const { data: sessionData } = useQuery({
+    queryKey: ['/api/sessions', sessionId],
+    enabled: !!sessionId
   });
-  const [generatedConcepts, setGeneratedConcepts] = useState<GeneratedConcepts | null>(initialData?.generatedConcepts || null);
+  
+  const savedData = (sessionData as any)?.data || initialData;
+  
+  const [step, setStep] = useState(savedData?.currentStep || 1);
+  const [conceptData, setConceptData] = useState<ConceptData>({
+    projectType: savedData?.conceptData?.projectType || '',
+    brandName: savedData?.conceptData?.brandName || '',
+    industry: savedData?.conceptData?.industry || '',
+    targetAudience: savedData?.conceptData?.targetAudience || '',
+    challenge: savedData?.conceptData?.challenge || '',
+    inspiration: savedData?.conceptData?.inspiration || '',
+    preferences: savedData?.conceptData?.preferences || ''
+  });
+  const [generatedConcepts, setGeneratedConcepts] = useState<GeneratedConcepts | null>(savedData?.generatedConcepts || null);
   const [selectedConcept, setSelectedConcept] = useState(0);
+  
+  // Update state when session data loads
+  useEffect(() => {
+    if (savedData) {
+      setStep(savedData.currentStep || 1);
+      if (savedData.conceptData) {
+        setConceptData(savedData.conceptData);
+      }
+      if (savedData.generatedConcepts) {
+        setGeneratedConcepts(savedData.generatedConcepts);
+      }
+    }
+  }, [savedData]);
 
   const projectTypes = [
     'Marketing Campaign',
@@ -87,13 +109,14 @@ export default function CreativeConceptBot({ sessionId, initialData }: { session
   // Save session data
   const saveSessionMutation = useMutation({
     mutationFn: async () => {
-      return apiRequest('PUT', `/api/sessions/${sessionId}`, {
+      const response = await apiRequest('PUT', `/api/sessions/${sessionId}`, {
         data: {
           conceptData,
           generatedConcepts,
           currentStep: step
         }
       });
+      return response.json();
     }
   });
 

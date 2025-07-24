@@ -142,6 +142,7 @@ export const botSessions = pgTable("bot_sessions", {
   botName: text("bot_name").notNull(),
   section: text("section").notNull(),
   sessionTitle: text("session_title"), // Descriptive title based on user request
+  data: jsonb("data"), // Store bot-specific state data
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -60,17 +61,39 @@ interface GeneratedAd {
 
 export default function AdCopyGeneratorBot({ sessionId, initialData }: { sessionId: number; initialData?: any }) {
   const { toast } = useToast();
-  const [step, setStep] = useState(1);
-  const [adData, setAdData] = useState<AdCopyData>({
-    product: initialData?.product || '',
-    usp: initialData?.usp || '',
-    targetAudience: initialData?.targetAudience || '',
-    platform: initialData?.platform || '',
-    tone: initialData?.tone || '',
-    cta: initialData?.cta || ''
+  
+  // Load session data if available
+  const { data: sessionData } = useQuery({
+    queryKey: ['/api/sessions', sessionId],
+    enabled: !!sessionId
   });
-  const [generatedAds, setGeneratedAds] = useState<GeneratedAd | null>(initialData?.generatedAds || null);
+  
+  const savedData = (sessionData as any)?.data || initialData;
+  
+  const [step, setStep] = useState(savedData?.currentStep || 1);
+  const [adData, setAdData] = useState<AdCopyData>({
+    product: savedData?.adData?.product || '',
+    usp: savedData?.adData?.usp || '',
+    targetAudience: savedData?.adData?.targetAudience || '',
+    platform: savedData?.adData?.platform || '',
+    tone: savedData?.adData?.tone || '',
+    cta: savedData?.adData?.cta || ''
+  });
+  const [generatedAds, setGeneratedAds] = useState<GeneratedAd | null>(savedData?.generatedAds || null);
   const [selectedVersion, setSelectedVersion] = useState<'A' | 'B'>('A');
+  
+  // Update state when session data loads
+  useEffect(() => {
+    if (savedData) {
+      setStep(savedData.currentStep || 1);
+      if (savedData.adData) {
+        setAdData(savedData.adData);
+      }
+      if (savedData.generatedAds) {
+        setGeneratedAds(savedData.generatedAds);
+      }
+    }
+  }, [savedData]);
 
   const platforms = [
     { value: 'google-search', label: 'Google Search Ads', icon: Search },
@@ -89,13 +112,14 @@ export default function AdCopyGeneratorBot({ sessionId, initialData }: { session
   // Save session data
   const saveSessionMutation = useMutation({
     mutationFn: async () => {
-      return apiRequest('PUT', `/api/sessions/${sessionId}`, {
+      const response = await apiRequest('PUT', `/api/sessions/${sessionId}`, {
         data: {
           adData,
           generatedAds,
           currentStep: step
         }
       });
+      return response.json();
     }
   });
 
