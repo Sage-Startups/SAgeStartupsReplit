@@ -45,7 +45,7 @@ interface EditableCardProps {
   description?: string;
 }
 
-function EditableCard({ title, value, type, onSave, icon, description, gradient }: EditableCardProps & { gradient?: string }) {
+function EditableCard({ title, value, type, onSave, icon, description }: EditableCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(value.toString());
 
@@ -69,41 +69,38 @@ function EditableCard({ title, value, type, onSave, icon, description, gradient 
   };
 
   return (
-    <div className={`bubble-card p-6 ${gradient || ''} relative overflow-hidden group`}>
-      {gradient && (
-        <div className="absolute top-0 right-0 w-20 h-20 bg-white/20 rounded-full -translate-y-6 translate-x-6"></div>
-      )}
-      <div className="flex items-center justify-between mb-4 relative z-10">
-        <CardTitle className="text-sm font-medium text-gray-700">{title}</CardTitle>
-        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${gradient ? 'bg-white/30' : 'bg-purple-100'}`}>
+    <Card className="relative group">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        <div className="flex items-center space-x-2">
           {icon}
           {!isEditing && (
             <Button
               variant="ghost"
               size="sm"
-              className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0 absolute -top-1 -right-1 bg-white/80"
+              className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
               onClick={() => setIsEditing(true)}
             >
               <Edit3 className="h-3 w-3" />
             </Button>
           )}
         </div>
-      </div>
-      <div className="relative z-10">
+      </CardHeader>
+      <CardContent>
         {isEditing ? (
           <div className="space-y-2">
             <Input
               value={editValue}
               onChange={(e) => setEditValue(e.target.value)}
               type={type === 'text' ? 'text' : 'number'}
-              className="text-2xl font-bold bg-white/80 border-white/50"
+              className="text-2xl font-bold"
             />
             <div className="flex space-x-2">
-              <Button size="sm" onClick={handleSave} className="bg-green-500 hover:bg-green-600">
+              <Button size="sm" onClick={handleSave}>
                 <Save className="h-3 w-3 mr-1" />
                 Save
               </Button>
-              <Button size="sm" variant="outline" onClick={handleCancel} className="bg-white/80">
+              <Button size="sm" variant="outline" onClick={handleCancel}>
                 <X className="h-3 w-3 mr-1" />
                 Cancel
               </Button>
@@ -111,16 +108,14 @@ function EditableCard({ title, value, type, onSave, icon, description, gradient 
           </div>
         ) : (
           <>
-            <div className="text-2xl font-bold cursor-pointer hover:scale-105 transition-all duration-300 text-gray-800">
-              {formatValue(value)}
-            </div>
+            <div className="text-2xl font-bold">{formatValue(value)}</div>
             {description && (
-              <p className="text-xs text-gray-600">{description}</p>
+              <p className="text-xs text-muted-foreground">{description}</p>
             )}
           </>
         )}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -286,10 +281,10 @@ export default function FounderDashboard() {
   const currentMetrics = metrics || defaultMetrics;
 
   return (
-    <div className="min-h-screen bubble-bg relative">
+    <div className="min-h-screen bg-gray-50">
       <MainNavigation />
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Header */}
         <div className="mb-8 flex justify-between items-start">
           <div>
@@ -335,9 +330,8 @@ export default function FounderDashboard() {
             value={currentMetrics.revenue}
             type="currency"
             onSave={(value) => handleMetricUpdate('revenue', value)}
-            icon={<DollarSign className="h-5 w-5 text-white" />}
+            icon={<DollarSign className="h-4 w-4 text-green-600" />}
             description="Total monthly recurring revenue"
-            gradient="colorful-gradient-4"
           />
           
           <EditableCard
@@ -346,11 +340,10 @@ export default function FounderDashboard() {
             type="percentage"
             onSave={(value) => handleMetricUpdate('monthlyGrowth', value)}
             icon={currentMetrics.monthlyGrowth >= 0 ? 
-              <TrendingUp className="h-5 w-5 text-white" /> : 
-              <TrendingDown className="h-5 w-5 text-white" />
+              <TrendingUp className="h-4 w-4 text-green-600" /> : 
+              <TrendingDown className="h-4 w-4 text-red-600" />
             }
             description="Month-over-month growth rate"
-            gradient="colorful-gradient-3"
           />
           
           <EditableCard
@@ -358,9 +351,8 @@ export default function FounderDashboard() {
             value={currentMetrics.activeUsers}
             type="number"
             onSave={(value) => handleMetricUpdate('activeUsers', value)}
-            icon={<Users className="h-5 w-5 text-white" />}
+            icon={<Users className="h-4 w-4 text-blue-600" />}
             description="Monthly active users"
-            gradient="colorful-gradient-1"
           />
           
           <EditableCard
@@ -368,82 +360,71 @@ export default function FounderDashboard() {
             value={currentMetrics.churnRate}
             type="percentage"
             onSave={(value) => handleMetricUpdate('churnRate', value)}
-            icon={<BarChart3 className="h-5 w-5 text-white" />}
+            icon={<BarChart3 className="h-4 w-4 text-orange-600" />}
             description="Monthly customer churn"
-            gradient="colorful-gradient-5"
           />
         </div>
 
         {/* Financial Health */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <div className="bubble-card p-6 colorful-gradient-2 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-10 translate-x-10"></div>
-            <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/10 rounded-full translate-y-6 -translate-x-6"></div>
-            <CardHeader className="p-0 mb-6 relative z-10">
-              <CardTitle className="flex items-center text-white">
-                <div className="w-12 h-12 bg-white/30 rounded-2xl flex items-center justify-center mr-4">
-                  <Target className="w-6 h-6 text-white" />
-                </div>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Target className="w-5 h-5 mr-2 text-red-600" />
                 Financial Health
               </CardTitle>
             </CardHeader>
-            <div className="space-y-4 relative z-10">
+            <CardContent className="space-y-4">
               <EditableCard
                 title="Monthly Burn Rate"
                 value={currentMetrics.burnRate}
                 type="currency"
                 onSave={(value) => handleMetricUpdate('burnRate', value)}
-                icon={<TrendingDown className="h-5 w-5 text-white" />}
+                icon={<TrendingDown className="h-4 w-4 text-red-600" />}
                 description="Monthly cash burn"
-                gradient="colorful-gradient-6"
               />
               <EditableCard
                 title="Runway (Months)"
                 value={currentMetrics.runway}
                 type="number"
                 onSave={(value) => handleMetricUpdate('runway', value)}
-                icon={<Calendar className="h-5 w-5 text-white" />}
+                icon={<Calendar className="h-4 w-4 text-purple-600" />}
                 description="Months until cash runs out"
-                gradient="colorful-gradient-7"
               />
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Goals & Objectives */}
-          <div className="bubble-card p-6 colorful-gradient-8 relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-24 h-24 bg-white/10 rounded-full -translate-y-8 -translate-x-8"></div>
-            <div className="absolute bottom-0 right-0 w-28 h-28 bg-white/15 rounded-full translate-y-10 translate-x-10"></div>
-            <CardHeader className="p-0 mb-6 relative z-10">
-              <CardTitle className="flex items-center text-white">
-                <div className="w-12 h-12 bg-white/30 rounded-2xl flex items-center justify-center mr-4">
-                  <Target className="w-6 h-6 text-white" />
-                </div>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Target className="w-5 h-5 mr-2 text-green-600" />
                 Goals & Objectives
               </CardTitle>
             </CardHeader>
-            <div className="relative z-10">
+            <CardContent>
               <div className="space-y-3 mb-4">
-                {Array.isArray(currentMetrics.goals) ? currentMetrics.goals.map((goal: any, index: number) => (
-                  <div key={goal.id || goal.text || index} className="flex items-center justify-between p-4 bg-white/30 backdrop-blur-sm rounded-2xl border border-white/20">
+                {(currentMetrics.goals || []).map((goal: any, index: number) => (
+                  <div key={goal.id || goal.text || index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <div className="flex items-center space-x-3 flex-1">
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => toggleGoalMutation.mutate(goal.id || goal.text)}
-                        className="h-8 w-8 p-0 bg-white/50 hover:bg-white/70 rounded-full"
+                        className="h-6 w-6 p-0"
                       >
                         {goal.completed ? (
                           <CheckCircle className="h-5 w-5 text-green-600" />
                         ) : (
-                          <Circle className="h-5 w-5 text-white" />
+                          <Circle className="h-5 w-5 text-gray-400" />
                         )}
                       </Button>
                       <div className="flex-1">
-                        <span className={`text-sm font-medium ${goal.completed ? 'line-through text-white/70' : 'text-white'}`}>
+                        <span className={`text-sm ${goal.completed ? 'line-through text-gray-500' : ''}`}>
                           {goal.text || goal}
                         </span>
                         {goal.completed && goal.completedAt && (
-                          <div className="text-xs text-white/80 mt-1">
+                          <div className="text-xs text-green-600 mt-1">
                             Completed {new Date(goal.completedAt).toLocaleDateString()}
                           </div>
                         )}
@@ -453,12 +434,12 @@ export default function FounderDashboard() {
                       variant="ghost"
                       size="sm"
                       onClick={() => removeGoalMutation.mutate(goal.id || goal.text)}
-                      className="h-8 w-8 p-0 bg-white/50 hover:bg-red-500/80 rounded-full transition-colors"
+                      className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
                     >
-                      <X className="h-4 w-4 text-white" />
+                      <X className="h-3 w-3" />
                     </Button>
                   </div>
-                )) : []}
+                ))}
               </div>
               <div className="flex space-x-2">
                 <Input
@@ -466,70 +447,50 @@ export default function FounderDashboard() {
                   value={newGoal}
                   onChange={(e) => setNewGoal(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && addGoal()}
-                  className="bg-white/30 border-white/40 text-white placeholder:text-white/70 backdrop-blur-sm"
                 />
-                <Button onClick={addGoal} size="sm" className="bg-white/40 hover:bg-white/60 text-white backdrop-blur-sm rounded-2xl">
+                <Button onClick={addGoal} size="sm">
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Quick Actions */}
-        <div className="bubble-card p-8 relative overflow-hidden">
-          <div className="absolute -top-10 -right-10 w-40 h-40 bg-gradient-to-br from-blue-200/30 to-purple-200/30 rounded-full"></div>
-          <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-gradient-to-tr from-pink-200/30 to-yellow-200/30 rounded-full"></div>
-          
-          <CardHeader className="p-0 mb-6 relative z-10">
-            <CardTitle className="text-2xl font-bold text-gray-800">Quick Actions</CardTitle>
-            <CardDescription className="text-gray-600">Access your most used tools and features</CardDescription>
+        <Card>
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+            <CardDescription>Access your most used tools and features</CardDescription>
           </CardHeader>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
-            <div 
-              className="bubble-card colorful-gradient-1 p-6 cursor-pointer hover:scale-105 transition-all duration-300 float-animation"
-              onClick={() => setLocation('/ai-suite')}
-              style={{ animationDelay: '0s' }}
-            >
-              <div className="flex flex-col items-center space-y-4">
-                <div className="w-16 h-16 bg-white/30 rounded-2xl flex items-center justify-center">
-                  <Zap className="h-8 w-8 text-white" />
-                </div>
-                <span className="text-white font-semibold text-lg">AI Suite</span>
-                <span className="text-white/80 text-sm text-center">Access 60+ AI-powered business tools</span>
-              </div>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Button 
+                variant="outline" 
+                className="h-20 flex flex-col items-center justify-center space-y-2"
+                onClick={() => setLocation('/ai-suite')}
+              >
+                <Zap className="h-6 w-6 text-blue-600" />
+                <span>AI Suite</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                className="h-20 flex flex-col items-center justify-center space-y-2"
+                onClick={() => setLocation('/business-suite-coming-soon')}
+              >
+                <BarChart3 className="h-6 w-6 text-green-600" />
+                <span>Business Suite</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                className="h-20 flex flex-col items-center justify-center space-y-2"
+                onClick={() => setLocation('/account')}
+              >
+                <Users className="h-6 w-6 text-purple-600" />
+                <span>Account Settings</span>
+              </Button>
             </div>
-            
-            <div 
-              className="bubble-card colorful-gradient-4 p-6 cursor-pointer hover:scale-105 transition-all duration-300 float-animation"
-              onClick={() => setLocation('/business-suite-coming-soon')}
-              style={{ animationDelay: '1s' }}
-            >
-              <div className="flex flex-col items-center space-y-4">
-                <div className="w-16 h-16 bg-white/30 rounded-2xl flex items-center justify-center">
-                  <BarChart3 className="h-8 w-8 text-white" />
-                </div>
-                <span className="text-white font-semibold text-lg">Business Suite</span>
-                <span className="text-white/80 text-sm text-center">Comprehensive business management tools</span>
-              </div>
-            </div>
-            
-            <div 
-              className="bubble-card colorful-gradient-5 p-6 cursor-pointer hover:scale-105 transition-all duration-300 float-animation"
-              onClick={() => setLocation('/account')}
-              style={{ animationDelay: '2s' }}
-            >
-              <div className="flex flex-col items-center space-y-4">
-                <div className="w-16 h-16 bg-white/30 rounded-2xl flex items-center justify-center">
-                  <Users className="h-8 w-8 text-white" />
-                </div>
-                <span className="text-white font-semibold text-lg">Account Settings</span>
-                <span className="text-white/80 text-sm text-center">Manage subscription and preferences</span>
-              </div>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

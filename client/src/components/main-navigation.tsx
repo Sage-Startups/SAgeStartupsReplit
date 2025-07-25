@@ -70,52 +70,36 @@ export function MainNavigation() {
   ];
 
   return (
-    <header className="glass-effect border-b border-white/20 sticky top-0 z-50 backdrop-blur-xl">
+    <header className="bg-white border-b sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
           <div className="flex items-center space-x-4">
-            <div className="w-10 h-10 colorful-gradient-1 rounded-2xl flex items-center justify-center shadow-lg float-animation">
-              <SageIcon className="w-6 h-6 text-white" />
+            <div className="w-8 h-8 bg-green-700 rounded-lg flex items-center justify-center">
+              <SageIcon className="w-5 h-5 text-green-100" />
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-              Sage-Startups
-            </span>
+            <span className="text-xl font-bold">Sage-Startups</span>
           </div>
           
           {/* Navigation */}
-          <nav className="hidden md:flex items-center space-x-2">
-            {navigationItems.map((item, index) => {
-              const gradients = [
-                'colorful-gradient-1',
-                'colorful-gradient-2', 
-                'colorful-gradient-3',
-                'colorful-gradient-4'
-              ];
-              const gradient = gradients[index % gradients.length];
-              
-              return (
-                <Button
-                  key={item.path}
-                  variant="ghost"
-                  onClick={() => setLocation(item.path)}
-                  className={`flex items-center space-x-2 rounded-2xl transition-all duration-300 hover:scale-105 ${
-                    item.active 
-                      ? `${gradient} text-white shadow-lg` 
-                      : 'bg-white/80 backdrop-blur-sm hover:bg-white/90 border border-white/30'
-                  }`}
-                >
-                  {item.icon}
-                  <span>{item.label}</span>
-                </Button>
-              );
-            })}
+          <nav className="hidden md:flex items-center space-x-1">
+            {navigationItems.map((item) => (
+              <Button
+                key={item.path}
+                variant={item.active ? "default" : "ghost"}
+                onClick={() => setLocation(item.path)}
+                className="flex items-center space-x-2"
+              >
+                {item.icon}
+                <span>{item.label}</span>
+              </Button>
+            ))}
           </nav>
 
           {/* User Menu */}
           <div className="flex items-center space-x-4">
             <Badge 
-              className="bg-gradient-to-r from-purple-500 to-pink-500 text-white cursor-pointer hover:scale-105 transition-all duration-300 rounded-full px-4 py-2 shadow-lg"
+              className={`${subInfo.color} cursor-pointer hover:opacity-80 transition-opacity`}
               onClick={() => setLocation('/account?tab=subscription')}
             >
               <subInfo.icon className="w-4 h-4 mr-1" />
@@ -124,14 +108,14 @@ export function MainNavigation() {
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="flex items-center space-x-2 bg-white/80 backdrop-blur-sm hover:bg-white/90 border border-white/30 rounded-2xl transition-all duration-300 hover:scale-105">
-                  <Avatar className="w-8 h-8 ring-2 ring-purple-200">
+                <Button variant="ghost" className="flex items-center space-x-2">
+                  <Avatar className="w-8 h-8">
                     <AvatarImage src={(user as any)?.profileImageUrl} />
-                    <AvatarFallback className="bg-gradient-to-br from-blue-400 to-purple-500 text-white font-semibold">
+                    <AvatarFallback>
                       {(user as any)?.name?.split(' ').map((n: string) => n[0]).join('') || 'U'}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="hidden md:block font-medium">{(user as any)?.firstName || (user as any)?.name || 'User'}</span>
+                  <span className="hidden md:block">{(user as any)?.firstName || (user as any)?.name || 'User'}</span>
                   <ChevronDown className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
