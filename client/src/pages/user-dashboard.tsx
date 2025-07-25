@@ -465,21 +465,21 @@ export default function UserDashboard() {
                       <CollapsibleTrigger className="w-full">
                         <CardHeader className="hover:bg-gray-50 transition-colors">
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-3">
-                              <div className={`w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center`}>
-                                <IconComponent className="w-6 h-6 text-blue-600" />
+                            <div className="flex items-center space-x-4">
+                              <div className={`w-14 h-14 rounded-2xl ${section.color} flex items-center justify-center shadow-sm`}>
+                                <IconComponent className={`w-7 h-7 ${section.iconColor}`} />
                               </div>
-                              <div className="text-left">
-                                <CardTitle className="flex items-center">
+                              <div className="text-left flex-1">
+                                <CardTitle className="flex items-center text-xl">
                                   {section.name}
                                   {isExpanded ? (
-                                    <ChevronDown className="w-4 h-4 ml-2 text-gray-500" />
+                                    <ChevronDown className="w-5 h-5 ml-2 text-gray-500" />
                                   ) : (
-                                    <ChevronRight className="w-4 h-4 ml-2 text-gray-500" />
+                                    <ChevronRight className="w-5 h-5 ml-2 text-gray-500" />
                                   )}
                                 </CardTitle>
-                                <CardDescription>
-                                  {availableSectionBots.length} of {allSectionBots.length} tools available
+                                <CardDescription className="text-base mt-1">
+                                  {availableSectionBots.length} of {allSectionBots.length} specialized tools available
                                 </CardDescription>
                               </div>
                             </div>
@@ -491,9 +491,9 @@ export default function UserDashboard() {
                       </CollapsibleTrigger>
                       <CollapsibleContent>
                         <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {/* Available bots */}
-                        {availableSectionBots.map((bot: any) => {
+                        {availableSectionBots.map((bot: any, index: number) => {
                           // Get icon for each bot
                           const getBotIcon = (iconName: string) => {
                             const iconMap: { [key: string]: any } = {
@@ -534,35 +534,76 @@ export default function UserDashboard() {
                             return iconMap[iconName] || Zap;
                           };
                           
+                          // Define themed colors for each bot
+                          const getBotTheme = (index: number) => {
+                            const themes = [
+                              { bg: 'bg-blue-50', iconBg: 'bg-blue-500', circleBg: 'bg-blue-100' },
+                              { bg: 'bg-green-50', iconBg: 'bg-green-500', circleBg: 'bg-green-100' },
+                              { bg: 'bg-purple-50', iconBg: 'bg-purple-500', circleBg: 'bg-purple-100' },
+                              { bg: 'bg-red-50', iconBg: 'bg-red-500', circleBg: 'bg-red-100' },
+                              { bg: 'bg-orange-50', iconBg: 'bg-orange-500', circleBg: 'bg-orange-100' },
+                              { bg: 'bg-pink-50', iconBg: 'bg-pink-500', circleBg: 'bg-pink-100' },
+                              { bg: 'bg-indigo-50', iconBg: 'bg-indigo-500', circleBg: 'bg-indigo-100' },
+                              { bg: 'bg-teal-50', iconBg: 'bg-teal-500', circleBg: 'bg-teal-100' },
+                            ];
+                            return themes[index % themes.length];
+                          };
+                          
                           const BotIcon = getBotIcon(bot.icon);
+                          const theme = getBotTheme(index);
                           
                           return (
                             <div 
                               key={bot.id}
-                              className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer bg-white"
+                              className={`relative p-6 rounded-2xl hover:shadow-lg transition-all duration-200 cursor-pointer ${theme.bg} group border border-white/20`}
                               onClick={() => setLocation(`/bot/${bot.id}`)}
                             >
-                              <div className="flex items-center justify-between mb-2">
-                                <div className="flex items-center gap-2">
-                                  <BotIcon className="w-4 h-4 text-gray-600" />
-                                  <h4 className="font-medium text-gray-900">{bot.name}</h4>
-                                </div>
-                                <ArrowRight className="w-4 h-4 text-gray-400" />
+                              {/* Decorative circle background */}
+                              <div className={`absolute top-0 right-0 w-24 h-24 ${theme.circleBg} rounded-full opacity-40 -translate-y-6 translate-x-6`}></div>
+                              <div className={`absolute top-8 right-8 w-16 h-16 ${theme.circleBg} rounded-full opacity-30`}></div>
+                              
+                              {/* Icon */}
+                              <div className={`w-14 h-14 ${theme.iconBg} rounded-2xl flex items-center justify-center mb-4 relative z-10`}>
+                                <BotIcon className="w-7 h-7 text-white" />
                               </div>
-                              <p className="text-sm text-gray-600 mb-3">{bot.description}</p>
-                              <div className="flex flex-wrap gap-1">
-                                {bot.features?.slice(0, 2).map((feature: any, i: number) => (
-                                  <Badge key={i} variant="outline" className="text-xs">
-                                    {feature}
-                                  </Badge>
-                                ))}
+                              
+                              {/* Content */}
+                              <div className="relative z-10">
+                                <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-gray-800">
+                                  {bot.name}
+                                </h3>
+                                <p className="text-sm text-gray-600 mb-4 line-clamp-2 leading-relaxed">
+                                  {bot.description}
+                                </p>
+                                
+                                {/* Key Capabilities */}
+                                <div className="mb-4">
+                                  <h4 className="text-xs font-medium text-gray-500 mb-2 uppercase tracking-wide">Key Capabilities:</h4>
+                                  <div className="space-y-1">
+                                    {bot.features?.slice(0, 3).map((feature: any, i: number) => (
+                                      <div key={i} className="flex items-center text-xs text-gray-600">
+                                        <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></div>
+                                        {feature}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                                
+                                {/* Engage Button */}
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center text-sm text-gray-500">
+                                    <MessageSquare className="w-4 h-4 mr-1" />
+                                    <span>Engage Assistant</span>
+                                  </div>
+                                  <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 group-hover:translate-x-1 transition-all" />
+                                </div>
                               </div>
                             </div>
                           );
                         })}
                         
                         {/* Locked bots */}
-                        {lockedSectionBots.map((bot: any) => {
+                        {lockedSectionBots.map((bot: any, index: number) => {
                           // Get icon for each bot
                           const getBotIcon = (iconName: string) => {
                             const iconMap: { [key: string]: any } = {
@@ -604,34 +645,65 @@ export default function UserDashboard() {
                           };
                           
                           const BotIcon = getBotIcon(bot.icon);
+                          const lockedIndex = availableSectionBots.length + index;
                           
                           return (
                             <div 
                               key={`locked-${bot.id}`}
-                              className="p-4 border border-dashed rounded-lg bg-gray-50 relative opacity-60"
+                              className="relative p-6 rounded-2xl bg-gray-50 border-2 border-dashed border-gray-200 opacity-75"
                             >
-                              <div className="absolute top-2 right-2">
-                                <Lock className="w-4 h-4 text-gray-400" />
-                              </div>
-                              <div className="flex items-center justify-between mb-2">
-                                <div className="flex items-center gap-2">
-                                  <BotIcon className="w-4 h-4 text-gray-500" />
-                                  <h4 className="font-medium text-gray-500">{bot.name}</h4>
+                              {/* Lock icon */}
+                              <div className="absolute top-4 right-4">
+                                <div className="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center">
+                                  <Lock className="w-4 h-4 text-gray-400" />
                                 </div>
                               </div>
-                              <p className="text-sm text-gray-500 mb-3">{bot.description}</p>
-                              <div className="flex items-center justify-between">
-                                <Badge variant="outline" className="text-xs text-gray-400 border-gray-300">
-                                  {userSubscriptionTier === 'free' ? 'Pro Required' : 'Premium Required'}
-                                </Badge>
-                                <Button 
-                                  size="sm" 
-                                  variant="outline" 
-                                  className="text-xs h-6"
-                                  onClick={() => upgradeMutation.mutate(userSubscriptionTier === 'free' ? 'pro' : 'premium')}
-                                >
-                                  Upgrade
-                                </Button>
+                              
+                              {/* Decorative circle background - muted */}
+                              <div className="absolute top-0 right-0 w-24 h-24 bg-gray-100 rounded-full opacity-30 -translate-y-6 translate-x-6"></div>
+                              <div className="absolute top-8 right-8 w-16 h-16 bg-gray-100 rounded-full opacity-20"></div>
+                              
+                              {/* Icon - muted */}
+                              <div className="w-14 h-14 bg-gray-300 rounded-2xl flex items-center justify-center mb-4 relative z-10">
+                                <BotIcon className="w-7 h-7 text-gray-500" />
+                              </div>
+                              
+                              {/* Content */}
+                              <div className="relative z-10">
+                                <h3 className="text-lg font-semibold text-gray-500 mb-2">
+                                  {bot.name}
+                                </h3>
+                                <p className="text-sm text-gray-400 mb-4 line-clamp-2 leading-relaxed">
+                                  {bot.description}
+                                </p>
+                                
+                                {/* Key Capabilities - muted */}
+                                <div className="mb-4">
+                                  <h4 className="text-xs font-medium text-gray-400 mb-2 uppercase tracking-wide">Key Capabilities:</h4>
+                                  <div className="space-y-1">
+                                    {bot.features?.slice(0, 3).map((feature: any, i: number) => (
+                                      <div key={i} className="flex items-center text-xs text-gray-400">
+                                        <div className="w-1.5 h-1.5 bg-gray-300 rounded-full mr-2"></div>
+                                        {feature}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                                
+                                {/* Upgrade section */}
+                                <div className="flex items-center justify-between">
+                                  <Badge variant="outline" className="text-xs text-gray-400 border-gray-300">
+                                    {userSubscriptionTier === 'free' ? 'Pro Required' : 'Premium Required'}
+                                  </Badge>
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline" 
+                                    className="text-xs h-7 px-3 border-gray-300 hover:bg-gray-100"
+                                    onClick={() => upgradeMutation.mutate(userSubscriptionTier === 'free' ? 'pro' : 'premium')}
+                                  >
+                                    Upgrade
+                                  </Button>
+                                </div>
                               </div>
                             </div>
                           );

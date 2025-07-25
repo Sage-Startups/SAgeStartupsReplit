@@ -576,6 +576,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const sessionId = parseInt(req.params.sessionId);
       const { prompt, logoInfo } = req.body;
       
+      // Validate input
+      if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0) {
+        return res.status(400).json({ message: 'Valid prompt is required' });
+      }
+      
+      if (prompt.length > 1000) {
+        return res.status(400).json({ message: 'Prompt is too long (max 1000 characters)' });
+      }
+      
       // Import OpenAI
       const OpenAI = await import("openai");
       const openai = new OpenAI.default({ apiKey: process.env.OPENAI_API_KEY });
@@ -589,7 +598,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         quality: "standard",
       });
       
-      const imageUrl = response.data[0]?.url;
+      const imageUrl = response.data?.[0]?.url;
       
       // Save generated asset
       const asset = await storage.createGeneratedAsset({
