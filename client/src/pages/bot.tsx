@@ -161,8 +161,39 @@ export default function Bot() {
 
   const createSessionMutation = useMutation({
     mutationFn: async (projectId: number) => {
-      // Generate a descriptive session title
-      const sessionTitle = `${bot.name} Session`;
+      // Get project name for context
+      const project = projects.find(p => p.id === parseInt(selectedProjectId));
+      const projectName = project?.name || "Project";
+      
+      // Generate a more descriptive session title based on bot type
+      let sessionTitle = `${bot.name}`;
+      
+      // Add context based on bot type
+      switch (bot.id) {
+        case 'logo-design':
+          sessionTitle = `Logo Design for ${projectName}`;
+          break;
+        case 'marketing-strategy':
+          sessionTitle = `Marketing Strategy for ${projectName}`;
+          break;
+        case 'brand-voice':
+          sessionTitle = `Brand Voice for ${projectName}`;
+          break;
+        case 'content-creator':
+          sessionTitle = `Content Creation for ${projectName}`;
+          break;
+        case 'seo-expert':
+          sessionTitle = `SEO Analysis for ${projectName}`;
+          break;
+        case 'ad-copy':
+          sessionTitle = `Ad Copy for ${projectName}`;
+          break;
+        case 'creative-concept':
+          sessionTitle = `Creative Concepts for ${projectName}`;
+          break;
+        default:
+          sessionTitle = `${bot.name} - ${projectName}`;
+      }
       
       const response = await apiRequest('POST', `/api/projects/${projectId}/sessions`, {
         botId: bot.id,

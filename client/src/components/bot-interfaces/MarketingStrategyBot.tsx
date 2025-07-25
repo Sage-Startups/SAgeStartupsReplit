@@ -46,15 +46,15 @@ export function MarketingStrategyBot({ sessionId, botName }: MarketingStrategyBo
   const { toast } = useToast();
 
   // Load existing session data
-  const { data: messages = [] } = useQuery({
+  const { data: messages = [] } = useQuery<any[]>({
     queryKey: ['/api/sessions', sessionId, 'messages'],
     enabled: !!sessionId
   });
 
   useEffect(() => {
-    if (messages && messages.length > 0) {
+    if (messages && Array.isArray(messages) && messages.length > 0) {
       const lastMessage = messages[messages.length - 1] as any;
-      if (lastMessage.role === 'assistant') {
+      if (lastMessage && lastMessage.role === 'assistant') {
         try {
           const savedStrategy = JSON.parse(lastMessage.content);
           setStrategy(savedStrategy);
@@ -174,7 +174,7 @@ export function MarketingStrategyBot({ sessionId, botName }: MarketingStrategyBo
       }
       
       // Generate personas based on industry
-      const industryPersonas = {
+      const industryPersonas: Record<string, Array<{ name: string; percentage: number; value: string }>> = {
         "technology": [
           { name: "Tech Innovators", percentage: 35, value: "Very High" },
           { name: "Early Adopters", percentage: 40, value: "High" },
@@ -198,7 +198,7 @@ export function MarketingStrategyBot({ sessionId, botName }: MarketingStrategyBo
       };
       
       const industryKey = businessProfile.industry.toLowerCase();
-      const personas = industryPersonas[industryKey] || industryPersonas.default;
+      const personas = industryPersonas[industryKey] || industryPersonas["default"];
       
       const strategyData = {
         overview: `Personalized marketing strategy for ${businessProfile.name}`,

@@ -161,7 +161,7 @@ export default function ProjectSessions() {
                             <MessageSquare className="w-4 h-4 text-gray-500" />
                             <div>
                               <p className="text-sm font-medium text-gray-900">
-                                Session #{session.id}
+                                {(session as any).sessionTitle || `${bot.name} Session #${session.id}`}
                               </p>
                               <p className="text-xs text-gray-500">
                                 {format(new Date(session.createdAt), 'MMM d, yyyy h:mm a')}
@@ -185,7 +185,7 @@ export default function ProjectSessions() {
                                 <AlertDialogHeader>
                                   <AlertDialogTitle>Delete Session</AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    Are you sure you want to delete Session #{session.id}? This will permanently remove all messages and cannot be undone.
+                                    Are you sure you want to delete "{(session as any).sessionTitle || `Session #${session.id}`}"? This will permanently remove all messages and cannot be undone.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
