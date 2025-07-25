@@ -163,7 +163,7 @@ export default function FounderDashboard() {
   // Add goal mutation
   const addGoalMutation = useMutation({
     mutationFn: async (goal: string) => {
-      const currentGoals = metrics?.goals || [];
+      const currentGoals = Array.isArray(metrics?.goals) ? metrics.goals : [];
       const newGoal = {
         id: Date.now().toString(),
         text: goal,
@@ -188,7 +188,7 @@ export default function FounderDashboard() {
   // Toggle goal completion mutation
   const toggleGoalMutation = useMutation({
     mutationFn: async (goalId: string) => {
-      const currentGoals = metrics?.goals || [];
+      const currentGoals = Array.isArray(metrics?.goals) ? metrics.goals : [];
       const updatedGoals = currentGoals.map((goal: any) =>
         goal.id === goalId
           ? {
@@ -209,7 +209,7 @@ export default function FounderDashboard() {
   // Remove goal mutation
   const removeGoalMutation = useMutation({
     mutationFn: async (goalId: string) => {
-      const currentGoals = metrics?.goals || [];
+      const currentGoals = Array.isArray(metrics?.goals) ? metrics.goals : [];
       const updatedGoals = currentGoals.filter((goal: any) => goal.id !== goalId);
       const response = await apiRequest("PUT", "/api/founder/metrics", { goals: updatedGoals });
       return response.json();
@@ -475,7 +475,7 @@ export default function FounderDashboard() {
               <Button 
                 variant="outline" 
                 className="h-20 flex flex-col items-center justify-center space-y-2"
-                onClick={() => setLocation('/business-suite')}
+                onClick={() => setLocation('/business-suite-coming-soon')}
               >
                 <BarChart3 className="h-6 w-6 text-green-600" />
                 <span>Business Suite</span>

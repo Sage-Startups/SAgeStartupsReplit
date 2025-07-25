@@ -57,8 +57,8 @@ export function MainNavigation() {
     {
       label: "Business Suite",
       icon: <Building className="w-4 h-4" />,
-      path: "/business-suite",
-      active: location === "/business-suite"
+      path: "/business-suite-coming-soon",
+      active: location === "/business-suite-coming-soon" || location === "/business-suite"
     },
 
     ...((user as any)?.role === 'super_admin' ? [{

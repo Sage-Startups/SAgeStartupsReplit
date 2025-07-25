@@ -1,8 +1,9 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -27,7 +28,9 @@ import {
   Building,
   Globe,
   Zap,
-  ArrowRight
+  ArrowRight,
+  ChevronDown,
+  ChevronRight
 } from "lucide-react";
 
 interface BusinessTool {
@@ -182,6 +185,15 @@ export default function BusinessSuite() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [expandedSections, setExpandedSections] = useState<string[]>([]);
+
+  const toggleSection = (sectionId: string) => {
+    setExpandedSections(prev => 
+      prev.includes(sectionId) 
+        ? prev.filter(id => id !== sectionId)
+        : [...prev, sectionId]
+    );
+  };
 
   if (authLoading) {
     return (
@@ -294,84 +306,160 @@ export default function BusinessSuite() {
           </div>
         </div>
 
-        {/* Tools Grid */}
-        <div className="space-y-8">
+        {/* Tools Grid with Collapsible Sections */}
+        <div className="space-y-6">
           {categories.map((category) => {
             const categoryTools = businessTools.filter(tool => tool.category === category.id);
             
             if (selectedCategory && selectedCategory !== category.id) return null;
             
+            const isExpanded = expandedSections.includes(category.id);
+            
+            // Define themed colors for each category
+            const getCategoryTheme = (categoryId: string) => {
+              const themes = {
+                'financial': { bg: 'bg-green-50', iconBg: 'bg-green-500', borderColor: 'border-green-200' },
+                'customer': { bg: 'bg-blue-50', iconBg: 'bg-blue-500', borderColor: 'border-blue-200' },
+                'operations': { bg: 'bg-purple-50', iconBg: 'bg-purple-500', borderColor: 'border-purple-200' },
+                'analytics': { bg: 'bg-orange-50', iconBg: 'bg-orange-500', borderColor: 'border-orange-200' }
+              };
+              return themes[categoryId as keyof typeof themes] || themes.financial;
+            };
+
+            const theme = getCategoryTheme(category.id);
+            
             return (
-              <div key={category.id}>
-                <div className="flex items-center mb-4">
-                  <div className={`w-10 h-10 rounded-lg ${category.color.replace('text-', 'bg-').replace('-800', '-100')} flex items-center justify-center mr-3`}>
-                    {category.icon}
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-semibold text-gray-900">{category.name}</h2>
-                    <p className="text-gray-600 text-sm">{category.description}</p>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {categoryTools.map((tool) => (
-                    <Card key={tool.id} className="hover:shadow-lg transition-shadow cursor-pointer">
-                      <CardHeader>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                              {tool.icon}
-                            </div>
-                            <div>
-                              <CardTitle className="text-lg">{tool.name}</CardTitle>
-                            </div>
+              <Card key={category.id} className={`${theme.borderColor} border-2`}>
+                <Collapsible open={isExpanded} onOpenChange={() => toggleSection(category.id)}>
+                  <CollapsibleTrigger className="w-full">
+                    <CardHeader className="hover:bg-gray-50 transition-colors">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <div className={`w-14 h-14 rounded-2xl ${theme.iconBg} flex items-center justify-center shadow-sm`}>
+                            {React.cloneElement(category.icon as React.ReactElement, { 
+                              className: "w-7 h-7 text-white" 
+                            })}
                           </div>
-                          {tool.comingSoon && (
-                            <Badge variant="secondary">Coming Soon</Badge>
-                          )}
-                        </div>
-                        <CardDescription>{tool.description}</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-3">
-                          <div className="flex flex-wrap gap-1">
-                            {tool.features.slice(0, 3).map((feature, index) => (
-                              <Badge key={index} variant="outline" className="text-xs">
-                                {feature}
-                              </Badge>
-                            ))}
-                            {tool.features.length > 3 && (
-                              <Badge variant="outline" className="text-xs">
-                                +{tool.features.length - 3} more
-                              </Badge>
-                            )}
+                          <div className="text-left flex-1">
+                            <CardTitle className="flex items-center text-xl">
+                              {category.name}
+                              {isExpanded ? (
+                                <ChevronDown className="w-5 h-5 ml-2 text-gray-500" />
+                              ) : (
+                                <ChevronRight className="w-5 h-5 ml-2 text-gray-500" />
+                              )}
+                            </CardTitle>
+                            <CardDescription className="text-base mt-1">
+                              {category.description} • {categoryTools.length} tools available
+                            </CardDescription>
                           </div>
-                          <Button 
-                            className="w-full" 
-                            variant={tool.comingSoon ? "outline" : "default"}
-                            disabled={tool.comingSoon}
-                            onClick={() => {
-                              if (tool.id === 'financial-dashboard') {
-                                setLocation('/financial-dashboard');
-                              } else if (tool.id === 'task-management') {
-                                setLocation('/task-manager');
-                              } else if (!tool.comingSoon) {
-                                toast({
-                                  title: "Coming Soon",
-                                  description: `${tool.name} functionality will be available soon!`,
-                                });
-                              }
-                            }}
-                          >
-                            {tool.comingSoon ? "Coming Soon" : "Open Tool"}
-                            {!tool.comingSoon && <ArrowRight className="w-4 h-4 ml-2" />}
-                          </Button>
                         </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
+                        <Badge variant="secondary" className="text-sm">
+                          {categoryTools.length} tools
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {categoryTools.map((tool, index) => {
+                          // Get themed colors for each tool card
+                          const getToolTheme = (index: number) => {
+                            const themes = [
+                              { bg: 'bg-blue-50', iconBg: 'bg-blue-500', circleBg: 'bg-blue-100' },
+                              { bg: 'bg-green-50', iconBg: 'bg-green-500', circleBg: 'bg-green-100' },
+                              { bg: 'bg-purple-50', iconBg: 'bg-purple-500', circleBg: 'bg-purple-100' },
+                              { bg: 'bg-red-50', iconBg: 'bg-red-500', circleBg: 'bg-red-100' },
+                              { bg: 'bg-orange-50', iconBg: 'bg-orange-500', circleBg: 'bg-orange-100' },
+                              { bg: 'bg-pink-50', iconBg: 'bg-pink-500', circleBg: 'bg-pink-100' },
+                              { bg: 'bg-indigo-50', iconBg: 'bg-indigo-500', circleBg: 'bg-indigo-100' },
+                              { bg: 'bg-teal-50', iconBg: 'bg-teal-500', circleBg: 'bg-teal-100' },
+                            ];
+                            return themes[index % themes.length];
+                          };
+
+                          const toolTheme = getToolTheme(index);
+
+                          return (
+                            <div 
+                              key={tool.id}
+                              className={`relative p-6 rounded-2xl hover:shadow-lg transition-all duration-200 cursor-pointer ${toolTheme.bg} group border border-white/20`}
+                              onClick={() => {
+                                if (tool.id === 'financial-dashboard') {
+                                  setLocation('/financial-dashboard');
+                                } else if (tool.id === 'task-management') {
+                                  setLocation('/task-manager');
+                                } else if (!tool.comingSoon) {
+                                  toast({
+                                    title: "Coming Soon",
+                                    description: `${tool.name} functionality will be available soon!`,
+                                  });
+                                }
+                              }}
+                            >
+                              {/* Decorative circle background */}
+                              <div className={`absolute top-0 right-0 w-24 h-24 ${toolTheme.circleBg} rounded-full opacity-40 -translate-y-6 translate-x-6`}></div>
+                              <div className={`absolute top-8 right-8 w-16 h-16 ${toolTheme.circleBg} rounded-full opacity-30`}></div>
+                              
+                              {/* Coming Soon Badge */}
+                              {tool.comingSoon && (
+                                <div className="absolute top-4 right-4 z-10">
+                                  <Badge variant="secondary">Coming Soon</Badge>
+                                </div>
+                              )}
+                              
+                              {/* Icon */}
+                              <div className={`w-14 h-14 ${toolTheme.iconBg} rounded-2xl flex items-center justify-center mb-4 relative z-10`}>
+                                {React.cloneElement(tool.icon as React.ReactElement, { 
+                                  className: "w-7 h-7 text-white" 
+                                })}
+                              </div>
+                              
+                              {/* Content */}
+                              <div className="relative z-10">
+                                <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-gray-800">
+                                  {tool.name}
+                                </h3>
+                                <p className="text-sm text-gray-600 mb-4 line-clamp-2 leading-relaxed">
+                                  {tool.description}
+                                </p>
+                                
+                                {/* Key Features */}
+                                <div className="mb-4">
+                                  <h4 className="text-xs font-medium text-gray-500 mb-2 uppercase tracking-wide">Key Features:</h4>
+                                  <div className="space-y-1">
+                                    {tool.features?.slice(0, 3).map((feature: any, i: number) => (
+                                      <div key={i} className="flex items-center text-xs text-gray-600">
+                                        <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></div>
+                                        {feature}
+                                      </div>
+                                    ))}
+                                    {tool.features.length > 3 && (
+                                      <div className="text-xs text-gray-500">
+                                        +{tool.features.length - 3} more features
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                                
+                                {/* Action Button */}
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center text-sm text-gray-500">
+                                    <Briefcase className="w-4 h-4 mr-1" />
+                                    <span>{tool.comingSoon ? "Coming Soon" : "Open Tool"}</span>
+                                  </div>
+                                  <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 group-hover:translate-x-1 transition-all" />
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </CardContent>
+                  </CollapsibleContent>
+                </Collapsible>
+              </Card>
             );
           })}
         </div>

@@ -1134,6 +1134,107 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Business Suite waitlist endpoint
+  app.post("/api/business-suite/join-waitlist", requireAuth, async (req: any, res) => {
+    try {
+      const { email, name, company } = req.body;
+      
+      if (!email || !name) {
+        return res.status(400).json({ message: "Name and email are required" });
+      }
+
+      // Import SendGrid
+      const sgMail = await import("@sendgrid/mail");
+      sgMail.default.setApiKey(process.env.SENDGRID_API_KEY!);
+
+      // Send notification email to admin
+      const adminEmailContent = {
+        to: 'contact@sage-startups.com',
+        from: 'contact@sage-startups.com',
+        subject: 'New Business Suite Waitlist Signup',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <h2 style="color: #1f2937; margin-bottom: 20px;">New Business Suite Waitlist Signup</h2>
+            
+            <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+              <h3 style="color: #374151; margin-bottom: 15px;">Contact Information</h3>
+              <p><strong>Name:</strong> ${name}</p>
+              <p><strong>Email:</strong> ${email}</p>
+              ${company ? `<p><strong>Company:</strong> ${company}</p>` : ''}
+              <p><strong>Signup Date:</strong> ${new Date().toLocaleDateString()}</p>
+            </div>
+            
+            <div style="background-color: #eff6ff; padding: 15px; border-radius: 8px; border-left: 4px solid #3b82f6;">
+              <p style="margin: 0; color: #1e40af;">
+                <strong>Action Required:</strong> Add this user to the Business Suite waitlist.
+              </p>
+            </div>
+          </div>
+        `
+      };
+
+      // Send confirmation email to user
+      const userEmailContent = {
+        to: email,
+        from: 'contact@sage-startups.com',
+        subject: 'Welcome to the Business Suite Waitlist!',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <h1 style="color: #1f2937; margin-bottom: 10px;">Welcome to the Waitlist!</h1>
+              <div style="width: 60px; height: 4px; background: linear-gradient(90deg, #3b82f6, #8b5cf6); margin: 0 auto;"></div>
+            </div>
+            
+            <p style="font-size: 16px; color: #374151; line-height: 1.6;">Hi ${name},</p>
+            
+            <p style="font-size: 16px; color: #374151; line-height: 1.6;">
+              Thank you for joining the waitlist for our Business Suite! We're excited to have you on board.
+            </p>
+            
+            <div style="background-color: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="color: #0c4a6e; margin-bottom: 15px;">What's Next?</h3>
+              <ul style="color: #374151; line-height: 1.6;">
+                <li>You'll be among the first to know when we launch</li>
+                <li>Get exclusive early access to new features</li>
+                <li>Receive a 50% discount on your first year</li>
+                <li>Personal onboarding and setup assistance</li>
+              </ul>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.REPLIT_DEV_DOMAIN || 'https://sage-startups.replit.app'}/business-suite" 
+                 style="background: linear-gradient(90deg, #3b82f6, #8b5cf6); color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 500;">
+                Explore Beta Version
+              </a>
+            </div>
+            
+            <p style="font-size: 14px; color: #6b7280; line-height: 1.6;">
+              In the meantime, feel free to explore our current beta version of the Business Suite to get a preview of what's coming.
+            </p>
+            
+            <div style="border-top: 1px solid #e5e7eb; padding-top: 20px; margin-top: 30px; text-align: center;">
+              <p style="font-size: 14px; color: #6b7280;">
+                Best regards,<br>
+                The Sage-Startups Team
+              </p>
+            </div>
+          </div>
+        `
+      };
+
+      // Send both emails
+      await Promise.all([
+        sgMail.default.send(adminEmailContent),
+        sgMail.default.send(userEmailContent)
+      ]);
+
+      res.json({ message: "Successfully joined waitlist" });
+    } catch (error) {
+      console.error("Error joining waitlist:", error);
+      res.status(500).json({ message: "Failed to join waitlist" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

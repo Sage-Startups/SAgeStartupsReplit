@@ -15,6 +15,7 @@ import ProjectSessions from "./pages/project-sessions";
 import NotFound from "@/pages/not-found";
 import FounderDashboard from "@/pages/founder-dashboard";
 import BusinessSuite from "@/pages/business-suite";
+import BusinessSuiteComingSoon from "@/pages/business-suite-coming-soon";
 import Account from "@/pages/account";
 import SuperAdmin from "@/pages/super-admin";
 import Checkout from "@/pages/checkout";
@@ -41,6 +42,7 @@ function Router() {
           <Route path="/" component={FounderDashboard} />
           <Route path="/dashboard" component={FounderDashboard} />
           <Route path="/ai-suite" component={UserDashboard} />
+          <Route path="/business-suite-coming-soon" component={BusinessSuiteComingSoon} />
           <Route path="/business-suite" component={BusinessSuite} />
           <Route path="/account" component={Account} />
           <Route path="/checkout" component={Checkout} />
