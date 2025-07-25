@@ -555,20 +555,16 @@ export default function UserDashboard() {
                           return (
                             <div 
                               key={bot.id}
-                              className={`relative p-6 rounded-2xl hover:shadow-lg transition-all duration-200 cursor-pointer ${theme.bg} group border border-white/20`}
+                              className="relative p-6 rounded-2xl hover:shadow-lg transition-all duration-200 cursor-pointer bg-white group border border-gray-200 hover:border-gray-300"
                               onClick={() => setLocation(`/bot/${bot.id}`)}
                             >
-                              {/* Decorative circle background */}
-                              <div className={`absolute top-0 right-0 w-24 h-24 ${theme.circleBg} rounded-full opacity-40 -translate-y-6 translate-x-6`}></div>
-                              <div className={`absolute top-8 right-8 w-16 h-16 ${theme.circleBg} rounded-full opacity-30`}></div>
-                              
                               {/* Icon */}
-                              <div className={`w-14 h-14 ${theme.iconBg} rounded-2xl flex items-center justify-center mb-4 relative z-10`}>
+                              <div className={`w-14 h-14 ${theme.iconBg} rounded-2xl flex items-center justify-center mb-4`}>
                                 <BotIcon className="w-7 h-7 text-white" />
                               </div>
                               
                               {/* Content */}
-                              <div className="relative z-10">
+                              <div>
                                 <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-gray-800">
                                   {bot.name}
                                 </h3>
@@ -659,17 +655,13 @@ export default function UserDashboard() {
                                 </div>
                               </div>
                               
-                              {/* Decorative circle background - muted */}
-                              <div className="absolute top-0 right-0 w-24 h-24 bg-gray-100 rounded-full opacity-30 -translate-y-6 translate-x-6"></div>
-                              <div className="absolute top-8 right-8 w-16 h-16 bg-gray-100 rounded-full opacity-20"></div>
-                              
                               {/* Icon - muted */}
-                              <div className="w-14 h-14 bg-gray-300 rounded-2xl flex items-center justify-center mb-4 relative z-10">
+                              <div className="w-14 h-14 bg-gray-300 rounded-2xl flex items-center justify-center mb-4">
                                 <BotIcon className="w-7 h-7 text-gray-500" />
                               </div>
                               
                               {/* Content */}
-                              <div className="relative z-10">
+                              <div>
                                 <h3 className="text-lg font-semibold text-gray-500 mb-2">
                                   {bot.name}
                                 </h3>
