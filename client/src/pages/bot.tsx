@@ -113,9 +113,9 @@ export default function Bot() {
                   <Crown className="w-4 h-4 mr-2" />
                   View Pricing Plans
                 </Button>
-                <Button variant="outline" size="lg" onClick={() => setLocation('/')} className="w-full">
+                <Button variant="outline" size="lg" onClick={() => window.history.back()} className="w-full">
                   <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back to Dashboard
+                  Back
                 </Button>
               </div>
             </div>
@@ -232,12 +232,10 @@ export default function Bot() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <Link href={`/section/${bot.section}`}>
-            <Button variant="ghost" className="mb-4">
+            <Button variant="ghost" className="mb-4" onClick={() => window.history.back()}>
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to {bot.section.charAt(0).toUpperCase() + bot.section.slice(1)}
+              Back
             </Button>
-          </Link>
           
           <div className="flex items-start justify-between">
             <div className="flex items-start space-x-4">

@@ -211,12 +211,10 @@ export default function Checkout() {
       <div className="max-w-2xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <Link href="/">
-            <Button variant="ghost" className="mb-4">
+            <Button variant="ghost" className="mb-4" onClick={() => window.history.back()}>
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Home
+              Back
             </Button>
-          </Link>
           <h1 className="text-3xl font-bold text-gray-900">Complete Your Subscription</h1>
           <p className="text-gray-600 mt-2">Secure checkout powered by Stripe</p>
         </div>

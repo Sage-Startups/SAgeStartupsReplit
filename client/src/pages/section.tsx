@@ -55,12 +55,10 @@ export default function Section() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <Link href="/dashboard">
-            <Button variant="ghost" className="mb-4">
+            <Button variant="ghost" className="mb-4" onClick={() => window.history.back()}>
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Dashboard
+              Back
             </Button>
-          </Link>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">{section.name} Bots</h1>
           <p className="text-gray-600">{section.description}</p>
         </div>

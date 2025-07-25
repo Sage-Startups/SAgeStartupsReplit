@@ -58,9 +58,7 @@ export default function ProjectSessions() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900">Project not found</h1>
-            <Link href="/dashboard">
-              <Button className="mt-4">Back to Dashboard</Button>
-            </Link>
+              <Button className="mt-4" onClick={() => window.history.back()}>Back</Button>
           </div>
         </div>
       </div>
@@ -83,12 +81,10 @@ export default function ProjectSessions() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <Link href="/dashboard">
-            <Button variant="ghost" className="mb-4">
+            <Button variant="ghost" className="mb-4" onClick={() => window.history.back()}>
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Dashboard
+              Back
             </Button>
-          </Link>
           
           <div className="flex items-start justify-between">
             <div>
