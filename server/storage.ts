@@ -1,4 +1,4 @@
-import { users, projects, botSessions, chatMessages, generatedAssets, userAnalytics, founderMetrics, auditLogs, subscriptionPlans, payments, content, media, type User, type Project, type BotSession, type ChatMessage, type GeneratedAsset, type UserAnalytics, type FounderMetrics, type AuditLog, type SubscriptionPlan, type Payment, type Content, type Media, type UpsertUser, type InsertProject, type InsertBotSession, type InsertChatMessage, type InsertGeneratedAsset, type InsertUserAnalytics, type InsertFounderMetrics } from "@shared/schema";
+import { users, projects, botSessions, chatMessages, generatedAssets, userAnalytics, founderMetrics, auditLogs, subscriptionPlans, payments, content, media, waitlist, type User, type Project, type BotSession, type ChatMessage, type GeneratedAsset, type UserAnalytics, type FounderMetrics, type AuditLog, type SubscriptionPlan, type Payment, type Content, type Media, type UpsertUser, type InsertProject, type InsertBotSession, type InsertChatMessage, type InsertGeneratedAsset, type InsertUserAnalytics, type InsertFounderMetrics, type InsertWaitlist, type Waitlist } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 
@@ -58,6 +58,10 @@ export interface IStorage {
   resetAllPayments(): Promise<void>;
   resetAllSessions(): Promise<void>;
   resetAllConversions(): Promise<void>;
+  
+  // Waitlist operations
+  addToWaitlist(data: InsertWaitlist): Promise<Waitlist>;
+  getWaitlistByEmail(email: string): Promise<Waitlist | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -334,6 +338,17 @@ export class DatabaseStorage implements IStorage {
     // Reset all user analytics and metrics
     await db.delete(userAnalytics);
     await db.delete(founderMetrics);
+  }
+
+  // Waitlist operations
+  async addToWaitlist(data: InsertWaitlist): Promise<Waitlist> {
+    const [entry] = await db.insert(waitlist).values(data).returning();
+    return entry;
+  }
+
+  async getWaitlistByEmail(email: string): Promise<Waitlist | undefined> {
+    const [entry] = await db.select().from(waitlist).where(eq(waitlist.email, email));
+    return entry;
   }
 }
 

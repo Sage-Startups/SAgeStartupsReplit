@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import Landing from "@/pages/landing";
+import LandingPage2 from "@/pages/landing-page-2";
 import SignIn from "@/pages/signin";
 import SignUp from "@/pages/signup";
 import UserDashboard from "@/pages/user-dashboard";
@@ -34,6 +35,7 @@ function Router() {
       {isLoading || !isAuthenticated ? (
         <>
           <Route path="/" component={Landing} />
+          <Route path="/landing-2" component={LandingPage2} />
           <Route path="/signin" component={SignIn} />
           <Route path="/signup" component={SignUp} />
         </>

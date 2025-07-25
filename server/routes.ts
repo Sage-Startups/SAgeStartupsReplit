@@ -1134,6 +1134,96 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Waitlist endpoint for landing page 2
+  app.post("/api/waitlist", async (req, res) => {
+    try {
+      const { email, source = 'landing-page-2', referrer = null } = req.body;
+      
+      if (!email || !email.includes('@')) {
+        return res.status(400).json({ message: "Invalid email address" });
+      }
+      
+      // Check if already on waitlist
+      const existing = await storage.getWaitlistByEmail(email);
+      if (existing) {
+        return res.status(400).json({ message: "You're already on the waitlist!" });
+      }
+      
+      // Add to waitlist
+      await storage.addToWaitlist({
+        email,
+        source,
+        referrer
+      });
+      
+      // Send welcome email using SendGrid
+      const sgMail = await import("@sendgrid/mail");
+      sgMail.default.setApiKey(process.env.SENDGRID_API_KEY!);
+      
+      const emailContent = {
+        to: email,
+        from: 'contact@sage-startups.com',
+        subject: "You're on the Sage-Startups waitlist! 🚀",
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <h1 style="color: #1f2937; margin-bottom: 10px;">Welcome to the Revolution!</h1>
+              <div style="width: 60px; height: 4px; background: linear-gradient(90deg, #3b82f6, #8b5cf6); margin: 0 auto;"></div>
+            </div>
+            
+            <p style="font-size: 16px; color: #374151; line-height: 1.6;">Hi there,</p>
+            
+            <p style="font-size: 16px; color: #374151; line-height: 1.6;">
+              Thank you for joining the Sage-Startups waitlist! You're now part of an exclusive group of founders who will get early access to our AI-powered startup platform.
+            </p>
+            
+            <div style="background-color: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="color: #0c4a6e; margin-bottom: 15px;">What happens next?</h3>
+              <ul style="color: #374151; line-height: 1.6;">
+                <li><strong>Early Access:</strong> You'll be among the first to try our platform</li>
+                <li><strong>40% Discount:</strong> Exclusive lifetime discount for early supporters</li>
+                <li><strong>Founder Benefits:</strong> Special features and priority support</li>
+                <li><strong>Community Access:</strong> Join our private founder community</li>
+              </ul>
+            </div>
+            
+            <p style="font-size: 16px; color: #374151; line-height: 1.6;">
+              We're working hard to launch soon. In the meantime, here's what you can do:
+            </p>
+            
+            <ol style="color: #374151; line-height: 1.8;">
+              <li>Reply to this email with your biggest startup challenge - we'll prioritize features based on your needs</li>
+              <li>Follow us on social media for updates and founder tips</li>
+              <li>Share with other founders who could benefit from AI-powered tools</li>
+            </ol>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.REPLIT_DEV_DOMAIN || 'https://sage-startups.replit.app'}" 
+                 style="background: linear-gradient(90deg, #3b82f6, #8b5cf6); color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 500;">
+                Visit Our Site
+              </a>
+            </div>
+            
+            <div style="border-top: 1px solid #e5e7eb; padding-top: 20px; margin-top: 30px; text-align: center;">
+              <p style="font-size: 14px; color: #6b7280;">
+                Questions? Reply to this email and we'll get back to you ASAP.<br><br>
+                To your success,<br>
+                The Sage-Startups Team
+              </p>
+            </div>
+          </div>
+        `
+      };
+      
+      await sgMail.default.send(emailContent);
+      
+      res.json({ message: "Successfully joined waitlist!" });
+    } catch (error) {
+      console.error("Waitlist error:", error);
+      res.status(500).json({ message: "Failed to join waitlist. Please try again." });
+    }
+  });
+
   // Business Suite waitlist endpoint
   app.post("/api/business-suite/join-waitlist", requireAuth, async (req: any, res) => {
     try {

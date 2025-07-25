@@ -271,6 +271,24 @@ export const founderMetrics = pgTable('founder_metrics', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
+// Waitlist table for capturing early signups
+export const waitlist = pgTable('waitlist', {
+  id: serial('id').primaryKey(),
+  email: varchar('email').notNull().unique(),
+  source: varchar('source').default('landing-page-2'),
+  referrer: varchar('referrer'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const insertWaitlistSchema = createInsertSchema(waitlist).pick({
+  email: true,
+  source: true,
+  referrer: true,
+});
+
+export type InsertWaitlist = z.infer<typeof insertWaitlistSchema>;
+export type Waitlist = typeof waitlist.$inferSelect;
+
 export const insertFounderMetricsSchema = createInsertSchema(founderMetrics).pick({
   userId: true,
   companyName: true,
