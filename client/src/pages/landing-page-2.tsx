@@ -909,7 +909,7 @@ export default function LandingPage2() {
           
           <p className="text-xl mb-8 text-blue-100">
             Early access members get lifetime discounts and exclusive features. 
-            Only 50 spots left this month.
+            Only 20 spots left to gain the lifetime discount.
           </p>
 
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 mb-8 max-w-2xl mx-auto">
