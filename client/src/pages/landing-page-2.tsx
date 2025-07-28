@@ -9,6 +9,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 export default function LandingPage2() {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -16,18 +17,19 @@ export default function LandingPage2() {
 
   const handleWaitlistSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    if (!name.trim() || !email) return;
 
     setIsLoading(true);
     try {
       // Add to waitlist
-      await apiRequest("POST", "/api/waitlist", { email });
+      await apiRequest("POST", "/api/waitlist", { name: name.trim(), email });
       
       toast({
         title: "You're on the list! 🎉",
         description: "We'll notify you as soon as we launch. Check your email for confirmation.",
       });
       
+      setName("");
       setEmail("");
     } catch (error: any) {
       toast({
@@ -79,19 +81,29 @@ export default function LandingPage2() {
             Join 500+ founders using AI-powered tools to build their brand, create content, and grow their business—all in one platform.
           </p>
 
-          <form onSubmit={handleWaitlistSignup} className="max-w-md mx-auto flex gap-2">
-            <Input
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="flex-1"
-              required
-            />
-            <Button type="submit" size="lg" disabled={isLoading}>
-              {isLoading ? "Joining..." : "Join Waitlist"}
-              <ArrowRight className="ml-2 w-4 h-4" />
-            </Button>
+          <form onSubmit={handleWaitlistSignup} className="max-w-lg mx-auto">
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Input
+                type="text"
+                placeholder="Your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="flex-1"
+                required
+              />
+              <Input
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="flex-1"
+                required
+              />
+              <Button type="submit" size="lg" disabled={isLoading || !name.trim() || !email}>
+                {isLoading ? "Joining..." : "Join Waitlist"}
+                <ArrowRight className="ml-2 w-4 h-4" />
+              </Button>
+            </div>
           </form>
 
           <p className="text-sm text-gray-500 mt-4">
@@ -570,19 +582,29 @@ export default function LandingPage2() {
             </div>
           </div>
 
-          <form onSubmit={handleWaitlistSignup} className="max-w-md mx-auto flex gap-2">
-            <Input
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="flex-1 bg-white/20 border-white/30 text-white placeholder:text-white/70"
-              required
-            />
-            <Button type="submit" size="lg" variant="secondary" disabled={isLoading}>
-              {isLoading ? "Joining..." : "Claim Your Spot"}
-              <ChevronRight className="ml-2 w-4 h-4" />
-            </Button>
+          <form onSubmit={handleWaitlistSignup} className="max-w-lg mx-auto">
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Input
+                type="text"
+                placeholder="Your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="flex-1 bg-white/20 border-white/30 text-white placeholder:text-white/70"
+                required
+              />
+              <Input
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="flex-1 bg-white/20 border-white/30 text-white placeholder:text-white/70"
+                required
+              />
+              <Button type="submit" size="lg" variant="secondary" disabled={isLoading || !name.trim() || !email}>
+                {isLoading ? "Joining..." : "Claim Your Spot"}
+                <ChevronRight className="ml-2 w-4 h-4" />
+              </Button>
+            </div>
           </form>
 
           <p className="text-sm text-blue-100 mt-4">

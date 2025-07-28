@@ -91,6 +91,7 @@ interface SystemMetrics {
 
 interface WaitlistEntry {
   id: number;
+  name: string;
   email: string;
   source: string;
   referrer: string | null;
@@ -1058,6 +1059,7 @@ export default function SuperAdmin() {
                     <Table>
                       <TableHeader>
                         <TableRow>
+                          <TableHead>Name</TableHead>
                           <TableHead>Email</TableHead>
                           <TableHead>Source</TableHead>
                           <TableHead>Referrer</TableHead>
@@ -1067,6 +1069,12 @@ export default function SuperAdmin() {
                       <TableBody>
                         {waitlistEntries.map((entry) => (
                           <TableRow key={entry.id}>
+                            <TableCell className="font-medium">
+                              <div className="flex items-center">
+                                <Users className="w-4 h-4 mr-2 text-green-600" />
+                                {entry.name}
+                              </div>
+                            </TableCell>
                             <TableCell className="font-medium">
                               <div className="flex items-center">
                                 <Mail className="w-4 h-4 mr-2 text-blue-600" />

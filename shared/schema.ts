@@ -274,6 +274,7 @@ export const founderMetrics = pgTable('founder_metrics', {
 // Waitlist table for capturing early signups
 export const waitlist = pgTable('waitlist', {
   id: serial('id').primaryKey(),
+  name: varchar('name').notNull(),
   email: varchar('email').notNull().unique(),
   source: varchar('source').default('landing-page-2'),
   referrer: varchar('referrer'),
@@ -281,6 +282,7 @@ export const waitlist = pgTable('waitlist', {
 });
 
 export const insertWaitlistSchema = createInsertSchema(waitlist).pick({
+  name: true,
   email: true,
   source: true,
   referrer: true,

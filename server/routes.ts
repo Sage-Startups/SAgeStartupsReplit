@@ -1147,7 +1147,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Waitlist endpoint for landing page 2
   app.post("/api/waitlist", async (req, res) => {
     try {
-      const { email, source = 'landing-page-2', referrer = null } = req.body;
+      const { name, email, source = 'landing-page-2', referrer = null } = req.body;
+      
+      if (!name || name.trim().length === 0) {
+        return res.status(400).json({ message: "Name is required" });
+      }
       
       if (!email || !email.includes('@')) {
         return res.status(400).json({ message: "Invalid email address" });
@@ -1161,6 +1165,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Add to waitlist
       await storage.addToWaitlist({
+        name: name.trim(),
         email,
         source,
         referrer
@@ -1181,7 +1186,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               <div style="width: 60px; height: 4px; background: linear-gradient(90deg, #3b82f6, #8b5cf6); margin: 0 auto;"></div>
             </div>
             
-            <p style="font-size: 16px; color: #374151; line-height: 1.6;">Hi there,</p>
+            <p style="font-size: 16px; color: #374151; line-height: 1.6;">Hi ${name},</p>
             
             <p style="font-size: 16px; color: #374151; line-height: 1.6;">
               Thank you for joining the Sage-Startups waitlist! You're now part of an exclusive group of founders who will get early access to our AI-powered startup platform.
@@ -1233,6 +1238,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <h2 style="color: #1f2937;">New Waitlist Signup</h2>
+            <p><strong>Name:</strong> ${name}</p>
             <p><strong>Email:</strong> ${email}</p>
             <p><strong>Source:</strong> ${source}</p>
             <p><strong>Referrer:</strong> ${referrer || 'Direct'}</p>
@@ -1245,10 +1251,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       // Send both emails
-      await Promise.all([
-        sgMail.default.send(emailContent),
-        sgMail.default.send(adminEmailContent)
-      ]);
+      try {
+        await Promise.all([
+          sgMail.default.send(emailContent),
+          sgMail.default.send(adminEmailContent)
+        ]);
+        console.log(`✅ Emails sent successfully for ${name} (${email})`);
+      } catch (emailError) {
+        console.error("❌ SendGrid email error:", emailError);
+        // Continue anyway - user is still added to waitlist
+      }
       
       res.json({ message: "Successfully joined waitlist!" });
     } catch (error) {
