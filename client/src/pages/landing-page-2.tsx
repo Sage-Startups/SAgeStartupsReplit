@@ -491,11 +491,11 @@ export default function LandingPage2() {
                 <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                   <TrendingUp className="w-6 h-6 text-gray-600" />
                 </div>
-                <CardTitle className="text-lg text-gray-700">SEO Keywords</CardTitle>
+                <CardTitle className="text-lg text-gray-700">Business Plan Builder</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 text-sm">
-                  Automated keyword research and SEO optimization suggestions
+                  Comprehensive business plan generation with financial projections and strategy
                 </p>
               </CardContent>
             </Card>
