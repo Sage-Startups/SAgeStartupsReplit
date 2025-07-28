@@ -81,7 +81,7 @@ export default function LandingPage2() {
               <Link href="/signin">
                 <Button variant="ghost">Sign In</Button>
               </Link>
-              <Link href="/signup">
+              <Link href="/signup2">
                 <Button>Get Early Access</Button>
               </Link>
             </div>
