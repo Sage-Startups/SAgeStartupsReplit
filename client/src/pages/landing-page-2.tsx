@@ -723,7 +723,7 @@ export default function LandingPage2() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600">
-                  We're launching in Q2 2025. Waitlist members get early access 2 weeks before public launch, 
+                  We're launching in Q3 2025. Waitlist members get early access 2 weeks before public launch, 
                   plus exclusive lifetime pricing at 50% off.
                 </p>
               </CardContent>
@@ -747,8 +747,8 @@ export default function LandingPage2() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600">
-                  We'll offer a free trial and plans starting from £15/month. Waitlist members get lifetime access 
-                  for a one-time payment of £30 (50% off the regular £60). This includes all current and future features.
+                  We offer a free trial and $22 per month, cancel anytime. When the site launches, it will be 3 tiers: 
+                  $0 for free plan, $24 for Pro, and $44 for Premium. Waitlist members get lifetime 50% discount.
                 </p>
               </CardContent>
             </Card>
