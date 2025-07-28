@@ -220,6 +220,21 @@ export default function LandingPage2() {
                 </p>
               </CardContent>
             </Card>
+
+            <Card className="border-indigo-200 bg-indigo-50">
+              <CardHeader>
+                <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
+                  <Users className="w-6 h-6 text-indigo-600" />
+                </div>
+                <CardTitle className="text-indigo-900">Business Suite Tools</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-indigo-700">
+                  Essential startup tools including legal document templates, 
+                  financial calculators, and project management resources.
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
