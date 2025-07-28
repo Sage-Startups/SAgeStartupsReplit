@@ -33,11 +33,11 @@ function Router() {
   return (
     <Switch>
       {/* Landing pages available to everyone */}
-      <Route path="/landing-2" component={LandingPage2} />
+      <Route path="/landing-1" component={Landing} />
       
       {isLoading || !isAuthenticated ? (
         <>
-          <Route path="/" component={Landing} />
+          <Route path="/" component={LandingPage2} />
           <Route path="/signin" component={SignIn} />
           <Route path="/signup" component={SignUp} />
         </>

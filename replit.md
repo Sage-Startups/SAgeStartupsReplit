@@ -77,6 +77,7 @@ Preferred communication style: Simple, everyday language.
 - ✅ **ENHANCED SESSION MANAGEMENT**: Improved session titling system to generate meaningful session names based on project context and user content instead of generic "Session #ID" - sessions now show descriptive titles like "Logo Design for Nike" or "Marketing Strategy: Acme Corp - 3-months plan"
 - ✅ **CREATED LANDING PAGE 2**: Built conversion-focused landing page at /landing-2 designed to capture signups and build a waiting list with hero section, problem/solution sections, pricing, features, social proof, and urgency-driven CTAs
 - ✅ **IMPLEMENTED WAITLIST SYSTEM**: Added database table and API endpoint for capturing early signups with automated SendGrid welcome emails for waitlist subscribers
+- ✅ **UPDATED LANDING PAGE ROUTING**: Changed landing-page-2 to be the main landing page (/) and moved original landing page to /landing-1 for better conversion optimization
 
 ## System Architecture
 
