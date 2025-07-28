@@ -70,15 +70,30 @@ const CheckoutForm = ({ planDetails }: { planDetails: any }) => {
             <div>
               <h3 className="font-semibold">{planDetails.name}</h3>
               <p className="text-sm text-gray-600">{planDetails.description}</p>
+              {planDetails.isEarlyBird && (
+                <Badge className="bg-blue-500 text-white mt-2">
+                  🔥 Early Bird Discount - 50% Off!
+                </Badge>
+              )}
             </div>
             <div className="text-right">
+              {planDetails.originalPrice && (
+                <div className="text-lg text-gray-400 line-through">
+                  ${planDetails.originalPrice}
+                </div>
+              )}
               <div className="text-2xl font-bold">
                 ${planDetails.price}
               </div>
               <div className="text-sm text-gray-600">
                 {planDetails.billingCycle === 'yearly' ? '/year (paid today)' : '/month'}
               </div>
-              {planDetails.billingCycle === 'yearly' && (
+              {planDetails.isEarlyBird && (
+                <div className="text-sm text-blue-600 mt-1 font-medium">
+                  Lifetime 50% discount!
+                </div>
+              )}
+              {planDetails.billingCycle === 'yearly' && !planDetails.isEarlyBird && (
                 <div className="text-sm text-green-600 mt-1">
                   Save 20% vs monthly billing
                 </div>
@@ -150,9 +165,15 @@ export default function Checkout() {
       plan = JSON.parse(selectedPlan);
     } else if (tierFromUrl) {
       // Create plan object from URL parameters (for signup redirects)
+      const discountFromUrl = urlParams.get('discount');
+      const isEarlyBird = discountFromUrl === 'early-bird';
+      
       const tierPricing = {
         pro: { monthly: 24, yearly: 240 },
-        premium: { monthly: 44, yearly: 432 }
+        premium: { 
+          monthly: isEarlyBird ? 22 : 44, 
+          yearly: isEarlyBird ? 264 : 432 
+        }
       };
       
       const isYearly = planFromUrl === 'yearly';
@@ -164,7 +185,9 @@ export default function Checkout() {
         billingCycle: planFromUrl,
         name: `${tierFromUrl.charAt(0).toUpperCase() + tierFromUrl.slice(1)} Plan`,
         price: price,
-        description: `${tierFromUrl === 'pro' ? '30' : '60+'} AI bots for your business`
+        description: `${tierFromUrl === 'pro' ? '30' : '60+'} AI bots for your business`,
+        isEarlyBird: isEarlyBird,
+        originalPrice: isEarlyBird && tierFromUrl === 'premium' ? (isYearly ? 432 : 44) : null
       };
     } else {
       window.location.href = '/';
@@ -177,7 +200,8 @@ export default function Checkout() {
     // Create payment intent
     apiRequest("POST", "/api/stripe/create-subscription-intent", {
       tier: plan.tier,
-      billingCycle: plan.billingCycle
+      billingCycle: plan.billingCycle,
+      discount: plan.isEarlyBird ? 'early-bird' : undefined
     })
       .then((response) => response.json())
       .then((data) => {

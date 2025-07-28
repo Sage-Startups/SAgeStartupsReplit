@@ -8,6 +8,7 @@ import Landing from "@/pages/landing";
 import LandingPage2 from "@/pages/landing-page-2";
 import SignIn from "@/pages/signin";
 import SignUp from "@/pages/signup";
+import SignUp2 from "@/pages/signup2";
 import UserDashboard from "@/pages/user-dashboard";
 import Dashboard from "@/pages/dashboard";
 import Section from "@/pages/section";
@@ -40,6 +41,7 @@ function Router() {
           <Route path="/" component={LandingPage2} />
           <Route path="/signin" component={SignIn} />
           <Route path="/signup" component={SignUp} />
+          <Route path="/signup2" component={SignUp2} />
         </>
       ) : (
         <>

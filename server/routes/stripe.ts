@@ -30,6 +30,12 @@ const PRICING_CONFIG = {
     yearlyPrice: 432, // $432/year total (20% discount)
     stripePriceId: 'price_1RnchqGTriQojbPQVhsCJgGX',
     stripeYearlyPriceId: 'price_1RnciZGTriQojbPQUUDxXW1Y'
+  },
+  'premium-early-bird': {
+    monthlyPrice: 22, // 50% off regular premium price
+    yearlyPrice: 264, // $22 * 12 months
+    stripePriceId: null, // Will need to create new price IDs for early bird
+    stripeYearlyPriceId: null
   }
 };
 
@@ -37,7 +43,7 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
   // Create subscription intent
   app.post("/api/stripe/create-subscription-intent", requireAuth, async (req: any, res) => {
     try {
-      const { tier, billingCycle } = req.body;
+      const { tier, billingCycle, discount } = req.body;
       const userId = req.user.id;
       
       const user = await storage.getUser(userId);
@@ -45,7 +51,13 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
         return res.status(404).json({ message: "User not found" });
       }
 
-      const pricingConfig = PRICING_CONFIG[tier as keyof typeof PRICING_CONFIG];
+      // Handle early bird discount for premium tier
+      let pricingKey = tier;
+      if (tier === 'premium' && discount === 'early-bird') {
+        pricingKey = 'premium-early-bird';
+      }
+      
+      const pricingConfig = PRICING_CONFIG[pricingKey as keyof typeof PRICING_CONFIG];
       if (!pricingConfig) {
         return res.status(400).json({ message: "Invalid subscription tier" });
       }
@@ -63,11 +75,37 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
         billingCycle,
         price,
         stripePriceId,
+        discount,
+        pricingKey,
         env: process.env.NODE_ENV
       });
 
+      // For early bird pricing, use payment intent instead of subscription (since we don't have price IDs yet)
+      if (pricingKey === 'premium-early-bird') {
+        console.log(`🔥 Creating early bird payment intent for $${price}`);
+        
+        const paymentIntent = await stripe.paymentIntents.create({
+          amount: Math.round(price * 100), // Convert to cents
+          currency: "usd",
+          customer: stripeCustomerId,
+          metadata: {
+            userId,
+            tier: 'premium',
+            billingCycle,
+            discount: 'early-bird',
+            originalPrice: billingCycle === 'yearly' ? 432 : 44
+          },
+          description: `Sage-Startups Premium ${billingCycle} subscription - Early Bird Discount (50% off)`
+        });
+
+        return res.json({ 
+          clientSecret: paymentIntent.client_secret,
+          paymentType: 'payment-intent' // Flag to handle differently on frontend
+        });
+      }
+
       if (!stripePriceId) {
-        console.error(`❌ Price ID not configured for ${tier} ${billingCycle}`);
+        console.error(`❌ Price ID not configured for ${pricingKey} ${billingCycle}`);
         return res.status(400).json({ message: "Price ID not configured for this plan" });
       }
 
