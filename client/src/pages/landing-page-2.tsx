@@ -883,11 +883,6 @@ export default function LandingPage2() {
           <div className="mt-12 text-center">
             <div className="flex items-center justify-center space-x-8">
               <div>
-                <p className="text-3xl font-bold text-gray-900">500+</p>
-                <p className="text-gray-600">Active Founders</p>
-              </div>
-              <div className="w-px h-12 bg-gray-300" />
-              <div>
                 <p className="text-3xl font-bold text-gray-900">50k+</p>
                 <p className="text-gray-600">AI Tasks Completed</p>
               </div>
