@@ -25,7 +25,8 @@ import {
   Search, Plus, Edit, Trash2, Ban, CheckCircle, XCircle,
   Download, Upload, Eye, AlertTriangle, Clock, DollarSign,
   Activity, Database, Lock, Mail, Calendar, Globe, Crown,
-  Filter, MoreHorizontal, RefreshCw, TrendingUp, TrendingDown
+  Filter, MoreHorizontal, RefreshCw, TrendingUp, TrendingDown,
+  UserPlus
 } from "lucide-react";
 
 interface AdminUser {
@@ -86,6 +87,14 @@ interface SystemMetrics {
   totalMessages: number;
   conversionRate: number;
   churnRate: number;
+}
+
+interface WaitlistEntry {
+  id: number;
+  email: string;
+  source: string;
+  referrer: string | null;
+  createdAt: string;
 }
 
 const createUserSchema = z.object({
@@ -177,6 +186,12 @@ export default function SuperAdmin() {
   // Fetch system metrics
   const { data: metrics } = useQuery<SystemMetrics>({
     queryKey: ["/api/admin/metrics"],
+    enabled: !!user && currentUserProfile?.role === 'super_admin'
+  });
+
+  // Fetch waitlist entries
+  const { data: waitlistEntries = [] } = useQuery<WaitlistEntry[]>({
+    queryKey: ["/api/admin/waitlist"],
     enabled: !!user && currentUserProfile?.role === 'super_admin'
   });
 
@@ -322,6 +337,7 @@ export default function SuperAdmin() {
                 queryClient.invalidateQueries({ queryKey: ["/api/admin/payments"] });
                 queryClient.invalidateQueries({ queryKey: ["/api/admin/plans"] });
                 queryClient.invalidateQueries({ queryKey: ["/api/admin/audit-logs"] });
+                queryClient.invalidateQueries({ queryKey: ["/api/admin/waitlist"] });
                 toast({
                   title: "Data Refreshed",
                   description: "All admin data has been refreshed successfully.",
@@ -586,7 +602,7 @@ export default function SuperAdmin() {
             <TabsTrigger value="users">Users</TabsTrigger>
             <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>
             <TabsTrigger value="payments">Payments</TabsTrigger>
-            <TabsTrigger value="content">Content</TabsTrigger>
+            <TabsTrigger value="waitlist">Waiting List</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="security">Security</TabsTrigger>
           </TabsList>
@@ -994,22 +1010,95 @@ export default function SuperAdmin() {
             </Card>
           </TabsContent>
 
-          {/* Content Management Tab */}
-          <TabsContent value="content">
-            <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Content & Media Management</CardTitle>
-                  <CardDescription>Manage platform content, blog posts, and media assets</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center py-12">
-                    <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-500">Content management features coming soon</p>
+          {/* Waiting List Tab */}
+          <TabsContent value="waitlist">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <UserPlus className="w-5 h-5 mr-2" />
+                  Waiting List Management
+                </CardTitle>
+                <CardDescription>
+                  View and manage users who have joined the waitlist from the landing page
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-4 flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Badge variant="secondary">
+                      {waitlistEntries.length} Total Subscribers
+                    </Badge>
+                    <Badge variant="outline">
+                      {waitlistEntries.filter(entry => entry.source === 'landing-page-2').length} From Landing Page
+                    </Badge>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      queryClient.invalidateQueries({ queryKey: ["/api/admin/waitlist"] });
+                      toast({ title: "Waitlist data refreshed" });
+                    }}
+                  >
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Refresh
+                  </Button>
+                </div>
+
+                {waitlistEntries.length === 0 ? (
+                  <div className="text-center py-8">
+                    <UserPlus className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500">No waitlist subscribers yet</p>
+                    <p className="text-sm text-gray-400 mt-1">
+                      Users who sign up on the landing page will appear here
+                    </p>
+                  </div>
+                ) : (
+                  <div className="border rounded-lg">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Email</TableHead>
+                          <TableHead>Source</TableHead>
+                          <TableHead>Referrer</TableHead>
+                          <TableHead>Joined Date</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {waitlistEntries.map((entry) => (
+                          <TableRow key={entry.id}>
+                            <TableCell className="font-medium">
+                              <div className="flex items-center">
+                                <Mail className="w-4 h-4 mr-2 text-blue-600" />
+                                {entry.email}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant={entry.source === 'landing-page-2' ? 'default' : 'outline'}>
+                                {entry.source}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              {entry.referrer ? (
+                                <span className="text-sm text-gray-600">{entry.referrer}</span>
+                              ) : (
+                                <span className="text-sm text-gray-400">Direct</span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center text-sm text-gray-600">
+                                <Calendar className="w-4 h-4 mr-1" />
+                                {new Date(entry.createdAt).toLocaleDateString()}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Analytics Tab */}

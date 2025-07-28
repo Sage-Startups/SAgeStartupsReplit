@@ -1,6 +1,6 @@
 import { users, projects, botSessions, chatMessages, generatedAssets, userAnalytics, founderMetrics, auditLogs, subscriptionPlans, payments, content, media, waitlist, type User, type Project, type BotSession, type ChatMessage, type GeneratedAsset, type UserAnalytics, type FounderMetrics, type AuditLog, type SubscriptionPlan, type Payment, type Content, type Media, type UpsertUser, type InsertProject, type InsertBotSession, type InsertChatMessage, type InsertGeneratedAsset, type InsertUserAnalytics, type InsertFounderMetrics, type InsertWaitlist, type Waitlist } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 
 // Interface for storage operations
 export interface IStorage {
@@ -62,6 +62,7 @@ export interface IStorage {
   // Waitlist operations
   addToWaitlist(data: InsertWaitlist): Promise<Waitlist>;
   getWaitlistByEmail(email: string): Promise<Waitlist | undefined>;
+  getAllWaitlistEntries(): Promise<Waitlist[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -349,6 +350,10 @@ export class DatabaseStorage implements IStorage {
   async getWaitlistByEmail(email: string): Promise<Waitlist | undefined> {
     const [entry] = await db.select().from(waitlist).where(eq(waitlist.email, email));
     return entry;
+  }
+
+  async getAllWaitlistEntries(): Promise<Waitlist[]> {
+    return await db.select().from(waitlist).orderBy(desc(waitlist.createdAt));
   }
 }
 

@@ -1062,6 +1062,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/admin/waitlist", requireAuth, requireSuperAdmin, async (req: any, res) => {
+    try {
+      const waitlistEntries = await storage.getAllWaitlistEntries();
+      res.json(waitlistEntries);
+    } catch (error) {
+      console.error("Failed to get waitlist:", error);
+      res.status(500).json({ error: "Failed to get waitlist" });
+    }
+  });
+
   // Reset founder metrics endpoint
   app.post("/api/founder/metrics/reset", requireAuth, async (req: any, res) => {
     try {
@@ -1215,7 +1225,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         `
       };
       
-      await sgMail.default.send(emailContent);
+      // Send admin notification email
+      const adminEmailContent = {
+        to: 'contact@sage-startups.com',
+        from: 'contact@sage-startups.com',
+        subject: 'New Waitlist Signup - Sage-Startups',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <h2 style="color: #1f2937;">New Waitlist Signup</h2>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Source:</strong> ${source}</p>
+            <p><strong>Referrer:</strong> ${referrer || 'Direct'}</p>
+            <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+            <div style="margin-top: 20px; padding: 15px; background-color: #f3f4f6; border-radius: 8px;">
+              <p style="margin: 0; color: #374151;">Check the admin panel for all waitlist subscribers.</p>
+            </div>
+          </div>
+        `
+      };
+
+      // Send both emails
+      await Promise.all([
+        sgMail.default.send(emailContent),
+        sgMail.default.send(adminEmailContent)
+      ]);
       
       res.json({ message: "Successfully joined waitlist!" });
     } catch (error) {
