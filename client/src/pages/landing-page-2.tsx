@@ -805,7 +805,7 @@ export default function LandingPage2() {
               Loved by Founders Worldwide
             </h2>
             <p className="text-xl text-gray-600">
-              Join hundreds of successful startups using Sage-Startups
+              Successful startups using Sage-Startups
             </p>
           </div>
 
