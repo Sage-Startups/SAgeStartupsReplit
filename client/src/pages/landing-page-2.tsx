@@ -332,22 +332,22 @@ export default function LandingPage2() {
                 <CardDescription>Test everything risk-free</CardDescription>
                 <div className="mt-4">
                   <span className="text-4xl font-bold">$0</span>
-                  <span className="text-gray-500"> for 14 days</span>
+                  <span className="text-gray-500"> for 7 days</span>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <ul className="space-y-3">
                   <li className="flex items-start">
                     <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Full access to all AI tools</span>
+                    <span className="text-sm">Access to 8 AI tools in the AI Suite</span>
                   </li>
                   <li className="flex items-start">
                     <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Generate 10 complete business plans</span>
+                    <span className="text-sm">Create unlimited logos and branding</span>
                   </li>
                   <li className="flex items-start">
                     <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Create unlimited logos & branding</span>
+                    <span className="text-sm">Generate branding strategy</span>
                   </li>
                   <li className="flex items-start">
                     <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
