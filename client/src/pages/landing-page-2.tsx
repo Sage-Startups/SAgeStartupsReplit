@@ -919,11 +919,11 @@ export default function LandingPage2() {
                 <p className="text-sm text-blue-100">Until price increase</p>
               </div>
               <div>
-                <p className="text-3xl font-bold">50</p>
+                <p className="text-3xl font-bold">20</p>
                 <p className="text-sm text-blue-100">Spots remaining</p>
               </div>
               <div>
-                <p className="text-3xl font-bold">40%</p>
+                <p className="text-3xl font-bold">50%</p>
                 <p className="text-sm text-blue-100">Early bird discount</p>
               </div>
             </div>
