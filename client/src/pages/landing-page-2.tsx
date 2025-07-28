@@ -73,13 +73,34 @@ export default function LandingPage2() {
           </Badge>
           
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-            Launch Your Startup<br />
-            <span className="text-blue-600">10x Faster</span> with AI
+            Turn Your Idea Into a<br />
+            <span className="text-blue-600">Launch-Ready Business</span><br />
+            in Minutes
           </h1>
           
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Join 500+ founders using AI-powered tools to build their brand, create content, and grow their business—all in one platform.
+            Sage-Startups uses AI to generate business plans, branding and logos, marketing content, and automated market research—everything you need to launch successfully.
           </p>
+
+          {/* Benefits List */}
+          <div className="flex flex-wrap justify-center gap-6 mb-8 text-lg text-gray-700">
+            <div className="flex items-center">
+              <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
+              Complete business plans in minutes
+            </div>
+            <div className="flex items-center">
+              <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
+              AI-generated branding & logos
+            </div>
+            <div className="flex items-center">
+              <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
+              Marketing content that converts
+            </div>
+            <div className="flex items-center">
+              <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
+              Automated market research
+            </div>
+          </div>
 
           <form onSubmit={handleWaitlistSignup} className="max-w-lg mx-auto">
             <div className="flex flex-col sm:flex-row gap-2">
@@ -112,60 +133,90 @@ export default function LandingPage2() {
         </div>
       </section>
 
-      {/* Problem Section */}
+      {/* Features Section */}
       <section className="py-20 px-4 bg-gray-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Building a Startup is Hard
+              Everything You Need to Launch
             </h2>
             <p className="text-xl text-gray-600">
-              We know the struggles you face every day
+              Five powerful AI capabilities in one platform
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            <Card className="border-red-200 bg-red-50">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <Card className="border-blue-200 bg-blue-50">
               <CardHeader>
-                <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
-                  <XCircle className="w-6 h-6 text-red-600" />
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                  <Target className="w-6 h-6 text-blue-600" />
                 </div>
-                <CardTitle className="text-red-900">Endless Tasks, No Time</CardTitle>
+                <CardTitle className="text-blue-900">AI-Generated Business Plans</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-red-700">
-                  You're juggling branding, marketing, content creation, and product development. 
-                  There aren't enough hours in the day to do it all.
+                <p className="text-blue-700">
+                  Get comprehensive business plans with market analysis, financial projections, 
+                  and go-to-market strategies in minutes, not weeks.
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="border-red-200 bg-red-50">
+            <Card className="border-purple-200 bg-purple-50">
               <CardHeader>
-                <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
-                  <XCircle className="w-6 h-6 text-red-600" />
+                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                  <Star className="w-6 h-6 text-purple-600" />
                 </div>
-                <CardTitle className="text-red-900">Expensive Agencies</CardTitle>
+                <CardTitle className="text-purple-900">Brand & Logo Creation</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-red-700">
-                  Hiring agencies for branding, marketing, and content costs thousands. 
-                  As a startup, every dollar counts.
+                <p className="text-purple-700">
+                  Generate professional brand identities, logos, color palettes, and 
+                  typography that perfectly capture your vision.
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="border-red-200 bg-red-50">
+            <Card className="border-green-200 bg-green-50">
               <CardHeader>
-                <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
-                  <XCircle className="w-6 h-6 text-red-600" />
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                  <Rocket className="w-6 h-6 text-green-600" />
                 </div>
-                <CardTitle className="text-red-900">Analysis Paralysis</CardTitle>
+                <CardTitle className="text-green-900">Marketing & Content Generation</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-red-700">
-                  Too many tools, too many decisions. You spend more time researching 
-                  than actually building your business.
+                <p className="text-green-700">
+                  Create high-converting ad copy, social media content, blog posts, 
+                  and email campaigns that drive real results.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-orange-200 bg-orange-50">
+              <CardHeader>
+                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
+                  <TrendingUp className="w-6 h-6 text-orange-600" />
+                </div>
+                <CardTitle className="text-orange-900">Market Research & Analysis</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-orange-700">
+                  Automated competitor analysis, market sizing, and customer insights 
+                  to validate your idea and find opportunities.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-teal-200 bg-teal-50">
+              <CardHeader>
+                <div className="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center mb-4">
+                  <Shield className="w-6 h-6 text-teal-600" />
+                </div>
+                <CardTitle className="text-teal-900">Idea Validation & Roadmaps</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-teal-700">
+                  Test your concept, get feedback insights, and receive step-by-step 
+                  roadmaps to turn ideas into reality.
                 </p>
               </CardContent>
             </Card>
@@ -173,63 +224,120 @@ export default function LandingPage2() {
         </div>
       </section>
 
-      {/* Solution Section */}
+      {/* How It Works Section */}
       <section className="py-20 px-4">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <Badge className="mb-4" variant="default">
-              The Solution
-            </Badge>
+          <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Your AI-Powered Startup Team
+              How It Works
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Get instant access to 60+ AI specialists that work 24/7 to help you build, brand, and grow your startup
+              Launch your startup in three simple steps
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            <Card className="border-green-200 bg-green-50">
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span className="text-2xl font-bold text-blue-600">1</span>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Input Your Idea</h3>
+              <p className="text-gray-600">
+                Describe your business concept, target market, and goals. Our AI understands 
+                your vision and asks the right questions to get started.
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span className="text-2xl font-bold text-purple-600">2</span>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">AI Generates Everything</h3>
+              <p className="text-gray-600">
+                Watch as our AI creates your business plan, brand identity, marketing strategies, 
+                and market insights in real-time.
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span className="text-2xl font-bold text-green-600">3</span>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Review & Refine</h3>
+              <p className="text-gray-600">
+                Download your materials, make adjustments with AI assistance, and iterate 
+                until everything is perfect for launch.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Waitlist Benefits Section */}
+      <section className="py-20 px-4 bg-gradient-to-br from-blue-50 to-purple-50">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Early Adopter Benefits
+            </h2>
+            <p className="text-xl text-gray-600">
+              Join our waitlist and get exclusive founder perks
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card className="text-center">
               <CardHeader>
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
-                  <CheckCircle className="w-6 h-6 text-green-600" />
+                <div className="w-12 h-12 bg-gold-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <Star className="w-6 h-6 text-yellow-600" />
                 </div>
-                <CardTitle className="text-green-900">All-in-One Platform</CardTitle>
+                <CardTitle className="text-lg">Early Access</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-green-700">
-                  Stop juggling 20 different tools. Get branding, marketing, content creation, 
-                  and business analysis—all in one place.
+                <p className="text-gray-600 text-sm">
+                  Be among the first to access our platform before public launch
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="border-green-200 bg-green-50">
+            <Card className="text-center">
               <CardHeader>
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
-                  <CheckCircle className="w-6 h-6 text-green-600" />
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <TrendingUp className="w-6 h-6 text-green-600" />
                 </div>
-                <CardTitle className="text-green-900">10x Faster Results</CardTitle>
+                <CardTitle className="text-lg">Founder Discounts</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-green-700">
-                  What takes weeks with agencies, takes minutes with our AI. 
-                  Launch faster and iterate quickly based on real data.
+                <p className="text-gray-600 text-sm">
+                  50% off lifetime access - exclusive pricing for early supporters
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="border-green-200 bg-green-50">
+            <Card className="text-center">
               <CardHeader>
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
-                  <CheckCircle className="w-6 h-6 text-green-600" />
+                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <Users className="w-6 h-6 text-purple-600" />
                 </div>
-                <CardTitle className="text-green-900">Expert-Level Quality</CardTitle>
+                <CardTitle className="text-lg">Shape Development</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-green-700">
-                  Our AI is trained on successful startup strategies. 
-                  Get professional results without the professional price tag.
+                <p className="text-gray-600 text-sm">
+                  Your feedback influences features and helps us build what you need
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center">
+              <CardHeader>
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <Shield className="w-6 h-6 text-blue-600" />
+                </div>
+                <CardTitle className="text-lg">Founder Community</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 text-sm">
+                  Exclusive access to our private founder community and networking
                 </p>
               </CardContent>
             </Card>
@@ -242,131 +350,263 @@ export default function LandingPage2() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Simple, Transparent Pricing
+              Affordable Pricing for Startups
             </h2>
             <p className="text-xl text-gray-600">
-              Choose the plan that fits your startup's needs
+              Comparable AI tools cost $12-40/month. We're building something better.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {/* Free Plan */}
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {/* Free Trial */}
             <Card className="relative">
               <CardHeader>
-                <CardTitle className="text-2xl">Free</CardTitle>
-                <CardDescription>Perfect for exploring</CardDescription>
+                <CardTitle className="text-2xl">Free Trial</CardTitle>
+                <CardDescription>Test everything risk-free</CardDescription>
                 <div className="mt-4">
                   <span className="text-4xl font-bold">$0</span>
-                  <span className="text-gray-500">/month</span>
+                  <span className="text-gray-500"> for 14 days</span>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <ul className="space-y-3">
                   <li className="flex items-start">
                     <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">8 AI bots (2 from each category)</span>
+                    <span className="text-sm">Full access to all AI tools</span>
                   </li>
                   <li className="flex items-start">
                     <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Basic dashboard</span>
+                    <span className="text-sm">Generate 10 complete business plans</span>
                   </li>
                   <li className="flex items-start">
                     <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Community support</span>
+                    <span className="text-sm">Create unlimited logos & branding</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">No credit card required</span>
                   </li>
                 </ul>
                 <Button variant="outline" className="w-full" onClick={() => setLocation('/signup?tier=free')}>
-                  Start Free
+                  Start Free Trial
                 </Button>
               </CardContent>
             </Card>
 
-            {/* Pro Plan */}
-            <Card className="relative border-blue-500 shadow-lg">
+            {/* Early Bird Lifetime */}
+            <Card className="relative border-blue-500 shadow-xl bg-gradient-to-br from-blue-50 to-purple-50">
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                <Badge className="bg-blue-500">Most Popular</Badge>
+                <Badge className="bg-blue-500">🔥 Early Bird Special</Badge>
               </div>
               <CardHeader>
-                <CardTitle className="text-2xl">Pro</CardTitle>
-                <CardDescription>For growing startups</CardDescription>
+                <CardTitle className="text-2xl">Lifetime Access</CardTitle>
+                <CardDescription>One-time payment, forever access</CardDescription>
                 <div className="mt-4">
-                  <span className="text-4xl font-bold">$24</span>
-                  <span className="text-gray-500">/month</span>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-2xl text-gray-400 line-through">£60</span>
+                    <span className="text-4xl font-bold text-blue-600">£30</span>
+                  </div>
+                  <span className="text-sm text-blue-600 font-medium">50% off for waitlist members</span>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <ul className="space-y-3">
                   <li className="flex items-start">
                     <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">30 AI bots</span>
+                    <span className="text-sm">All current & future AI tools</span>
                   </li>
                   <li className="flex items-start">
                     <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Advanced analytics</span>
+                    <span className="text-sm">Unlimited business plans & branding</span>
                   </li>
                   <li className="flex items-start">
                     <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Priority support</span>
+                    <span className="text-sm">Priority support & feature requests</span>
                   </li>
                   <li className="flex items-start">
                     <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Custom branding</span>
+                    <span className="text-sm">Private founder community access</span>
                   </li>
                 </ul>
-                <Button className="w-full" onClick={() => setLocation('/signup?tier=pro')}>
-                  Get Pro Access
+                <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                  Join Waitlist for £30 Deal
                 </Button>
               </CardContent>
             </Card>
 
-            {/* Premium Plan */}
-            <Card className="relative">
+
+          </div>
+        </div>
+      </section>
+
+      {/* Coming Soon Roadmap */}
+      <section className="py-20 px-4 bg-gray-50">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Coming Soon
+            </h2>
+            <p className="text-xl text-gray-600">
+              Exciting features we're building for you
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card className="text-center border-dashed border-2 border-gray-300">
               <CardHeader>
-                <CardTitle className="text-2xl">Premium</CardTitle>
-                <CardDescription>For scaling fast</CardDescription>
-                <div className="mt-4">
-                  <span className="text-4xl font-bold">$44</span>
-                  <span className="text-gray-500">/month</span>
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <Target className="w-6 h-6 text-gray-600" />
                 </div>
+                <CardTitle className="text-lg text-gray-700">Pitch Deck Creation</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <ul className="space-y-3">
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">All 60+ AI bots</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Custom integrations</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">24/7 dedicated support</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Team collaboration</span>
-                  </li>
-                </ul>
-                <Button variant="outline" className="w-full" onClick={() => setLocation('/signup?tier=premium')}>
-                  Go Premium
-                </Button>
+              <CardContent>
+                <p className="text-gray-600 text-sm">
+                  AI-generated investor pitch decks with compelling storytelling
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center border-dashed border-2 border-gray-300">
+              <CardHeader>
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <Rocket className="w-6 h-6 text-gray-600" />
+                </div>
+                <CardTitle className="text-lg text-gray-700">Website Builder</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 text-sm">
+                  Launch-ready websites integrated with your branding and content
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center border-dashed border-2 border-gray-300">
+              <CardHeader>
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <TrendingUp className="w-6 h-6 text-gray-600" />
+                </div>
+                <CardTitle className="text-lg text-gray-700">SEO Keywords</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 text-sm">
+                  Automated keyword research and SEO optimization suggestions
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center border-dashed border-2 border-gray-300">
+              <CardHeader>
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <Shield className="w-6 h-6 text-gray-600" />
+                </div>
+                <CardTitle className="text-lg text-gray-700">24/7 Support</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 text-sm">
+                  AI-powered support and human experts available around the clock
+                </p>
               </CardContent>
             </Card>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Social Proof Section */}
       <section className="py-20 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Everything You Need to Succeed
+              Trusted by Founders
             </h2>
             <p className="text-xl text-gray-600">
-              Powerful features designed for startup founders
+              Join the community of successful entrepreneurs
             </p>
+          </div>
+
+          <div className="text-center mb-12">
+            <Badge className="text-lg px-6 py-2 bg-blue-100 text-blue-800">
+              Featured on WhatTheAI
+            </Badge>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center space-x-1 mb-2">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                  ))}
+                </div>
+                <CardTitle className="text-lg">"Game-changing for startups"</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 text-sm mb-4">
+                  "Sage-Startups helped me create a complete business plan and brand identity in just 2 hours. 
+                  What would have taken me weeks was done perfectly."
+                </p>
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-sm font-bold">SA</span>
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm">Sarah Anderson</p>
+                    <p className="text-gray-500 text-xs">Founder, TechFlow</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <div className="flex items-center space-x-1 mb-2">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                  ))}
+                </div>
+                <CardTitle className="text-lg">"Incredibly powerful AI"</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 text-sm mb-4">
+                  "The market research and competitor analysis features are incredible. 
+                  It's like having a team of consultants working 24/7."
+                </p>
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-sm font-bold">MR</span>
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm">Mike Rodriguez</p>
+                    <p className="text-gray-500 text-xs">CEO, EcoVenture</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <div className="flex items-center space-x-1 mb-2">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                  ))}
+                </div>
+                <CardTitle className="text-lg">"Worth every penny"</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 text-sm mb-4">
+                  "I saved thousands on branding and marketing agencies. The AI generates 
+                  professional-quality content that converts."
+                </p>
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-sm font-bold">JL</span>
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm">Jennifer Liu</p>
+                    <p className="text-gray-500 text-xs">Founder, StyleSpace</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -445,8 +685,114 @@ export default function LandingPage2() {
         </div>
       </section>
 
-      {/* Social Proof Section */}
+      {/* FAQ Section */}
       <section className="py-20 px-4 bg-gray-50">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-xl text-gray-600">
+              Everything you need to know about Sage-Startups
+            </p>
+          </div>
+
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg text-left">What exactly does Sage-Startups do?</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">
+                  Sage-Startups is an AI-powered platform that helps entrepreneurs create complete business plans, 
+                  professional branding, marketing content, and market research in minutes. It's like having a team 
+                  of business consultants, designers, and marketers working for you 24/7.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg text-left">When will the platform launch?</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">
+                  We're launching in Q2 2025. Waitlist members get early access 2 weeks before public launch, 
+                  plus exclusive lifetime pricing at 50% off.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg text-left">How is my data kept private and secure?</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">
+                  Your business data is encrypted end-to-end and never shared with third parties. We use enterprise-grade 
+                  security and comply with GDPR and SOC 2 standards. You own your data completely.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg text-left">What will the pricing be like?</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">
+                  We'll offer a free trial and plans starting from £15/month. Waitlist members get lifetime access 
+                  for a one-time payment of £30 (50% off the regular £60). This includes all current and future features.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Second CTA Section */}
+      <section className="py-20 px-4 bg-gradient-to-br from-blue-600 to-purple-700 text-white">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            Ready to Launch Your Startup?
+          </h2>
+          <p className="text-xl text-blue-100 mb-8">
+            Join the founder community and get lifetime access for £30. Limited time offer.
+          </p>
+
+          <form onSubmit={handleWaitlistSignup} className="max-w-lg mx-auto">
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Input
+                type="text"
+                placeholder="Your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="flex-1 bg-white/20 border-white/30 text-white placeholder:text-white/70"
+                required
+              />
+              <Input
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="flex-1 bg-white/20 border-white/30 text-white placeholder:text-white/70"
+                required
+              />
+              <Button type="submit" size="lg" variant="secondary" disabled={isLoading || !name.trim() || !email}>
+                {isLoading ? "Joining..." : "Join Waitlist"}
+                <ChevronRight className="ml-2 w-4 h-4" />
+              </Button>
+            </div>
+          </form>
+
+          <p className="text-sm text-blue-100 mt-4">
+            💡 Join 500+ founders building the future • No spam, ever
+          </p>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-20 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
