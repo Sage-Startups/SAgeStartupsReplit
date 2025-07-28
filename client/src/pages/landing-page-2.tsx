@@ -763,7 +763,7 @@ export default function LandingPage2() {
             Ready to Launch Your Startup?
           </h2>
           <p className="text-xl text-blue-100 mb-8">
-            Join the founder community and get lifetime access for $22. Limited time offer.
+            Join the founder community and get lifetime access for $22 per month. Limited time offer.
           </p>
 
           <form onSubmit={handleWaitlistSignup} className="max-w-lg mx-auto">
