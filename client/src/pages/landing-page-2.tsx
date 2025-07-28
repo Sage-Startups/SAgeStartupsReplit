@@ -792,7 +792,7 @@ export default function LandingPage2() {
           </form>
 
           <p className="text-sm text-blue-100 mt-4">
-            💡 Join 500+ founders building the future • No spam, ever
+            💡 No spam, ever
           </p>
         </div>
       </section>
