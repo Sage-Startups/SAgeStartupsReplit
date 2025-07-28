@@ -239,54 +239,6 @@ export default function LandingPage2() {
         </div>
       </section>
 
-      {/* How It Works Section */}
-      <section className="py-20 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              How It Works
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Launch your startup in three simple steps
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl font-bold text-blue-600">1</span>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Input Your Idea</h3>
-              <p className="text-gray-600">
-                Describe your business concept, target market, and goals. Our AI understands 
-                your vision and asks the right questions to get started.
-              </p>
-            </div>
-
-            <div className="text-center">
-              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl font-bold text-purple-600">2</span>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">AI Generates Everything</h3>
-              <p className="text-gray-600">
-                Watch as our AI creates your business plan, brand identity, marketing strategies, 
-                and market insights in real-time.
-              </p>
-            </div>
-
-            <div className="text-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl font-bold text-green-600">3</span>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Review & Refine</h3>
-              <p className="text-gray-600">
-                Download your materials, make adjustments with AI assistance, and iterate 
-                until everything is perfect for launch.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Waitlist Benefits Section */}
       <section className="py-20 px-4 bg-gradient-to-br from-blue-50 to-purple-50">
