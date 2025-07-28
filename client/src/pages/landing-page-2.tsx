@@ -7,6 +7,7 @@ import { CheckCircle, Zap, ArrowRight, TrendingUp, Shield, Rocket, Star, Users, 
 import { Link, useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
 
 export default function LandingPage2() {
   const [name, setName] = useState("");
@@ -15,22 +16,46 @@ export default function LandingPage2() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
 
-  const handleWaitlistSignup = async (e: React.FormEvent) => {
+  // Fetch early bird counter
+  const { data: counter, refetch: refetchCounter } = useQuery({
+    queryKey: ['/api/early-bird-counter'],
+    queryFn: async () => {
+      const response = await fetch('/api/early-bird-counter');
+      if (!response.ok) {
+        throw new Error('Failed to fetch counter');
+      }
+      return response.json();
+    },
+    refetchInterval: 5000 // Refetch every 5 seconds to keep it up to date
+  });
+
+  const handleWaitlistSignup = async (e: React.FormEvent, isEarlyBird = false) => {
     e.preventDefault();
     if (!name.trim() || !email) return;
 
     setIsLoading(true);
     try {
       // Add to waitlist
-      await apiRequest("POST", "/api/waitlist", { name: name.trim(), email });
+      await apiRequest("POST", "/api/waitlist", { 
+        name: name.trim(), 
+        email, 
+        isEarlyBird 
+      });
       
       toast({
-        title: "You're on the list! 🎉",
-        description: "We'll notify you as soon as we launch. Check your email for confirmation.",
+        title: isEarlyBird ? "Early Bird Deal Secured! 🎉" : "You're on the list! 🎉",
+        description: isEarlyBird 
+          ? "You've secured the 50% lifetime discount! Check your email for confirmation."
+          : "We'll notify you as soon as we launch. Check your email for confirmation.",
       });
       
       setName("");
       setEmail("");
+      
+      // Refetch counter if this was an early bird signup
+      if (isEarlyBird) {
+        refetchCounter();
+      }
     } catch (error: any) {
       toast({
         title: "Error",
@@ -395,8 +420,12 @@ export default function LandingPage2() {
                     <span className="text-sm">Private founder community access</span>
                   </li>
                 </ul>
-                <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                  Join Waitlist for $22/month Deal
+                <Button 
+                  className="w-full bg-blue-600 hover:bg-blue-700"
+                  onClick={(e) => handleWaitlistSignup(e, true)}
+                  disabled={isLoading || !name.trim() || !email || (counter && counter.spotsRemaining <= 0)}
+                >
+                  {isLoading ? "Joining..." : counter && counter.spotsRemaining <= 0 ? "Offer Unavailable" : "Join Waitlist for $22/month Deal"}
                 </Button>
               </CardContent>
             </Card>
@@ -407,9 +436,11 @@ export default function LandingPage2() {
           {/* Limited Offer Counter */}
           <div className="text-center mt-12">
             <div className="inline-block bg-red-50 border border-red-200 rounded-lg px-6 py-4">
-              <p className="text-red-800 font-semibold mb-2">Limited to the first 100 customers</p>
+              <p className="text-red-800 font-semibold mb-2">Limited to the first 20 customers</p>
               <div className="flex items-center justify-center space-x-2">
-                <span className="text-2xl font-bold text-red-600">100</span>
+                <span className="text-2xl font-bold text-red-600">
+                  {counter ? counter.spotsRemaining : '...'}
+                </span>
                 <span className="text-red-600">spots remaining</span>
               </div>
             </div>

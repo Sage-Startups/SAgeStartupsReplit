@@ -1147,7 +1147,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Waitlist endpoint for landing page 2
   app.post("/api/waitlist", async (req, res) => {
     try {
-      const { name, email, source = 'landing-page-2', referrer = null } = req.body;
+      const { name, email, source = 'landing-page-2', referrer = null, isEarlyBird = false } = req.body;
       
       if (!name || name.trim().length === 0) {
         return res.status(400).json({ message: "Name is required" });
@@ -1162,13 +1162,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (existing) {
         return res.status(400).json({ message: "You're already on the waitlist!" });
       }
+
+      // If this is an early bird signup, check and decrement counter
+      if (isEarlyBird) {
+        const counter = await storage.getEarlyBirdCounter();
+        
+        if (!counter || counter.spotsRemaining <= 0) {
+          return res.status(400).json({ message: 'Early bird offer is no longer available' });
+        }
+
+        // Decrement the counter
+        await storage.decrementEarlyBirdCounter();
+      }
       
       // Add to waitlist
       await storage.addToWaitlist({
         name: name.trim(),
         email,
         source,
-        referrer
+        referrer,
+        isEarlyBird
       });
       
       // Send welcome email using SendGrid
@@ -1266,6 +1279,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Waitlist error:", error);
       res.status(500).json({ message: "Failed to join waitlist. Please try again." });
+    }
+  });
+
+  // Early bird counter endpoint
+  app.get("/api/early-bird-counter", async (req, res) => {
+    try {
+      const counter = await storage.getEarlyBirdCounter();
+      res.json(counter);
+    } catch (error) {
+      console.error('Error fetching early bird counter:', error);
+      res.status(500).json({ error: 'Failed to fetch counter' });
     }
   });
 

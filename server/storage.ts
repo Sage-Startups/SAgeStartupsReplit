@@ -1,4 +1,4 @@
-import { users, projects, botSessions, chatMessages, generatedAssets, userAnalytics, founderMetrics, auditLogs, subscriptionPlans, payments, content, media, waitlist, type User, type Project, type BotSession, type ChatMessage, type GeneratedAsset, type UserAnalytics, type FounderMetrics, type AuditLog, type SubscriptionPlan, type Payment, type Content, type Media, type UpsertUser, type InsertProject, type InsertBotSession, type InsertChatMessage, type InsertGeneratedAsset, type InsertUserAnalytics, type InsertFounderMetrics, type InsertWaitlist, type Waitlist } from "@shared/schema";
+import { users, projects, botSessions, chatMessages, generatedAssets, userAnalytics, founderMetrics, auditLogs, subscriptionPlans, payments, content, media, waitlist, earlyBirdCounter, type User, type Project, type BotSession, type ChatMessage, type GeneratedAsset, type UserAnalytics, type FounderMetrics, type AuditLog, type SubscriptionPlan, type Payment, type Content, type Media, type UpsertUser, type InsertProject, type InsertBotSession, type InsertChatMessage, type InsertGeneratedAsset, type InsertUserAnalytics, type InsertFounderMetrics, type InsertWaitlist, type Waitlist, type EarlyBirdCounter } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
 
@@ -63,6 +63,10 @@ export interface IStorage {
   addToWaitlist(data: InsertWaitlist): Promise<Waitlist>;
   getWaitlistByEmail(email: string): Promise<Waitlist | undefined>;
   getAllWaitlistEntries(): Promise<Waitlist[]>;
+  
+  // Early bird counter operations
+  getEarlyBirdCounter(): Promise<EarlyBirdCounter | undefined>;
+  decrementEarlyBirdCounter(): Promise<EarlyBirdCounter>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -354,6 +358,39 @@ export class DatabaseStorage implements IStorage {
 
   async getAllWaitlistEntries(): Promise<Waitlist[]> {
     return await db.select().from(waitlist).orderBy(desc(waitlist.createdAt));
+  }
+
+  // Early bird counter operations
+  async getEarlyBirdCounter(): Promise<EarlyBirdCounter | undefined> {
+    let [counter] = await db.select().from(earlyBirdCounter).limit(1);
+    
+    // Initialize counter if it doesn't exist
+    if (!counter) {
+      [counter] = await db.insert(earlyBirdCounter).values({
+        spotsRemaining: 20,
+        totalSpots: 20
+      }).returning();
+    }
+    
+    return counter;
+  }
+
+  async decrementEarlyBirdCounter(): Promise<EarlyBirdCounter> {
+    const counter = await this.getEarlyBirdCounter();
+    
+    if (!counter || counter.spotsRemaining <= 0) {
+      throw new Error('No spots remaining');
+    }
+
+    const [updatedCounter] = await db.update(earlyBirdCounter)
+      .set({ 
+        spotsRemaining: counter.spotsRemaining - 1,
+        updatedAt: new Date()
+      })
+      .where(eq(earlyBirdCounter.id, counter.id))
+      .returning();
+    
+    return updatedCounter;
   }
 }
 

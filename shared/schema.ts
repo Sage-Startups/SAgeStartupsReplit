@@ -278,7 +278,16 @@ export const waitlist = pgTable('waitlist', {
   email: varchar('email').notNull().unique(),
   source: varchar('source').default('landing-page-2'),
   referrer: varchar('referrer'),
+  isEarlyBird: boolean('is_early_bird').notNull().default(false), // Track if they signed up for the early bird deal
   createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+// Early bird counter table
+export const earlyBirdCounter = pgTable('early_bird_counter', {
+  id: serial('id').primaryKey(),
+  spotsRemaining: integer('spots_remaining').notNull().default(20),
+  totalSpots: integer('total_spots').notNull().default(20),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
 export const insertWaitlistSchema = createInsertSchema(waitlist).pick({
@@ -286,10 +295,18 @@ export const insertWaitlistSchema = createInsertSchema(waitlist).pick({
   email: true,
   source: true,
   referrer: true,
+  isEarlyBird: true,
+});
+
+export const insertEarlyBirdCounterSchema = createInsertSchema(earlyBirdCounter).pick({
+  spotsRemaining: true,
+  totalSpots: true,
 });
 
 export type InsertWaitlist = z.infer<typeof insertWaitlistSchema>;
 export type Waitlist = typeof waitlist.$inferSelect;
+export type InsertEarlyBirdCounter = z.infer<typeof insertEarlyBirdCounterSchema>;
+export type EarlyBirdCounter = typeof earlyBirdCounter.$inferSelect;
 
 export const insertFounderMetricsSchema = createInsertSchema(founderMetrics).pick({
   userId: true,
