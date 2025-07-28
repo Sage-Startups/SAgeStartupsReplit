@@ -390,6 +390,16 @@ export default function LandingPage2() {
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                 <Badge className="bg-blue-500">🔥 Early Bird Special</Badge>
               </div>
+              {/* Limited Offer Counter - Top Right */}
+              <div className="absolute -top-2 -right-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2 shadow-sm">
+                <p className="text-red-800 font-semibold text-xs mb-1">Limited to 20</p>
+                <div className="flex items-center justify-center space-x-1">
+                  <span className="text-lg font-bold text-red-600">
+                    {counter ? counter.spotsRemaining : '...'}
+                  </span>
+                  <span className="text-red-600 text-xs">left</span>
+                </div>
+              </div>
               <CardHeader>
                 <CardTitle className="text-2xl">Lifetime Discount</CardTitle>
                 <CardDescription>Lifetime discount</CardDescription>
@@ -431,19 +441,6 @@ export default function LandingPage2() {
             </Card>
 
 
-          </div>
-
-          {/* Limited Offer Counter */}
-          <div className="text-center mt-12">
-            <div className="inline-block bg-red-50 border border-red-200 rounded-lg px-6 py-4">
-              <p className="text-red-800 font-semibold mb-2">Limited to the first 20 customers</p>
-              <div className="flex items-center justify-center space-x-2">
-                <span className="text-2xl font-bold text-red-600">
-                  {counter ? counter.spotsRemaining : '...'}
-                </span>
-                <span className="text-red-600">spots remaining</span>
-              </div>
-            </div>
           </div>
         </div>
       </section>
