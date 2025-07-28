@@ -366,12 +366,12 @@ export default function LandingPage2() {
                 <Badge className="bg-blue-500">🔥 Early Bird Special</Badge>
               </div>
               <CardHeader>
-                <CardTitle className="text-2xl">Lifetime Access</CardTitle>
-                <CardDescription>One-time payment, forever access</CardDescription>
+                <CardTitle className="text-2xl">Lifetime Discount</CardTitle>
+                <CardDescription>Lifetime discount</CardDescription>
                 <div className="mt-4">
                   <div className="flex items-center space-x-2">
-                    <span className="text-2xl text-gray-400 line-through">£60</span>
-                    <span className="text-4xl font-bold text-blue-600">£30</span>
+                    <span className="text-2xl text-gray-400 line-through">$44/month</span>
+                    <span className="text-4xl font-bold text-blue-600">$22/month</span>
                   </div>
                   <span className="text-sm text-blue-600 font-medium">50% off for waitlist members</span>
                 </div>
@@ -384,11 +384,11 @@ export default function LandingPage2() {
                   </li>
                   <li className="flex items-start">
                     <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Unlimited business plans & branding</span>
+                    <span className="text-sm">Preview of the Business Suite</span>
                   </li>
                   <li className="flex items-start">
                     <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Priority support & feature requests</span>
+                    <span className="text-sm">First access to full suites when they arrive</span>
                   </li>
                   <li className="flex items-start">
                     <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
@@ -396,12 +396,23 @@ export default function LandingPage2() {
                   </li>
                 </ul>
                 <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                  Join Waitlist for £30 Deal
+                  Join Waitlist for $22/month Deal
                 </Button>
               </CardContent>
             </Card>
 
 
+          </div>
+
+          {/* Limited Offer Counter */}
+          <div className="text-center mt-12">
+            <div className="inline-block bg-red-50 border border-red-200 rounded-lg px-6 py-4">
+              <p className="text-red-800 font-semibold mb-2">Limited to the first 100 customers</p>
+              <div className="flex items-center justify-center space-x-2">
+                <span className="text-2xl font-bold text-red-600">100</span>
+                <span className="text-red-600">spots remaining</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
