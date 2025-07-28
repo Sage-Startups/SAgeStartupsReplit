@@ -80,6 +80,21 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
         env: process.env.NODE_ENV
       });
 
+      // Create or get Stripe customer first (needed for both early bird and regular pricing)
+      let stripeCustomerId = user.stripeCustomerId;
+      if (!stripeCustomerId) {
+        const customer = await stripe.customers.create({
+          email: user.email,
+          name: `${user.firstName} ${user.lastName}`,
+          metadata: {
+            userId: user.id,
+          },
+        });
+        
+        stripeCustomerId = customer.id;
+        await storage.updateUser(userId, { stripeCustomerId });
+      }
+
       // For early bird pricing, use payment intent instead of subscription (since we don't have price IDs yet)
       if (pricingKey === 'premium-early-bird') {
         console.log(`🔥 Creating early bird payment intent for $${price}`);
@@ -107,21 +122,6 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
       if (!stripePriceId) {
         console.error(`❌ Price ID not configured for ${pricingKey} ${billingCycle}`);
         return res.status(400).json({ message: "Price ID not configured for this plan" });
-      }
-
-      // Create or get Stripe customer
-      let stripeCustomerId = user.stripeCustomerId;
-      if (!stripeCustomerId) {
-        const customer = await stripe.customers.create({
-          email: user.email,
-          name: `${user.firstName} ${user.lastName}`,
-          metadata: {
-            userId: user.id,
-          },
-        });
-        
-        stripeCustomerId = customer.id;
-        await storage.updateUser(userId, { stripeCustomerId });
       }
 
       // Verify price exists in Stripe first

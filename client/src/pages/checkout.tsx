@@ -197,21 +197,39 @@ export default function Checkout() {
 
     setPlanDetails(plan);
 
-    // Create payment intent
-    apiRequest("POST", "/api/stripe/create-subscription-intent", {
-      tier: plan.tier,
-      billingCycle: plan.billingCycle,
-      discount: plan.isEarlyBird ? 'early-bird' : undefined
-    })
-      .then((response) => response.json())
-      .then((data) => {
+    // Create payment intent with retry logic for authentication
+    const createPaymentIntent = async (retries = 2) => {
+      try {
+        const response = await apiRequest("POST", "/api/stripe/create-subscription-intent", {
+          tier: plan.tier,
+          billingCycle: plan.billingCycle,
+          discount: plan.isEarlyBird ? 'early-bird' : undefined
+        });
+        
+        if (!response.ok) {
+          if (response.status === 401 && retries > 0) {
+            // Wait a bit and retry if unauthorized (auth might still be establishing)
+            console.log('Authentication issue, retrying...');
+            setTimeout(() => createPaymentIntent(retries - 1), 1000);
+            return;
+          }
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
         setClientSecret(data.clientSecret);
         setIsLoading(false);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error('Error creating subscription:', error);
+        if (retries === 0) {
+          // If all retries failed, redirect to signin
+          window.location.href = '/signin?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
+        }
         setIsLoading(false);
-      });
+      }
+    };
+    
+    createPaymentIntent();
   }, []);
 
   if (isLoading || !clientSecret || !planDetails) {

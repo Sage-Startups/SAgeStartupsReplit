@@ -129,9 +129,11 @@ export default function SignUp2() {
             description: `Please complete your premium subscription payment at the discounted rate.`,
           });
           
-          // Redirect to checkout with discounted tier and billing cycle
+          // Redirect to checkout with discounted tier and billing cycle after a short delay
           const billingCycle = isYearly ? 'yearly' : 'monthly';
-          setLocation(`/checkout?tier=premium&plan=${billingCycle}&discount=early-bird`);
+          setTimeout(() => {
+            setLocation(`/checkout?tier=premium&plan=${billingCycle}&discount=early-bird`);
+          }, 500); // Small delay to ensure authentication is established
         } catch (signInError) {
           toast({
             title: "Account created!",
