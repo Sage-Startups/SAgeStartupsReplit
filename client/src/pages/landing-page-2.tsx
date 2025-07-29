@@ -107,6 +107,21 @@ export default function LandingPage2() {
             Sage-Startups uses AI to generate business plans, branding and logos, marketing content, and automated market research—everything you need to launch successfully.
           </p>
 
+          {/* Video Section */}
+          <div className="max-w-4xl mx-auto mb-12">
+            <div className="relative bg-gray-900 rounded-2xl overflow-hidden shadow-2xl">
+              <video 
+                className="w-full h-auto"
+                controls
+                poster="/api/placeholder/800/450"
+                preload="metadata"
+              >
+                <source src="/attached_assets/Website video_1753786257231.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          </div>
+
           {/* Benefits List */}
           <div className="flex flex-wrap justify-center gap-6 mb-8 text-lg text-gray-700">
             <div className="flex items-center">
