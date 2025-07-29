@@ -83,14 +83,7 @@ export default function LandingPage2() {
               <Zap className="w-8 h-8 text-blue-600" />
               <span className="text-xl font-bold">Sage-Startups</span>
             </div>
-            <div className="flex items-center space-x-4">
-              <Link href="/signin">
-                <Button variant="ghost">Sign In</Button>
-              </Link>
-              <Link href="/signup2">
-                <Button>Get Early Access</Button>
-              </Link>
-            </div>
+
           </div>
         </div>
       </nav>
