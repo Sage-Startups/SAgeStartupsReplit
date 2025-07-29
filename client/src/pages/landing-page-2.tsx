@@ -826,27 +826,16 @@ export default function LandingPage2() {
             </div>
             
             <div>
-              <h4 className="text-white font-semibold mb-4">Product</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link href="/features">Features</Link></li>
-                <li><Link href="/pricing">Pricing</Link></li>
-                <li><Link href="/roadmap">Roadmap</Link></li>
-              </ul>
-            </div>
-            
-            <div>
               <h4 className="text-white font-semibold mb-4">Company</h4>
               <ul className="space-y-2 text-sm">
                 <li><Link href="/about">About</Link></li>
                 <li><Link href="/blog">Blog</Link></li>
-                <li><Link href="/careers">Careers</Link></li>
               </ul>
             </div>
             
             <div>
               <h4 className="text-white font-semibold mb-4">Support</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link href="/help">Help Center</Link></li>
                 <li><Link href="/contact">Contact</Link></li>
                 <li><Link href="/privacy">Privacy Policy</Link></li>
                 <li><Link href="/terms">Terms of Service</Link></li>

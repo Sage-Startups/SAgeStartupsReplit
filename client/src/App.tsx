@@ -24,6 +24,11 @@ import SuperAdmin from "@/pages/super-admin";
 import Checkout from "@/pages/checkout";
 import FinancialDashboard from "@/pages/financial-dashboard";
 import TaskManager from "@/pages/task-manager";
+import AboutPage from "@/pages/about";
+import BlogPage from "@/pages/blog";
+import ContactPage from "@/pages/contact";
+import PrivacyPolicyPage from "@/pages/privacy";
+import TermsOfServicePage from "@/pages/terms";
 
 
 
@@ -37,6 +42,13 @@ function Router() {
       {/* Landing pages available to everyone */}
       <Route path="/landing-1" component={Landing} />
       <Route path="/softlaunch" component={SoftLaunch} />
+      
+      {/* Public pages available to everyone */}
+      <Route path="/about" component={AboutPage} />
+      <Route path="/blog" component={BlogPage} />
+      <Route path="/contact" component={ContactPage} />
+      <Route path="/privacy" component={PrivacyPolicyPage} />
+      <Route path="/terms" component={TermsOfServicePage} />
       
       {isLoading || !isAuthenticated ? (
         <>
