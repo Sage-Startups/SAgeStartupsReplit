@@ -121,7 +121,7 @@ export default function LandingPage2() {
                       <Rocket className="w-8 h-8" />
                     </div>
                     <h3 className="text-xl font-bold mb-2">See Sage-Startups in Action</h3>
-                    <p className="text-sm opacity-90">Live platform demo available after signup</p>
+                    <p className="text-sm opacity-90">Live platform demo available now</p>
                   </div>
                 </div>
               </div>
