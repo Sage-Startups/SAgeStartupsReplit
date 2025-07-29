@@ -107,6 +107,45 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteUser(id: string): Promise<void> {
+    // First, get all projects for this user
+    const userProjects = await db.select().from(projects).where(eq(projects.userId, id));
+    
+    // Delete all data associated with each project
+    for (const project of userProjects) {
+      // Get all bot sessions for this project
+      const projectSessions = await db.select().from(botSessions).where(eq(botSessions.projectId, project.id));
+      
+      for (const session of projectSessions) {
+        // Delete chat messages for each session
+        await db.delete(chatMessages).where(eq(chatMessages.sessionId, session.id));
+        // Delete generated assets for each session
+        await db.delete(generatedAssets).where(eq(generatedAssets.sessionId, session.id));
+      }
+      
+      // Delete all bot sessions for this project
+      await db.delete(botSessions).where(eq(botSessions.projectId, project.id));
+    }
+    
+    // Delete all projects for this user
+    await db.delete(projects).where(eq(projects.userId, id));
+    
+    // Delete user analytics and metrics
+    await db.delete(userAnalytics).where(eq(userAnalytics.userId, id));
+    await db.delete(founderMetrics).where(eq(founderMetrics.userId, id));
+    
+    // Delete payment history
+    await db.delete(payments).where(eq(payments.userId, id));
+    
+    // Delete content authored by this user
+    await db.delete(content).where(eq(content.authorId, id));
+    
+    // Delete media uploaded by this user
+    await db.delete(media).where(eq(media.uploadedBy, id));
+    
+    // Delete any audit logs for this user (do this last since it references user)
+    await db.delete(auditLogs).where(eq(auditLogs.userId, id));
+    
+    // Finally, delete the user
     await db.delete(users).where(eq(users.id, id));
   }
 
