@@ -9,6 +9,9 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 
+// Import assets
+import websiteVideo from '@assets/Website video_1753786257231.mp4';
+
 export default function SoftLaunch() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -116,7 +119,7 @@ export default function SoftLaunch() {
                 poster="/api/placeholder/800/450"
                 preload="metadata"
               >
-                <source src="/attached_assets/Website video_1753786257231.mp4" type="video/mp4" />
+                <source src={websiteVideo} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
             </div>

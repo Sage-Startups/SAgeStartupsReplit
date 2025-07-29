@@ -9,6 +9,12 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 
+// Import assets
+import dashboardPreview from '@assets/dashboard_1753786590213.png';
+import aiSuitePreview from '@assets/Ai Suite_1753786590213.png';
+import businessSuitePreview from '@assets/business suite_1753786590212.png';
+import websiteVideo from '@assets/Website video_1753786257231.mp4';
+
 export default function LandingPage2() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -116,7 +122,7 @@ export default function LandingPage2() {
                 poster="/api/placeholder/800/450"
                 preload="metadata"
               >
-                <source src="/attached_assets/Website video_1753786257231.mp4" type="video/mp4" />
+                <source src={websiteVideo} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
             </div>
@@ -373,7 +379,7 @@ export default function LandingPage2() {
               </p>
               <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-8 shadow-2xl">
                 <img 
-                  src="/attached_assets/dashboard_1753786590213.png" 
+                  src={dashboardPreview} 
                   alt="Sage-Startups Dashboard Preview" 
                   className="w-full h-auto rounded-lg shadow-lg border border-gray-200"
                 />
@@ -388,7 +394,7 @@ export default function LandingPage2() {
               </p>
               <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-8 shadow-2xl">
                 <img 
-                  src="/attached_assets/Ai Suite_1753786590213.png" 
+                  src={aiSuitePreview} 
                   alt="Sage-Startups AI Suite Preview" 
                   className="w-full h-auto rounded-lg shadow-lg border border-gray-200"
                 />
@@ -403,7 +409,7 @@ export default function LandingPage2() {
               </p>
               <div className="bg-gradient-to-br from-green-50 to-blue-50 rounded-2xl p-8 shadow-2xl">
                 <img 
-                  src="/attached_assets/business suite_1753786590212.png" 
+                  src={businessSuitePreview} 
                   alt="Sage-Startups Business Suite Preview" 
                   className="w-full h-auto rounded-lg shadow-lg border border-gray-200"
                 />
