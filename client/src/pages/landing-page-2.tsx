@@ -379,7 +379,7 @@ export default function LandingPage2() {
                     <span className="text-sm">No credit card required</span>
                   </li>
                 </ul>
-                <Button variant="outline" className="w-full" onClick={() => setLocation('/signup?tier=free')}>
+                <Button variant="outline" className="w-full" onClick={() => setLocation('/signup2')}>
                   Start Free Trial
                 </Button>
               </CardContent>
@@ -432,10 +432,10 @@ export default function LandingPage2() {
                 </ul>
                 <Button 
                   className="w-full bg-blue-600 hover:bg-blue-700"
-                  onClick={(e) => handleWaitlistSignup(e, true)}
-                  disabled={isLoading || !name.trim() || !email || (counter && counter.spotsRemaining <= 0)}
+                  onClick={() => setLocation('/signup2')}
+                  disabled={counter && counter.spotsRemaining <= 0}
                 >
-                  {isLoading ? "Joining..." : counter && counter.spotsRemaining <= 0 ? "Offer Unavailable" : "Join Waitlist for $22/month Deal"}
+                  {counter && counter.spotsRemaining <= 0 ? "Offer Unavailable" : "Get Early Bird Access - $22/month"}
                 </Button>
               </CardContent>
             </Card>
