@@ -352,110 +352,89 @@ export default function LandingPage2() {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section className="py-20 px-4 bg-gray-50">
+      {/* Platform Preview Section */}
+      <section className="py-20 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Affordable Pricing for Startups
+              See Sage-Startups in Action
             </h2>
             <p className="text-xl text-gray-600">
-              Comparable AI tools cost $12-40/month. We're building something better.
+              Get a sneak peek at the platform that's transforming how startups launch
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {/* Free Trial */}
-            <Card className="relative">
-              <CardHeader>
-                <CardTitle className="text-2xl">Free Trial</CardTitle>
-                <CardDescription>Test everything risk-free</CardDescription>
-                <div className="mt-4">
-                  <span className="text-4xl font-bold">$0</span>
-                  <span className="text-gray-500"> for 7 days</span>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <ul className="space-y-3">
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Access to 8 AI tools in the AI Suite</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Create unlimited logos and branding</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Generate branding strategy</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">No credit card required</span>
-                  </li>
-                </ul>
-                <Button variant="outline" className="w-full" onClick={() => setLocation('/signup2')}>
-                  Start Free Trial
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Early Bird Lifetime */}
-            <Card className="relative border-blue-500 shadow-xl bg-gradient-to-br from-blue-50 to-purple-50">
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                <Badge className="bg-blue-500">🔥 Early Bird Special</Badge>
+          <div className="space-y-16">
+            {/* Dashboard Preview */}
+            <div className="text-center">
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Founder Dashboard</h3>
+              <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+                Track your business metrics, manage goals, and monitor your startup's growth all in one place
+              </p>
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-8 shadow-2xl">
+                <img 
+                  src="/attached_assets/dashboard_1753786590213.png" 
+                  alt="Sage-Startups Dashboard Preview" 
+                  className="w-full h-auto rounded-lg shadow-lg border border-gray-200"
+                />
               </div>
-              {/* Limited Offer Counter - Top Right */}
-              <div className="absolute -top-2 -right-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2 shadow-sm">
-                <p className="text-red-800 font-semibold text-xs mb-1">Limited to 20</p>
-                <div className="flex items-center justify-center space-x-1">
-                  <span className="text-lg font-bold text-red-600">
-                    {counter ? counter.spotsRemaining : '...'}
-                  </span>
-                  <span className="text-red-600 text-xs">left</span>
-                </div>
+            </div>
+
+            {/* AI Suite Preview */}
+            <div className="text-center">
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">AI Suite - 60+ Specialized Tools</h3>
+              <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+                Access powerful AI tools for marketing, branding, advertising, and analytics - all designed for startups
+              </p>
+              <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-8 shadow-2xl">
+                <img 
+                  src="/attached_assets/Ai Suite_1753786590213.png" 
+                  alt="Sage-Startups AI Suite Preview" 
+                  className="w-full h-auto rounded-lg shadow-lg border border-gray-200"
+                />
               </div>
-              <CardHeader>
-                <CardTitle className="text-2xl">Lifetime Discount</CardTitle>
-                <CardDescription>Lifetime discount</CardDescription>
-                <div className="mt-4">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-2xl text-gray-400 line-through">$44/month</span>
-                    <span className="text-4xl font-bold text-blue-600">$22/month</span>
-                  </div>
-                  <span className="text-sm text-blue-600 font-medium">50% off for waitlist members</span>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <ul className="space-y-3">
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">All current & future AI tools</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Preview of the Business Suite</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">First access to full suites when they arrive</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Private founder community access</span>
-                  </li>
-                </ul>
-                <Button 
-                  className="w-full bg-blue-600 hover:bg-blue-700"
-                  onClick={() => setLocation('/signup2')}
-                  disabled={counter && counter.spotsRemaining <= 0}
-                >
-                  {counter && counter.spotsRemaining <= 0 ? "Offer Unavailable" : "Get Early Bird Access - $22/month"}
-                </Button>
-              </CardContent>
-            </Card>
+            </div>
 
+            {/* Business Suite Preview */}
+            <div className="text-center">
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Business Suite - Coming Soon</h3>
+              <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+                The complete startup operating system with advanced financial analytics, CRM integration, and more
+              </p>
+              <div className="bg-gradient-to-br from-green-50 to-blue-50 rounded-2xl p-8 shadow-2xl">
+                <img 
+                  src="/attached_assets/business suite_1753786590212.png" 
+                  alt="Sage-Startups Business Suite Preview" 
+                  className="w-full h-auto rounded-lg shadow-lg border border-gray-200"
+                />
+              </div>
+            </div>
+          </div>
 
+          {/* CTA Section */}
+          <div className="text-center mt-16">
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">Ready to Transform Your Startup?</h3>
+            <p className="text-lg text-gray-600 mb-8">
+              Join thousands of founders who are already building their businesses with Sage-Startups
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                size="lg" 
+                className="bg-blue-600 hover:bg-blue-700 px-8 py-3"
+                onClick={() => setLocation('/signup2')}
+              >
+                Start Your Free Trial
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="px-8 py-3"
+                onClick={() => setLocation('/signup2')}
+              >
+                Get Early Bird Access
+              </Button>
+            </div>
           </div>
         </div>
       </section>
