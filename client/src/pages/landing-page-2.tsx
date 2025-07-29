@@ -422,13 +422,9 @@ export default function LandingPage2() {
 
           {/* Waitlist CTA Section */}
           <div className="text-center mt-16">
-            <Badge className="mb-4 px-4 py-1 bg-red-100 text-red-800" variant="secondary">
-              <Clock className="w-3 h-3 mr-1 inline" />
-              Only {counter ? counter.spotsRemaining : '20'} Early Bird Spots Remaining
-            </Badge>
             <h3 className="text-2xl font-bold text-gray-900 mb-4">Join the Waitlist Today</h3>
             <p className="text-lg text-gray-600 mb-8">
-              Secure your lifetime 50% discount before these spots are gone forever
+              Get early access and secure your lifetime 50% discount
             </p>
             
             <form onSubmit={handleWaitlistSignup} className="max-w-lg mx-auto">
@@ -457,7 +453,7 @@ export default function LandingPage2() {
             </form>
             
             <p className="text-sm text-gray-500 mt-4">
-              🔥 Get early access + 50% lifetime discount • No credit card required
+              Get early access + 50% lifetime discount • No credit card required
             </p>
           </div>
         </div>
@@ -777,15 +773,11 @@ export default function LandingPage2() {
       {/* Second CTA Section */}
       <section className="py-20 px-4 bg-gradient-to-br from-blue-600 to-purple-700 text-white">
         <div className="max-w-4xl mx-auto text-center">
-          <Badge className="mb-4 px-4 py-1 bg-red-500 text-white" variant="secondary">
-            <Clock className="w-3 h-3 mr-1 inline" />
-            URGENT: Only {counter ? counter.spotsRemaining : '20'} Spots Left
-          </Badge>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Ready to Launch Your Startup?
           </h2>
           <p className="text-xl text-blue-100 mb-8">
-            Join the waitlist now and secure your 50% lifetime discount before these limited spots are gone.
+            Join the waitlist and secure your 50% lifetime discount
           </p>
 
           <form onSubmit={handleWaitlistSignup} className="max-w-lg mx-auto">
@@ -814,84 +806,7 @@ export default function LandingPage2() {
           </form>
 
           <p className="text-sm text-blue-100 mt-4">
-            💡 No spam, ever • Lifetime 50% discount guaranteed
-          </p>
-        </div>
-      </section>
-
-      {/* Info Bubbles Section */}
-      <section className="py-12 px-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-center space-x-8">
-            <div className="text-center">
-              <p className="text-3xl font-bold text-gray-900">50k+</p>
-              <p className="text-gray-600">AI Tasks Completed</p>
-            </div>
-            <div className="w-px h-12 bg-gray-300" />
-            <div className="text-center">
-              <p className="text-3xl font-bold text-gray-900">4.9/5</p>
-              <p className="text-gray-600">Average Rating</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Final CTA Section */}
-      <section className="py-20 px-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-        <div className="max-w-4xl mx-auto text-center">
-          <Badge className="mb-4 bg-white/20 text-white border-white/30">
-            Limited Time Offer
-          </Badge>
-          
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Join the AI Revolution Before It's Too Late
-          </h2>
-          
-          <p className="text-xl mb-8 text-blue-100">
-            Early access members get lifetime discounts and exclusive features. 
-            Only 20 spots left to gain the lifetime discount.
-          </p>
-
-          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 mb-8 max-w-2xl mx-auto">
-            <div className="grid md:grid-cols-2 gap-6 text-center">
-              <div>
-                <p className="text-3xl font-bold">{counter ? counter.spotsRemaining : '20'}</p>
-                <p className="text-sm text-blue-100">Early bird spots remaining</p>
-              </div>
-              <div>
-                <p className="text-3xl font-bold">50%</p>
-                <p className="text-sm text-blue-100">Lifetime discount</p>
-              </div>
-            </div>
-          </div>
-
-          <form onSubmit={handleWaitlistSignup} className="max-w-lg mx-auto">
-            <div className="flex flex-col sm:flex-row gap-2">
-              <Input
-                type="text"
-                placeholder="Your name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="flex-1 bg-white/20 border-white/30 text-white placeholder:text-white/70"
-                required
-              />
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="flex-1 bg-white/20 border-white/30 text-white placeholder:text-white/70"
-                required
-              />
-              <Button type="submit" size="lg" variant="secondary" disabled={isLoading || !name.trim() || !email}>
-                {isLoading ? "Joining..." : "Claim Your Spot"}
-                <ChevronRight className="ml-2 w-4 h-4" />
-              </Button>
-            </div>
-          </form>
-
-          <p className="text-sm text-blue-100 mt-4">
-            No spam, ever. Unsubscribe anytime.
+            No spam, ever • Lifetime 50% discount guaranteed
           </p>
         </div>
       </section>
