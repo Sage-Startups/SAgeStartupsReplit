@@ -120,11 +120,14 @@ export default function LandingPage2() {
                 className="w-full h-auto"
                 controls
                 poster="/api/placeholder/800/450"
-                preload="metadata"
+                preload="none"
               >
                 <source src={websiteVideo} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
+              <div className="absolute bottom-4 left-4 bg-black bg-opacity-75 text-white px-3 py-1 rounded text-sm">
+                Video file: 58MB - Click play to load
+              </div>
             </div>
           </div>
 
@@ -377,7 +380,7 @@ export default function LandingPage2() {
               <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
                 Track your business metrics, manage goals, and monitor your startup's growth all in one place
               </p>
-              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-8 shadow-2xl">
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-8 shadow-2xl max-w-3xl mx-auto">
                 <img 
                   src={dashboardPreview} 
                   alt="Sage-Startups Dashboard Preview" 
@@ -392,7 +395,7 @@ export default function LandingPage2() {
               <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
                 Access powerful AI tools for marketing, branding, advertising, and analytics - all designed for startups
               </p>
-              <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-8 shadow-2xl">
+              <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-8 shadow-2xl max-w-3xl mx-auto">
                 <img 
                   src={aiSuitePreview} 
                   alt="Sage-Startups AI Suite Preview" 
@@ -407,7 +410,7 @@ export default function LandingPage2() {
               <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
                 The complete startup operating system with advanced financial analytics, CRM integration, and more
               </p>
-              <div className="bg-gradient-to-br from-green-50 to-blue-50 rounded-2xl p-8 shadow-2xl">
+              <div className="bg-gradient-to-br from-green-50 to-blue-50 rounded-2xl p-8 shadow-2xl max-w-3xl mx-auto">
                 <img 
                   src={businessSuitePreview} 
                   alt="Sage-Startups Business Suite Preview" 

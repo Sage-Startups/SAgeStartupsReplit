@@ -117,11 +117,14 @@ export default function SoftLaunch() {
                 className="w-full h-auto"
                 controls
                 poster="/api/placeholder/800/450"
-                preload="metadata"
+                preload="none"
               >
                 <source src={websiteVideo} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
+              <div className="absolute bottom-4 left-4 bg-black bg-opacity-75 text-white px-3 py-1 rounded text-sm">
+                Video file: 58MB - Click play to load
+              </div>
             </div>
           </div>
 
