@@ -112,7 +112,9 @@ const editUserSchema = z.object({
   lastName: z.string().min(1, "Last name is required"),
   role: z.enum(["super_admin", "moderator", "client"]),
   subscriptionTier: z.enum(["free", "pro", "premium"]),
-  password: z.string().min(8, "Password must be at least 8 characters").optional()
+  password: z.string().refine((val) => val === "" || val.length >= 8, {
+    message: "Password must be at least 8 characters or leave empty to keep current password"
+  }).optional()
 });
 
 export default function SuperAdmin() {
