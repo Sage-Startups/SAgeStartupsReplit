@@ -420,30 +420,45 @@ export default function LandingPage2() {
             </div>
           </div>
 
-          {/* CTA Section */}
+          {/* Waitlist CTA Section */}
           <div className="text-center mt-16">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">Ready to Transform Your Startup?</h3>
+            <Badge className="mb-4 px-4 py-1 bg-red-100 text-red-800" variant="secondary">
+              <Clock className="w-3 h-3 mr-1 inline" />
+              Only {counter ? counter.spotsRemaining : '20'} Early Bird Spots Remaining
+            </Badge>
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">Join the Waitlist Today</h3>
             <p className="text-lg text-gray-600 mb-8">
-              Join thousands of founders who are already building their businesses with Sage-Startups
+              Secure your lifetime 50% discount before these spots are gone forever
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
-                size="lg" 
-                className="bg-blue-600 hover:bg-blue-700 px-8 py-3"
-                onClick={() => setLocation('/signup2')}
-              >
-                Start Your Free Trial
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="px-8 py-3"
-                onClick={() => setLocation('/signup2')}
-              >
-                Get Early Bird Access
-              </Button>
-            </div>
+            
+            <form onSubmit={handleWaitlistSignup} className="max-w-lg mx-auto">
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Input
+                  type="text"
+                  placeholder="Your name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="flex-1"
+                  required
+                />
+                <Input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="flex-1"
+                  required
+                />
+                <Button type="submit" size="lg" disabled={isLoading || !name.trim() || !email}>
+                  {isLoading ? "Joining..." : "Join Waitlist"}
+                  <ArrowRight className="ml-2 w-4 h-4" />
+                </Button>
+              </div>
+            </form>
+            
+            <p className="text-sm text-gray-500 mt-4">
+              🔥 Get early access + 50% lifetime discount • No credit card required
+            </p>
           </div>
         </div>
       </section>
@@ -762,11 +777,15 @@ export default function LandingPage2() {
       {/* Second CTA Section */}
       <section className="py-20 px-4 bg-gradient-to-br from-blue-600 to-purple-700 text-white">
         <div className="max-w-4xl mx-auto text-center">
+          <Badge className="mb-4 px-4 py-1 bg-red-500 text-white" variant="secondary">
+            <Clock className="w-3 h-3 mr-1 inline" />
+            URGENT: Only {counter ? counter.spotsRemaining : '20'} Spots Left
+          </Badge>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Ready to Launch Your Startup?
           </h2>
           <p className="text-xl text-blue-100 mb-8">
-            Join the founder community and get lifetime access for $22 per month. Limited time offer.
+            Join the waitlist now and secure your 50% lifetime discount before these limited spots are gone.
           </p>
 
           <form onSubmit={handleWaitlistSignup} className="max-w-lg mx-auto">
@@ -795,105 +814,23 @@ export default function LandingPage2() {
           </form>
 
           <p className="text-sm text-blue-100 mt-4">
-            💡 No spam, ever
+            💡 No spam, ever • Lifetime 50% discount guaranteed
           </p>
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section className="py-20 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Loved by Founders Worldwide
-            </h2>
-            <p className="text-xl text-gray-600">
-              Successful startups using Sage-Startups
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center space-x-1 mb-2">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                  ))}
-                </div>
-                <CardTitle className="text-lg">Game Changer for Startups</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 mb-4">
-                  "I launched my SaaS in half the time thanks to Sage-Startups. The AI marketing strategist alone saved me $10k in consulting fees."
-                </p>
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gray-200 rounded-full" />
-                  <div>
-                    <p className="font-semibold text-sm">Sarah Chen</p>
-                    <p className="text-xs text-gray-500">Founder, TechFlow</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <div className="flex items-center space-x-1 mb-2">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                  ))}
-                </div>
-                <CardTitle className="text-lg">Finally, AI That Delivers</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 mb-4">
-                  "The logo designer created 5 amazing concepts in minutes. What would have taken weeks with a designer was done in an afternoon."
-                </p>
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gray-200 rounded-full" />
-                  <div>
-                    <p className="font-semibold text-sm">Michael Rodriguez</p>
-                    <p className="text-xs text-gray-500">CEO, GrowthLab</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <div className="flex items-center space-x-1 mb-2">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                  ))}
-                </div>
-                <CardTitle className="text-lg">Must-Have for Founders</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 mb-4">
-                  "From brand voice to SEO strategy, everything is cohesive. It's like having a full marketing team at a fraction of the cost."
-                </p>
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gray-200 rounded-full" />
-                  <div>
-                    <p className="font-semibold text-sm">Emma Watson</p>
-                    <p className="text-xs text-gray-500">Founder, EcoStart</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="mt-12 text-center">
-            <div className="flex items-center justify-center space-x-8">
-              <div>
-                <p className="text-3xl font-bold text-gray-900">50k+</p>
-                <p className="text-gray-600">AI Tasks Completed</p>
-              </div>
-              <div className="w-px h-12 bg-gray-300" />
-              <div>
-                <p className="text-3xl font-bold text-gray-900">4.9/5</p>
-                <p className="text-gray-600">Average Rating</p>
-              </div>
+      {/* Info Bubbles Section */}
+      <section className="py-12 px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center justify-center space-x-8">
+            <div className="text-center">
+              <p className="text-3xl font-bold text-gray-900">50k+</p>
+              <p className="text-gray-600">AI Tasks Completed</p>
+            </div>
+            <div className="w-px h-12 bg-gray-300" />
+            <div className="text-center">
+              <p className="text-3xl font-bold text-gray-900">4.9/5</p>
+              <p className="text-gray-600">Average Rating</p>
             </div>
           </div>
         </div>
@@ -916,18 +853,14 @@ export default function LandingPage2() {
           </p>
 
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 mb-8 max-w-2xl mx-auto">
-            <div className="grid md:grid-cols-3 gap-4 text-center">
+            <div className="grid md:grid-cols-2 gap-6 text-center">
               <div>
-                <p className="text-3xl font-bold">72hrs</p>
-                <p className="text-sm text-blue-100">Until price increase</p>
-              </div>
-              <div>
-                <p className="text-3xl font-bold">20</p>
-                <p className="text-sm text-blue-100">Spots remaining</p>
+                <p className="text-3xl font-bold">{counter ? counter.spotsRemaining : '20'}</p>
+                <p className="text-sm text-blue-100">Early bird spots remaining</p>
               </div>
               <div>
                 <p className="text-3xl font-bold">50%</p>
-                <p className="text-sm text-blue-100">Early bird discount</p>
+                <p className="text-sm text-blue-100">Lifetime discount</p>
               </div>
             </div>
           </div>
