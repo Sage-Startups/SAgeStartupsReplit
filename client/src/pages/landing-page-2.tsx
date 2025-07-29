@@ -108,18 +108,14 @@ export default function LandingPage2() {
           {/* Video Section */}
           <div className="max-w-2xl mx-auto mb-12">
             <div className="relative bg-gray-900 rounded-2xl overflow-hidden shadow-2xl">
-              <video 
-                className="w-full h-auto"
-                controls
-                autoPlay
-                muted
-                loop
-                poster="/api/placeholder/800/450"
-                preload="metadata"
-              >
-                <source src="/website-video.mp4" type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
+              <iframe
+                className="w-full aspect-video"
+                src="https://www.youtube.com/embed/oATeTeFWZSI?autoplay=1&mute=1&loop=1&playlist=oATeTeFWZSI&controls=1&modestbranding=1&rel=0"
+                title="Sage-Startups Platform Demo"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
             </div>
           </div>
 
