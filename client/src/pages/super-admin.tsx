@@ -1062,6 +1062,7 @@ export default function SuperAdmin() {
                           <TableHead>Name</TableHead>
                           <TableHead>Email</TableHead>
                           <TableHead>Source</TableHead>
+                          <TableHead>Account Status</TableHead>
                           <TableHead>Referrer</TableHead>
                           <TableHead>Joined Date</TableHead>
                           <TableHead className="w-20">Actions</TableHead>
@@ -1086,6 +1087,24 @@ export default function SuperAdmin() {
                               <Badge variant={entry.source === 'landing-page-2' ? 'default' : 'outline'}>
                                 {entry.source}
                               </Badge>
+                            </TableCell>
+                            <TableCell>
+                              {(() => {
+                                const user = users?.find(u => u.email === entry.email);
+                                if (user) {
+                                  const isPaid = user.subscriptionTier === 'premium' || user.subscriptionTier === 'pro';
+                                  return (
+                                    <Badge variant={isPaid ? 'default' : 'secondary'} className={isPaid ? 'bg-green-600 hover:bg-green-700' : ''}>
+                                      {isPaid ? '💳 Paid' : '🆓 Free'}
+                                    </Badge>
+                                  );
+                                }
+                                return (
+                                  <Badge variant="outline" className="text-gray-500">
+                                    👤 Waitlist Only
+                                  </Badge>
+                                );
+                              })()}
                             </TableCell>
                             <TableCell>
                               {entry.referrer ? (
