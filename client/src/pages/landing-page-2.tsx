@@ -106,21 +106,25 @@ export default function LandingPage2() {
             Sage-Startups uses AI to generate business plans, branding and logos, marketing content, and automated market research—everything you need to launch successfully.
           </p>
 
-          {/* Video Section */}
+          {/* Demo Preview Section */}
           <div className="max-w-4xl mx-auto mb-12">
-            <div className="relative bg-gray-900 rounded-2xl overflow-hidden shadow-2xl">
-              <video 
-                className="w-full h-auto"
-                controls
-                autoPlay
-                muted
-                loop
-                poster="/api/placeholder/800/450"
-                preload="metadata"
-              >
-                <source src={websiteVideo} type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
+            <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl overflow-hidden shadow-2xl">
+              <div className="relative">
+                <img 
+                  src={dashboardPreview}
+                  alt="Sage-Startups Platform Demo - AI-powered business tools in action"
+                  className="w-full h-auto rounded-lg border border-gray-200"
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center rounded-lg">
+                  <div className="text-center text-white">
+                    <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
+                      <Rocket className="w-8 h-8" />
+                    </div>
+                    <h3 className="text-xl font-bold mb-2">See Sage-Startups in Action</h3>
+                    <p className="text-sm opacity-90">Live platform demo available after signup</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
