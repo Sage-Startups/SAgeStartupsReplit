@@ -105,23 +105,23 @@ export default function LandingPage2() {
             Sage-Startups uses AI to generate business plans, branding and logos, marketing content, and automated market research—everything you need to launch successfully.
           </p>
 
-          {/* Demo Preview Section */}
+          {/* Video Section */}
           <div className="max-w-2xl mx-auto mb-12">
-            <div className="relative bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl overflow-hidden shadow-2xl group cursor-pointer">
-              <img 
-                src={dashboardPreview}
-                alt="Sage-Startups Platform Demo - AI-powered business tools in action"
-                className="w-full h-auto opacity-90 group-hover:opacity-100 transition-opacity duration-300"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-20 h-20 bg-white/90 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 shadow-2xl">
-                    <div className="w-0 h-0 border-l-[25px] border-l-gray-900 border-y-[15px] border-y-transparent ml-2"></div>
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-2">See Sage-Startups in Action</h3>
-                  <p className="text-sm text-white/90">Click to explore the live demo</p>
-                </div>
-              </div>
+            <div className="relative bg-gray-900 rounded-2xl overflow-hidden shadow-2xl">
+              <video 
+                className="w-full h-auto"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="auto"
+                poster={dashboardPreview}
+              >
+                <source src="https://cdn.jsdelivr.net/gh/sage-startups/demo-assets@main/sage-demo.mp4" type="video/mp4" />
+                <source src="/website-video.mp4" type="video/mp4" />
+                {/* Fallback for browsers that don't support video */}
+                <img src={dashboardPreview} alt="Platform Demo Preview" className="w-full h-auto" />
+              </video>
             </div>
           </div>
 
