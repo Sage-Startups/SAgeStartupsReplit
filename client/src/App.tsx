@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import Landing from "@/pages/landing";
 import LandingPage2 from "@/pages/landing-page-2";
+import SoftLaunch from "@/pages/softlaunch";
 import SignIn from "@/pages/signin";
 import SignUp from "@/pages/signup";
 import SignUp2 from "@/pages/signup2";
@@ -35,6 +36,7 @@ function Router() {
     <Switch>
       {/* Landing pages available to everyone */}
       <Route path="/landing-1" component={Landing} />
+      <Route path="/softlaunch" component={SoftLaunch} />
       
       {isLoading || !isAuthenticated ? (
         <>
