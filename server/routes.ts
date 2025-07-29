@@ -17,14 +17,6 @@ import { v4 as uuidv4 } from "uuid";
 import Stripe from "stripe";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Serve video files with proper headers
-  app.use('/website-video.mp4', express.static(path.join(process.cwd(), 'client/public/website-video.mp4'), {
-    setHeaders: (res) => {
-      res.setHeader('Content-Type', 'video/mp4');
-      res.setHeader('Accept-Ranges', 'bytes');
-      res.setHeader('Cache-Control', 'public, max-age=31536000');
-    }
-  }));
   // Session configuration for custom auth
   const pgStore = connectPg(session);
   const sessionStore = new pgStore({
