@@ -1072,6 +1072,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete individual waitlist entry
+  app.delete("/api/admin/waitlist/:entryId", requireAuth, requireSuperAdmin, async (req: any, res) => {
+    try {
+      const { entryId } = req.params;
+      
+      await storage.deleteWaitlistEntry(parseInt(entryId));
+      
+      // Log the action
+      await storage.createAuditLog({
+        userId: req.session.userId,
+        action: 'delete',
+        resource: 'waitlist_entry',
+        resourceId: entryId,
+        details: { action: 'delete_waitlist_entry' },
+        ipAddress: req.ip
+      });
+      
+      res.json({ message: "Waitlist entry deleted successfully" });
+    } catch (error) {
+      console.error("Failed to delete waitlist entry:", error);
+      res.status(500).json({ error: "Failed to delete waitlist entry" });
+    }
+  });
+
   // Reset founder metrics endpoint
   app.post("/api/founder/metrics/reset", requireAuth, async (req: any, res) => {
     try {

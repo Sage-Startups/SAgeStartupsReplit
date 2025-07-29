@@ -63,6 +63,7 @@ export interface IStorage {
   addToWaitlist(data: InsertWaitlist): Promise<Waitlist>;
   getWaitlistByEmail(email: string): Promise<Waitlist | undefined>;
   getAllWaitlistEntries(): Promise<Waitlist[]>;
+  deleteWaitlistEntry(id: number): Promise<void>;
   
   // Early bird counter operations
   getEarlyBirdCounter(): Promise<EarlyBirdCounter | undefined>;
@@ -358,6 +359,10 @@ export class DatabaseStorage implements IStorage {
 
   async getAllWaitlistEntries(): Promise<Waitlist[]> {
     return await db.select().from(waitlist).orderBy(desc(waitlist.createdAt));
+  }
+
+  async deleteWaitlistEntry(id: number): Promise<void> {
+    await db.delete(waitlist).where(eq(waitlist.id, id));
   }
 
   // Early bird counter operations

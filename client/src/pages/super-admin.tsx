@@ -1064,6 +1064,7 @@ export default function SuperAdmin() {
                           <TableHead>Source</TableHead>
                           <TableHead>Referrer</TableHead>
                           <TableHead>Joined Date</TableHead>
+                          <TableHead className="w-20">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -1098,6 +1099,40 @@ export default function SuperAdmin() {
                                 <Calendar className="w-4 h-4 mr-1" />
                                 {new Date(entry.createdAt).toLocaleDateString()}
                               </div>
+                            </TableCell>
+                            <TableCell>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-red-600 hover:text-red-700">
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Delete Waitlist Entry?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      This will permanently remove {entry.name} ({entry.email}) from the waitlist. This action cannot be undone.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={async () => {
+                                        try {
+                                          await apiRequest("DELETE", `/api/admin/waitlist/${entry.id}`);
+                                          queryClient.invalidateQueries({ queryKey: ["/api/admin/waitlist"] });
+                                          toast({ title: "Waitlist entry deleted successfully" });
+                                        } catch (error: any) {
+                                          toast({ title: "Error", description: error.message, variant: "destructive" });
+                                        }
+                                      }}
+                                      className="bg-red-600 hover:bg-red-700"
+                                    >
+                                      Delete
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
                             </TableCell>
                           </TableRow>
                         ))}
