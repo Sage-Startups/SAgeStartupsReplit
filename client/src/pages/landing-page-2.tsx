@@ -114,11 +114,24 @@ export default function LandingPage2() {
                 autoPlay
                 muted
                 loop
+                playsInline
                 poster="/api/placeholder/800/450"
                 preload="metadata"
+                onError={(e) => {
+                  console.error('Video failed to load:', e);
+                  // Fallback to showing poster image
+                  const video = e.target as HTMLVideoElement;
+                  video.style.display = 'none';
+                  const fallback = document.createElement('img');
+                  fallback.src = dashboardPreview;
+                  fallback.className = 'w-full h-auto rounded-lg';
+                  fallback.alt = 'Platform Demo Preview';
+                  video.parentNode?.appendChild(fallback);
+                }}
               >
                 <source src="/website-video.mp4" type="video/mp4" />
-                Your browser does not support the video tag.
+                <source src="data:video/mp4;base64," type="video/mp4" />
+                <img src={dashboardPreview} alt="Platform Demo Preview" className="w-full h-auto rounded-lg" />
               </video>
             </div>
           </div>
