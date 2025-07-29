@@ -1,9 +1,50 @@
+import { useState } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Zap, Target, Users, Lightbulb } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
+import { ArrowLeft, Zap, Target, Users, Lightbulb, ArrowRight } from "lucide-react";
 
 export default function AboutPage() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handleWaitlistSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email }),
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Success!",
+          description: "You've been added to our waitlist. Check your email for confirmation.",
+        });
+        setName("");
+        setEmail("");
+      } else {
+        throw new Error("Failed to join waitlist");
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "There was a problem joining the waitlist. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -155,11 +196,35 @@ export default function AboutPage() {
           <p className="text-xl text-blue-100 mb-8">
             Be part of the next generation of successful entrepreneurs
           </p>
-          <Link href="/signup2">
-            <Button size="lg" variant="secondary">
-              Join the Waitlist
-            </Button>
-          </Link>
+          
+          <form onSubmit={handleWaitlistSignup} className="max-w-lg mx-auto">
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Input
+                type="text"
+                placeholder="Your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="flex-1 bg-white/20 border-white/30 text-white placeholder:text-white/70"
+                required
+              />
+              <Input
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="flex-1 bg-white/20 border-white/30 text-white placeholder:text-white/70"
+                required
+              />
+              <Button type="submit" size="lg" variant="secondary" disabled={isLoading || !name.trim() || !email}>
+                {isLoading ? "Joining..." : "Join Waitlist"}
+                <ArrowRight className="ml-2 w-4 h-4" />
+              </Button>
+            </div>
+          </form>
+          
+          <p className="text-sm text-blue-100 mt-4">
+            Get early access + 50% lifetime discount • No credit card required
+          </p>
         </div>
       </section>
 
