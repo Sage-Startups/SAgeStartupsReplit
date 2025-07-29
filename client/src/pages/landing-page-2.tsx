@@ -13,7 +13,6 @@ import { useQuery } from "@tanstack/react-query";
 import dashboardPreview from '@assets/dashboard_1753786590213.png';
 import aiSuitePreview from '@assets/Ai Suite_1753786590213.png';
 import businessSuitePreview from '@assets/business suite_1753786590212.png';
-import websiteVideo from '@assets/Website video_1753786257231.mp4';
 
 export default function LandingPage2() {
   const [name, setName] = useState("");
@@ -118,7 +117,7 @@ export default function LandingPage2() {
                 poster="/api/placeholder/800/450"
                 preload="metadata"
               >
-                <source src={websiteVideo} type="video/mp4" />
+                <source src="/website-video.mp4" type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
             </div>
