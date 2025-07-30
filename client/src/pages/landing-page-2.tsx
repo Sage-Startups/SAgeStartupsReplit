@@ -8,7 +8,7 @@ import { Link, useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
-import { useVideoAutoplay } from "@/hooks/useVideoAutoplay";
+
 
 // Import assets
 import dashboardPreview from '@assets/dashboard_1753786590213.png';
@@ -109,35 +109,16 @@ export default function LandingPage2() {
           {/* Enhanced Video Section */}
           <div className="max-w-2xl mx-auto mb-12">
             <div className="relative bg-gray-900 rounded-2xl overflow-hidden shadow-2xl">
-              <video 
-                ref={useVideoAutoplay()}
-                className="w-full h-auto"
-                muted
-                loop
-                playsInline
-                webkit-playsinline="true"
-                preload="auto"
-                poster={dashboardPreview}
-                x-webkit-airplay="allow"
-                controls={false}
-              >
-                {/* Multiple video source options */}
-                <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4" />
-                <source src="/website-video.mp4" type="video/mp4" />
-                {/* Fallback for browsers that don't support video */}
-                <img src={dashboardPreview} alt="Platform Demo Preview" className="w-full h-auto" />
-              </video>
-              
-              {/* Click overlay to trigger play on user interaction */}
-              <div 
-                className="absolute inset-0 bg-transparent cursor-pointer"
-                onClick={(e) => {
-                  const video = e.currentTarget.previousElementSibling as HTMLVideoElement;
-                  if (video && video.paused) {
-                    video.play().catch(console.log);
-                  }
-                }}
+              {/* YouTube Embed with Autoplay */}
+              <iframe
+                className="w-full aspect-video rounded-2xl"
+                src="https://www.youtube.com/embed/oATeTeFWZSI?autoplay=1&mute=1&loop=1&playlist=oATeTeFWZSI&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1&start=0"
+                allow="autoplay; encrypted-media"
+                allowFullScreen
+                style={{ border: 'none' }}
+                title="Sage-Startups Platform Demo"
               />
+
             </div>
           </div>
 
