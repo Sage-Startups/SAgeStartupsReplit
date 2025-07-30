@@ -1,4 +1,4 @@
-import { users, projects, botSessions, chatMessages, generatedAssets, userAnalytics, founderMetrics, auditLogs, subscriptionPlans, payments, content, media, waitlist, earlyBirdCounter, type User, type Project, type BotSession, type ChatMessage, type GeneratedAsset, type UserAnalytics, type FounderMetrics, type AuditLog, type SubscriptionPlan, type Payment, type Content, type Media, type UpsertUser, type InsertProject, type InsertBotSession, type InsertChatMessage, type InsertGeneratedAsset, type InsertUserAnalytics, type InsertFounderMetrics, type InsertWaitlist, type Waitlist, type EarlyBirdCounter } from "@shared/schema";
+import { users, projects, botSessions, chatMessages, generatedAssets, userAnalytics, founderMetrics, auditLogs, subscriptionPlans, payments, content, media, waitlist, earlyBirdCounter, siteVisits, pageViews, userActions, conversionEvents, type User, type Project, type BotSession, type ChatMessage, type GeneratedAsset, type UserAnalytics, type FounderMetrics, type AuditLog, type SubscriptionPlan, type Payment, type Content, type Media, type UpsertUser, type InsertProject, type InsertBotSession, type InsertChatMessage, type InsertGeneratedAsset, type InsertUserAnalytics, type InsertFounderMetrics, type InsertWaitlist, type Waitlist, type EarlyBirdCounter, type SiteVisit, type PageView, type UserAction, type ConversionEvent, type InsertSiteVisit, type InsertPageView, type InsertUserAction, type InsertConversionEvent } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
 
@@ -68,6 +68,29 @@ export interface IStorage {
   // Early bird counter operations
   getEarlyBirdCounter(): Promise<EarlyBirdCounter | undefined>;
   decrementEarlyBirdCounter(): Promise<EarlyBirdCounter>;
+  
+  // Site analytics operations
+  createSiteVisit(visit: InsertSiteVisit): Promise<SiteVisit>;
+  updateSiteVisit(id: number, updates: Partial<SiteVisit>): Promise<void>;
+  getSiteVisit(sessionId: string): Promise<SiteVisit | undefined>;
+  getAllSiteVisits(limit?: number, offset?: number): Promise<SiteVisit[]>;
+  
+  createPageView(pageView: InsertPageView): Promise<PageView>;
+  getPageViewsByVisit(visitId: number): Promise<PageView[]>;
+  getAllPageViews(limit?: number, offset?: number): Promise<PageView[]>;
+  
+  createUserAction(action: InsertUserAction): Promise<UserAction>;
+  getUserActionsByVisit(visitId: number): Promise<UserAction[]>;
+  getAllUserActions(limit?: number, offset?: number): Promise<UserAction[]>;
+  
+  createConversionEvent(event: InsertConversionEvent): Promise<ConversionEvent>;
+  getConversionEventsByVisit(visitId: number): Promise<ConversionEvent[]>;
+  getAllConversionEvents(limit?: number, offset?: number): Promise<ConversionEvent[]>;
+  
+  getAnalyticsSummary(dateFrom?: Date, dateTo?: Date): Promise<any>;
+  getTopPages(limit?: number): Promise<any[]>;
+  getTrafficSources(limit?: number): Promise<any[]>;
+  getUserBehaviorMetrics(): Promise<any>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -435,6 +458,187 @@ export class DatabaseStorage implements IStorage {
       .returning();
     
     return updatedCounter;
+  }
+
+  // Site analytics operations
+  async createSiteVisit(visit: InsertSiteVisit): Promise<SiteVisit> {
+    const [siteVisit] = await db.insert(siteVisits).values(visit).returning();
+    return siteVisit;
+  }
+
+  async updateSiteVisit(id: number, updates: Partial<SiteVisit>): Promise<void> {
+    await db.update(siteVisits).set(updates).where(eq(siteVisits.id, id));
+  }
+
+  async getSiteVisit(sessionId: string): Promise<SiteVisit | undefined> {
+    const [visit] = await db.select().from(siteVisits).where(eq(siteVisits.sessionId, sessionId));
+    return visit;
+  }
+
+  async getAllSiteVisits(limit: number = 100, offset: number = 0): Promise<SiteVisit[]> {
+    return await db.select().from(siteVisits)
+      .orderBy(desc(siteVisits.createdAt))
+      .limit(limit)
+      .offset(offset);
+  }
+
+  async createPageView(pageView: InsertPageView): Promise<PageView> {
+    const [page] = await db.insert(pageViews).values(pageView).returning();
+    return page;
+  }
+
+  async getPageViewsByVisit(visitId: number): Promise<PageView[]> {
+    return await db.select().from(pageViews)
+      .where(eq(pageViews.visitId, visitId))
+      .orderBy(desc(pageViews.createdAt));
+  }
+
+  async getAllPageViews(limit: number = 100, offset: number = 0): Promise<PageView[]> {
+    return await db.select().from(pageViews)
+      .orderBy(desc(pageViews.createdAt))
+      .limit(limit)
+      .offset(offset);
+  }
+
+  async createUserAction(action: InsertUserAction): Promise<UserAction> {
+    const [userAction] = await db.insert(userActions).values(action).returning();
+    return userAction;
+  }
+
+  async getUserActionsByVisit(visitId: number): Promise<UserAction[]> {
+    return await db.select().from(userActions)
+      .where(eq(userActions.visitId, visitId))
+      .orderBy(desc(userActions.createdAt));
+  }
+
+  async getAllUserActions(limit: number = 100, offset: number = 0): Promise<UserAction[]> {
+    return await db.select().from(userActions)
+      .orderBy(desc(userActions.createdAt))
+      .limit(limit)
+      .offset(offset);
+  }
+
+  async createConversionEvent(event: InsertConversionEvent): Promise<ConversionEvent> {
+    const [conversionEvent] = await db.insert(conversionEvents).values(event).returning();
+    return conversionEvent;
+  }
+
+  async getConversionEventsByVisit(visitId: number): Promise<ConversionEvent[]> {
+    return await db.select().from(conversionEvents)
+      .where(eq(conversionEvents.visitId, visitId))
+      .orderBy(desc(conversionEvents.createdAt));
+  }
+
+  async getAllConversionEvents(limit: number = 100, offset: number = 0): Promise<ConversionEvent[]> {
+    return await db.select().from(conversionEvents)
+      .orderBy(desc(conversionEvents.createdAt))
+      .limit(limit)
+      .offset(offset);
+  }
+
+  async getAnalyticsSummary(dateFrom?: Date, dateTo?: Date): Promise<any> {
+    // Get basic metrics from the last 30 days if no dates provided
+    const endDate = dateTo || new Date();
+    const startDate = dateFrom || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
+    const visits = await db.select().from(siteVisits);
+    const pageViewsData = await db.select().from(pageViews);
+    const actionsData = await db.select().from(userActions);
+    const conversionsData = await db.select().from(conversionEvents);
+
+    // Filter by date range
+    const filteredVisits = visits.filter(v => {
+      const visitDate = new Date(v.createdAt);
+      return visitDate >= startDate && visitDate <= endDate;
+    });
+
+    const totalVisits = filteredVisits.length;
+    const uniqueVisitors = new Set(filteredVisits.filter(v => v.userId).map(v => v.userId)).size + 
+                          filteredVisits.filter(v => !v.userId).length; // Anonymous visitors count as unique
+    const totalPageViews = pageViewsData.filter(p => {
+      const pageDate = new Date(p.createdAt);
+      return pageDate >= startDate && pageDate <= endDate;
+    }).length;
+    
+    const totalActions = actionsData.filter(a => {
+      const actionDate = new Date(a.createdAt);
+      return actionDate >= startDate && actionDate <= endDate;
+    }).length;
+
+    const totalConversions = conversionsData.filter(c => {
+      const conversionDate = new Date(c.createdAt);
+      return conversionDate >= startDate && conversionDate <= endDate;
+    }).length;
+
+    const avgSessionDuration = filteredVisits.reduce((sum, visit) => {
+      return sum + (visit.duration || 0);
+    }, 0) / (filteredVisits.length || 1);
+
+    const bounceRate = filteredVisits.filter(v => v.pageViews === 1).length / (filteredVisits.length || 1) * 100;
+
+    return {
+      totalVisits,
+      uniqueVisitors,
+      totalPageViews,
+      totalActions,
+      totalConversions,
+      avgSessionDuration: Math.round(avgSessionDuration),
+      bounceRate: Math.round(bounceRate * 100) / 100,
+      conversionRate: totalVisits > 0 ? Math.round((totalConversions / totalVisits) * 10000) / 100 : 0,
+      pagesPerSession: totalVisits > 0 ? Math.round((totalPageViews / totalVisits) * 100) / 100 : 0,
+    };
+  }
+
+  async getTopPages(limit: number = 10): Promise<any[]> {
+    const pageViewsData = await db.select().from(pageViews);
+    const pageCount = pageViewsData.reduce((acc, pv) => {
+      acc[pv.path] = (acc[pv.path] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return Object.entries(pageCount)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, limit)
+      .map(([path, views]) => ({ path, views }));
+  }
+
+  async getTrafficSources(limit: number = 10): Promise<any[]> {
+    const visitsData = await db.select().from(siteVisits);
+    const sourceCount = visitsData.reduce((acc, visit) => {
+      const source = visit.utmSource || visit.referrer || 'Direct';
+      acc[source] = (acc[source] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return Object.entries(sourceCount)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, limit)
+      .map(([source, visits]) => ({ source, visits }));
+  }
+
+  async getUserBehaviorMetrics(): Promise<any> {
+    const actionsData = await db.select().from(userActions);
+    const pageViewsData = await db.select().from(pageViews);
+    
+    const actionCount = actionsData.reduce((acc, action) => {
+      acc[action.action] = (acc[action.action] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const topActions = Object.entries(actionCount)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, 10)
+      .map(([action, count]) => ({ action, count }));
+
+    const avgTimeOnPage = pageViewsData.reduce((sum, page) => {
+      return sum + (page.timeOnPage || 0);
+    }, 0) / (pageViewsData.length || 1);
+
+    return {
+      topActions,
+      avgTimeOnPage: Math.round(avgTimeOnPage),
+      totalActions: actionsData.length,
+    };
   }
 }
 

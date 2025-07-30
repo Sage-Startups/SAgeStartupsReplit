@@ -320,6 +320,116 @@ export const insertFounderMetricsSchema = createInsertSchema(founderMetrics).pic
   goals: true,
 });
 
+// Site Analytics Tables
+export const siteVisits = pgTable("site_visits", {
+  id: serial("id").primaryKey(),
+  sessionId: varchar("session_id").notNull(), // Unique session identifier
+  userId: varchar("user_id").references(() => users.id), // Null for anonymous visitors
+  ipAddress: varchar("ip_address").notNull(),
+  userAgent: varchar("user_agent"),
+  referrer: varchar("referrer"),
+  utmSource: varchar("utm_source"),
+  utmMedium: varchar("utm_medium"),
+  utmCampaign: varchar("utm_campaign"),
+  country: varchar("country"),
+  city: varchar("city"),
+  browser: varchar("browser"),
+  os: varchar("os"),
+  device: varchar("device"), // 'desktop', 'mobile', 'tablet'
+  visitStart: timestamp("visit_start").defaultNow().notNull(),
+  visitEnd: timestamp("visit_end"),
+  duration: integer("duration"), // in seconds
+  pageViews: integer("page_views").default(1),
+  isAuthenticated: boolean("is_authenticated").default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const pageViews = pgTable("page_views", {
+  id: serial("id").primaryKey(),
+  visitId: integer("visit_id").notNull().references(() => siteVisits.id),
+  sessionId: varchar("session_id").notNull(),
+  userId: varchar("user_id").references(() => users.id),
+  path: varchar("path").notNull(),
+  title: varchar("title"),
+  timeOnPage: integer("time_on_page"), // in seconds
+  exitPage: boolean("exit_page").default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const userActions = pgTable("user_actions", {
+  id: serial("id").primaryKey(),
+  visitId: integer("visit_id").notNull().references(() => siteVisits.id),
+  sessionId: varchar("session_id").notNull(),
+  userId: varchar("user_id").references(() => users.id),
+  action: varchar("action").notNull(), // 'click', 'form_submit', 'scroll', 'hover', 'download', etc.
+  element: varchar("element"), // button ID, form name, etc.
+  elementText: varchar("element_text"),
+  page: varchar("page").notNull(),
+  metadata: jsonb("metadata"), // Additional action data
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const conversionEvents = pgTable("conversion_events", {
+  id: serial("id").primaryKey(),
+  visitId: integer("visit_id").notNull().references(() => siteVisits.id),
+  sessionId: varchar("session_id").notNull(),
+  userId: varchar("user_id").references(() => users.id),
+  eventType: varchar("event_type").notNull(), // 'signup', 'subscription', 'trial_start', 'waitlist_join'
+  eventValue: real("event_value"), // Revenue value for the conversion
+  funnel: varchar("funnel"), // Which funnel this conversion belongs to
+  source: varchar("source"), // Where the conversion came from
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Insert schemas for analytics tables
+export const insertSiteVisitSchema = createInsertSchema(siteVisits).pick({
+  sessionId: true,
+  userId: true,
+  ipAddress: true,
+  userAgent: true,
+  referrer: true,
+  utmSource: true,
+  utmMedium: true,
+  utmCampaign: true,
+  country: true,
+  city: true,
+  browser: true,
+  os: true,
+  device: true,
+  isAuthenticated: true,
+});
+
+export const insertPageViewSchema = createInsertSchema(pageViews).pick({
+  visitId: true,
+  sessionId: true,
+  userId: true,
+  path: true,
+  title: true,
+  timeOnPage: true,
+  exitPage: true,
+});
+
+export const insertUserActionSchema = createInsertSchema(userActions).pick({
+  visitId: true,
+  sessionId: true,
+  userId: true,
+  action: true,
+  element: true,
+  elementText: true,
+  page: true,
+  metadata: true,
+});
+
+export const insertConversionEventSchema = createInsertSchema(conversionEvents).pick({
+  visitId: true,
+  sessionId: true,
+  userId: true,
+  eventType: true,
+  eventValue: true,
+  funnel: true,
+  source: true,
+});
+
 export type InsertFounderMetrics = z.infer<typeof insertFounderMetricsSchema>;
 export type FounderMetrics = typeof founderMetrics.$inferSelect;
 export type AuditLog = typeof auditLogs.$inferSelect;
@@ -327,3 +437,13 @@ export type SubscriptionPlan = typeof subscriptionPlans.$inferSelect;
 export type Payment = typeof payments.$inferSelect;
 export type Content = typeof content.$inferSelect;
 export type Media = typeof media.$inferSelect;
+
+// Analytics types
+export type InsertSiteVisit = z.infer<typeof insertSiteVisitSchema>;
+export type SiteVisit = typeof siteVisits.$inferSelect;
+export type InsertPageView = z.infer<typeof insertPageViewSchema>;
+export type PageView = typeof pageViews.$inferSelect;
+export type InsertUserAction = z.infer<typeof insertUserActionSchema>;
+export type UserAction = typeof userActions.$inferSelect;
+export type InsertConversionEvent = z.infer<typeof insertConversionEventSchema>;
+export type ConversionEvent = typeof conversionEvents.$inferSelect;

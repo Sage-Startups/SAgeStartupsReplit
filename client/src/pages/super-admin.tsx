@@ -18,6 +18,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { MainNavigation } from "@/components/main-navigation";
 import { 
@@ -120,6 +121,7 @@ const editUserSchema = z.object({
 export default function SuperAdmin() {
   const { user, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
+  const [location, setLocation] = useLocation();
   const queryClient = useQueryClient();
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
   const [isEditingUser, setIsEditingUser] = useState(false);
@@ -331,6 +333,14 @@ export default function SuperAdmin() {
             </p>
           </div>
           <div className="flex space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setLocation("/analytics")}
+            >
+              <BarChart3 className="w-4 h-4 mr-2" />
+              View Analytics
+            </Button>
             <Button
               variant="outline"
               size="sm"

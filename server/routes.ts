@@ -10,6 +10,7 @@ import { bots } from "../client/src/lib/bot-definitions";
 import authRoutes from "./authRoutes";
 import { AuthService } from "./auth";
 import { registerStripeRoutes } from "./routes/stripe";
+import { analyticsMiddleware, actionTrackingMiddleware, conversionTrackingMiddleware } from "./middleware/analytics";
 
 import session from "express-session";
 import connectPg from "connect-pg-simple";
@@ -66,6 +67,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
     },
   }));
+
+  // Analytics middleware (before all routes to track visits)
+  app.use(analyticsMiddleware);
+  app.use(actionTrackingMiddleware);
 
   // Custom authentication routes
   app.use('/api/auth', authRoutes);
@@ -1160,6 +1165,147 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Failed to reset metrics:", error);
       res.status(500).json({ error: "Failed to reset metrics" });
+    }
+  });
+
+  // Analytics API Routes
+  app.get("/api/admin/analytics/summary", requireAuth, requireSuperAdmin, async (req: any, res) => {
+    try {
+      const { dateFrom, dateTo } = req.query;
+      const summary = await storage.getAnalyticsSummary(
+        dateFrom ? new Date(dateFrom) : undefined,
+        dateTo ? new Date(dateTo) : undefined
+      );
+      res.json(summary);
+    } catch (error) {
+      console.error("Failed to get analytics summary:", error);
+      res.status(500).json({ error: "Failed to get analytics summary" });
+    }
+  });
+
+  app.get("/api/admin/analytics/visits", requireAuth, requireSuperAdmin, async (req: any, res) => {
+    try {
+      const { limit = 100, offset = 0 } = req.query;
+      const visits = await storage.getAllSiteVisits(parseInt(limit), parseInt(offset));
+      res.json(visits);
+    } catch (error) {
+      console.error("Failed to get site visits:", error);
+      res.status(500).json({ error: "Failed to get site visits" });
+    }
+  });
+
+  app.get("/api/admin/analytics/pages", requireAuth, requireSuperAdmin, async (req: any, res) => {
+    try {
+      const { limit = 10 } = req.query;
+      const topPages = await storage.getTopPages(parseInt(limit));
+      res.json(topPages);
+    } catch (error) {
+      console.error("Failed to get top pages:", error);
+      res.status(500).json({ error: "Failed to get top pages" });
+    }
+  });
+
+  app.get("/api/admin/analytics/sources", requireAuth, requireSuperAdmin, async (req: any, res) => {
+    try {
+      const { limit = 10 } = req.query;
+      const sources = await storage.getTrafficSources(parseInt(limit));
+      res.json(sources);
+    } catch (error) {
+      console.error("Failed to get traffic sources:", error);
+      res.status(500).json({ error: "Failed to get traffic sources" });
+    }
+  });
+
+  app.get("/api/admin/analytics/actions", requireAuth, requireSuperAdmin, async (req: any, res) => {
+    try {
+      const { limit = 100, offset = 0 } = req.query;
+      const actions = await storage.getAllUserActions(parseInt(limit), parseInt(offset));
+      res.json(actions);
+    } catch (error) {
+      console.error("Failed to get user actions:", error);
+      res.status(500).json({ error: "Failed to get user actions" });
+    }
+  });
+
+  app.get("/api/admin/analytics/conversions", requireAuth, requireSuperAdmin, async (req: any, res) => {
+    try {
+      const { limit = 100, offset = 0 } = req.query;
+      const conversions = await storage.getAllConversionEvents(parseInt(limit), parseInt(offset));
+      res.json(conversions);
+    } catch (error) {
+      console.error("Failed to get conversions:", error);
+      res.status(500).json({ error: "Failed to get conversions" });
+    }
+  });
+
+  app.get("/api/admin/analytics/behavior", requireAuth, requireSuperAdmin, async (req: any, res) => {
+    try {
+      const behavior = await storage.getUserBehaviorMetrics();
+      res.json(behavior);
+    } catch (error) {
+      console.error("Failed to get user behavior:", error);
+      res.status(500).json({ error: "Failed to get user behavior" });
+    }
+  });
+
+  // Track page view updates (for single-page apps)
+  app.post("/api/analytics/pageview", async (req: any, res) => {
+    try {
+      const { title, timeOnPage, exitPage } = req.body;
+      const sessionId = req.analyticsSessionId;
+      
+      if (sessionId && title) {
+        // Update the latest page view with title and time spent
+        const pageViews = await storage.getAllPageViews(1, 0);
+        if (pageViews.length > 0 && pageViews[0].sessionId === sessionId) {
+          // This is a simplified update - in production you'd want more specific matching
+          // For now, we'll track this as user action instead
+          if (req.analyticsVisitId) {
+            await storage.createUserAction({
+              visitId: req.analyticsVisitId,
+              sessionId,
+              userId: req.user?.claims?.sub || null,
+              action: 'page_view_update',
+              element: 'title_update',
+              elementText: title,
+              page: req.headers.referer || req.path,
+              metadata: { timeOnPage, exitPage },
+            });
+          }
+        }
+      }
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to track page view:", error);
+      res.status(500).json({ error: "Failed to track page view" });
+    }
+  });
+
+  // Track custom events
+  app.post("/api/analytics/event", async (req: any, res) => {
+    try {
+      const { action, element, elementText, metadata } = req.body;
+      const sessionId = req.analyticsSessionId;
+      const visitId = req.analyticsVisitId;
+      
+      if (sessionId && visitId && action) {
+        await storage.createUserAction({
+          visitId,
+          sessionId,
+          userId: req.user?.claims?.sub || null,
+          action,
+          element,
+          elementText,
+          page: req.headers.referer || req.path,
+          metadata,
+        });
+      }
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to track event:", error);
+      res.status(500).json({ error: "Failed to track event" });
     }
   });
 
