@@ -15,8 +15,37 @@ import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { v4 as uuidv4 } from "uuid";
 import Stripe from "stripe";
+import fs from "fs";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Enhanced video serving with proper headers and range support
+  app.get('/website-video*.mp4', (req, res) => {
+    const videoPath = path.join(process.cwd(), 'client/public', req.path);
+    const stat = fs.statSync(videoPath);
+    const fileSize = stat.size;
+    const range = req.headers.range;
+
+    res.setHeader('Content-Type', 'video/mp4');
+    res.setHeader('Accept-Ranges', 'bytes');
+    res.setHeader('Cache-Control', 'public, max-age=31536000');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    if (range) {
+      const parts = range.replace(/bytes=/, "").split("-");
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+      const chunksize = (end - start) + 1;
+      const file = fs.createReadStream(videoPath, { start, end });
+      
+      res.status(206);
+      res.setHeader('Content-Range', `bytes ${start}-${end}/${fileSize}`);
+      res.setHeader('Content-Length', chunksize);
+      file.pipe(res);
+    } else {
+      res.setHeader('Content-Length', fileSize);
+      fs.createReadStream(videoPath).pipe(res);
+    }
+  });
   // Session configuration for custom auth
   const pgStore = connectPg(session);
   const sessionStore = new pgStore({
