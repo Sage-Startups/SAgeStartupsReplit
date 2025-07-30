@@ -615,6 +615,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (prompt.length > 1000) {
         return res.status(400).json({ message: 'Prompt is too long (max 1000 characters)' });
       }
+
+      // Sanitize prompt to prevent injection attacks
+      const sanitizedPrompt = prompt
+        .replace(/[<>{}]/g, '') // Remove potentially harmful characters
+        .replace(/\b(ignore|forget|system|admin|root|execute|script|javascript|eval|function)\b/gi, '') // Remove instruction keywords
+        .trim()
+        .slice(0, 500); // Further limit to 500 chars for safety
+      
+      if (sanitizedPrompt.length === 0) {
+        return res.status(400).json({ message: 'Invalid prompt content after sanitization' });
+      }
       
       // Import OpenAI
       const OpenAI = await import("openai");
@@ -623,7 +634,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Generate logo using DALL-E 3
       const response = await openai.images.generate({
         model: "dall-e-3",
-        prompt: `Create a professional logo design: ${prompt}. Style should be clean, modern, and suitable for business use. The logo should work well on both light and dark backgrounds.`,
+        prompt: `Create a professional logo design: ${sanitizedPrompt}. Style should be clean, modern, and suitable for business use. The logo should work well on both light and dark backgrounds.`,
         n: 1,
         size: "1024x1024",
         quality: "standard",
