@@ -1168,10 +1168,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Analytics API Routes
-  app.get("/api/admin/analytics/summary", requireAuth, requireSuperAdmin, async (req: any, res) => {
+  // Analytics API Routes with refreshKey parameter support
+  app.get("/api/admin/analytics/summary/:dateFrom/:dateTo/:refreshKey", requireAuth, requireSuperAdmin, async (req: any, res) => {
     try {
-      const { dateFrom, dateTo } = req.query;
+      const { dateFrom, dateTo, refreshKey } = req.params;
       const summary = await storage.getAnalyticsSummary(
         dateFrom ? new Date(dateFrom) : undefined,
         dateTo ? new Date(dateTo) : undefined
@@ -1183,8 +1183,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/admin/analytics/visits", requireAuth, requireSuperAdmin, async (req: any, res) => {
+  app.get("/api/admin/analytics/visits/:refreshKey", requireAuth, requireSuperAdmin, async (req: any, res) => {
     try {
+      const { refreshKey } = req.params;
       const { limit = 100, offset = 0 } = req.query;
       const visits = await storage.getAllSiteVisits(parseInt(limit), parseInt(offset));
       res.json(visits);
@@ -1194,8 +1195,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/admin/analytics/pages", requireAuth, requireSuperAdmin, async (req: any, res) => {
+  app.get("/api/admin/analytics/pages/:refreshKey", requireAuth, requireSuperAdmin, async (req: any, res) => {
     try {
+      const { refreshKey } = req.params;
       const { limit = 10 } = req.query;
       const topPages = await storage.getTopPages(parseInt(limit));
       res.json(topPages);
@@ -1205,8 +1207,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/admin/analytics/sources", requireAuth, requireSuperAdmin, async (req: any, res) => {
+  app.get("/api/admin/analytics/sources/:refreshKey", requireAuth, requireSuperAdmin, async (req: any, res) => {
     try {
+      const { refreshKey } = req.params;
       const { limit = 10 } = req.query;
       const sources = await storage.getTrafficSources(parseInt(limit));
       res.json(sources);
@@ -1216,8 +1219,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/admin/analytics/actions", requireAuth, requireSuperAdmin, async (req: any, res) => {
+  app.get("/api/admin/analytics/actions/:refreshKey", requireAuth, requireSuperAdmin, async (req: any, res) => {
     try {
+      const { refreshKey } = req.params;
       const { limit = 100, offset = 0 } = req.query;
       const actions = await storage.getAllUserActions(parseInt(limit), parseInt(offset));
       res.json(actions);
@@ -1227,8 +1231,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/admin/analytics/conversions", requireAuth, requireSuperAdmin, async (req: any, res) => {
+  app.get("/api/admin/analytics/conversions/:refreshKey", requireAuth, requireSuperAdmin, async (req: any, res) => {
     try {
+      const { refreshKey } = req.params;
       const { limit = 100, offset = 0 } = req.query;
       const conversions = await storage.getAllConversionEvents(parseInt(limit), parseInt(offset));
       res.json(conversions);
@@ -1238,13 +1243,123 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/admin/analytics/behavior", requireAuth, requireSuperAdmin, async (req: any, res) => {
+  app.get("/api/admin/analytics/behavior/:refreshKey", requireAuth, requireSuperAdmin, async (req: any, res) => {
     try {
+      const { refreshKey } = req.params;
       const behavior = await storage.getUserBehaviorMetrics();
       res.json(behavior);
     } catch (error) {
       console.error("Failed to get user behavior:", error);
       res.status(500).json({ error: "Failed to get user behavior" });
+    }
+  });
+
+  // Test endpoint to seed analytics data
+  app.post("/api/admin/analytics/seed", requireAuth, requireSuperAdmin, async (req: any, res) => {
+    try {
+      console.log('Seeding analytics data...');
+      
+      // Create some sample site visits
+      const visits = [
+        {
+          sessionId: 'session-demo-1',
+          userId: null,
+          ipAddress: '192.168.1.100',
+          userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          referrer: 'https://google.com',
+          utmSource: 'google',
+          utmMedium: 'cpc',
+          utmCampaign: 'startup-tools',
+          browser: 'Chrome',
+          os: 'Windows',
+          device: 'desktop',
+          pageViews: 5,
+          duration: 450000, // 7.5 minutes
+          isAuthenticated: false,
+        },
+        {
+          sessionId: 'session-demo-2',
+          userId: null,
+          ipAddress: '10.0.0.50',
+          userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X)',
+          referrer: null,
+          utmSource: null,
+          utmMedium: null,
+          utmCampaign: null,
+          browser: 'Safari',
+          os: 'iOS',
+          device: 'mobile',
+          pageViews: 3,
+          duration: 180000, // 3 minutes
+          isAuthenticated: false,
+        },
+        {
+          sessionId: 'session-demo-3',
+          userId: 'b9d16e5f-5694-4c00-b1a0-8098105af403',
+          ipAddress: '172.16.0.25',
+          userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
+          referrer: 'https://twitter.com',
+          utmSource: 'twitter',
+          utmMedium: 'social',
+          utmCampaign: 'product-launch',
+          browser: 'Firefox',
+          os: 'macOS',
+          device: 'desktop',
+          pageViews: 8,
+          duration: 720000, // 12 minutes
+          isAuthenticated: true,
+        }
+      ];
+
+      for (const visitData of visits) {
+        const visit = await storage.createSiteVisit(visitData);
+        
+        // Create page views for each visit
+        const pages = ['/', '/dashboard', '/ai-suite', '/business-suite', '/analytics'];
+        for (let i = 0; i < visitData.pageViews; i++) {
+          const page = pages[i % pages.length];
+          await storage.createPageView({
+            visitId: visit.id,
+            sessionId: visit.sessionId,
+            userId: visit.userId,
+            path: page,
+            title: `Page ${page}`,
+            timeOnPage: Math.floor(Math.random() * 60000) + 30000, // 30s - 90s
+          });
+        }
+
+        // Create user actions
+        const actions = ['click', 'scroll', 'form_submit', 'button_click'];
+        for (let i = 0; i < Math.floor(Math.random() * 5) + 2; i++) {
+          await storage.createUserAction({
+            visitId: visit.id,
+            sessionId: visit.sessionId,
+            userId: visit.userId,
+            action: actions[Math.floor(Math.random() * actions.length)],
+            element: `button-${i}`,
+            elementText: `Action ${i}`,
+            page: pages[Math.floor(Math.random() * pages.length)],
+            metadata: { timestamp: new Date().toISOString() },
+          });
+        }
+
+        // Create conversion events
+        if (Math.random() > 0.5) {
+          await storage.createConversionEvent({
+            visitId: visit.id,
+            sessionId: visit.sessionId,
+            userId: visit.userId,
+            eventType: 'signup',
+            eventValue: 0,
+            source: visit.referrer || 'direct',
+          });
+        }
+      }
+
+      res.json({ message: 'Analytics data seeded successfully!', visitsCreated: visits.length });
+    } catch (error) {
+      console.error("Failed to seed analytics data:", error);
+      res.status(500).json({ error: "Failed to seed analytics data" });
     }
   });
 

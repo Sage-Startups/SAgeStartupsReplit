@@ -246,8 +246,30 @@ export default function Analytics() {
               )}
             </Button>
           </div>
-          <div className="text-xs text-gray-500">
-            Refreshing every 10 seconds
+          <div className="flex items-center space-x-4">
+            <div className="text-xs text-gray-500">
+              Refreshing every 10 seconds
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={async () => {
+                try {
+                  const response = await fetch("/api/admin/analytics/seed", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" }
+                  });
+                  if (response.ok) {
+                    setRefreshKey(prev => prev + 1);
+                    setLastUpdate(new Date());
+                  }
+                } catch (error) {
+                  console.error("Failed to seed data:", error);
+                }
+              }}
+            >
+              Add Test Data
+            </Button>
           </div>
         </div>
 
