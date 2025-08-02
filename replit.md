@@ -2,102 +2,11 @@
 
 ## Overview
 
-Sage-Startups is a subscription-based full-stack web application that provides AI-powered branding automation for startups. The platform features a comprehensive CRM-style founder dashboard with real-time business analytics, multi-suite navigation system, interactive goal tracking, and a professional live analytics dashboard. Users authenticate via Replit Auth and access features based on their subscription tier across three main suites: Home (founder dashboard), AI Suite (60+ bots), and Business Suite (startup tools). The platform includes a complete real-time analytics system for monitoring user behavior, site traffic, and conversions.
+Sage-Startups is a subscription-based full-stack web application offering AI-powered branding automation for startups. It features a CRM-style founder dashboard with real-time analytics, multi-suite navigation, interactive goal tracking, and a professional live analytics dashboard. Users authenticate via Replit Auth, accessing features based on subscription tiers across three main suites: Home (founder dashboard), AI Suite (60+ bots), and Business Suite (startup tools). The platform includes a comprehensive real-time analytics system for monitoring user behavior, site traffic, and conversions.
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
-
-## Recent Changes (January 2025)
-
-- ✅ Converted platform to subscription-based model with Replit authentication
-- ✅ Added three subscription tiers: Free (8 bots), Pro ($24/month, 30 bots), Premium ($44/month, all 60+ bots)
-- ✅ Created new sales-focused landing page with pricing tiers and feature comparisons
-- ✅ Built comprehensive user dashboard with subscription management and analytics
-- ✅ Implemented user authentication using Replit Auth (OpenID Connect)
-- ✅ Added PostgreSQL database with user management, analytics, and session storage
-- ✅ Updated all API routes to require authentication and enforce subscription limits
-- ✅ Fixed database connection issues with Neon serverless configuration
-- ✅ Resolved React warnings by properly mapping icon strings to Lucide React components
-- ✅ Fixed AI message validation errors by adding required role field
-- ✅ Added subscription tier and usage tracking to dashboard
-- ✅ Replaced conversational bot interface with dropdown-based option selection
-- ✅ Created structured input forms for better user experience
-- ✅ Transformed into CRM-style founder dashboard with real-time editable analytics
-- ✅ Implemented multi-suite navigation: Home (founder dashboard), AI Suite, Business Suite
-- ✅ Added interactive goal tracking with completion status and dates
-- ✅ Created comprehensive business suite with categorized startup tools
-- ✅ Enhanced navigation with user account management and personalized experience
-- ✅ Added "Reset All Metrics" button to founder dashboard with confirmation dialog
-- ✅ Removed subscription submenu from AI-suite page (Tools tab)
-- ✅ Changed "My Bots" naming to "Tools" throughout the interface
-- ✅ Implemented collapsible sections in AI-suite - users must click on sections like "Branding" to expand and see the tools
-- ✅ Deleted Community section completely from bot definitions
-- ✅ Moved all Blog bots into Marketing section (now 20+ tools in Marketing)
-- ✅ Reorganized tool sections: Marketing (20+), Branding (10), Advertising (10), Analytics (10)
-- ✅ Updated free subscription to provide 8 bots (2 from each of the 4 sections) instead of 6 bots
-- ✅ Completed comprehensive platform rebrand from "BrandAI Pro" to "Sage-Startups"
-- ✅ Fixed individual session delete functionality with proper error handling and logging
-- ✅ Made recent activities clickable to navigate directly to bot sessions
-- ✅ Updated HTML title and meta description for better SEO
-- ✅ Removed email verification requirement for smoother user onboarding - users get immediate access after signup
-- ✅ Updated welcome emails to congratulate users with direct sign-in links instead of verification requirements
-- ✅ Added comprehensive password management for super admin including reset and edit capabilities
-- ✅ Configured SendGrid integration with contact@sage-startups.com for welcome email delivery
-- ✅ Fixed post-signup redirect flow to automatically sign in users and redirect to dashboard
-- ✅ Updated all authenticated pages to use consistent MainNavigation component instead of mixed navigation
-- ✅ **Major Architecture Change**: Replaced generic bot interfaces with specialized, individually programmed master bots
-- ✅ Created MarketingStrategyBot: Comprehensive marketing analysis with visual charts, ROI projections, and channel strategies
-- ✅ Created BrandingBot: Professional brand identity creation with color palettes, typography, and implementation roadmaps
-- ✅ Created ContentCreatorBot: Multi-format content generation with SEO optimization and distribution strategies
-- ✅ Created SEOExpertBot: Deep SEO analysis with technical audits, keyword research, and competitor analysis
-- ✅ Each bot now has unique interfaces, workflows, and specialized capabilities tailored to their domain
-- ✅ Bots provide visual outputs including charts, progress indicators, and structured data instead of plain text
-- ✅ Added session loading functionality to all specialized bots to restore previous work
-- ✅ Fixed critical billing bug: upgrade buttons were processing upgrades for free instead of charging through Stripe
-- ✅ Updated /api/user/subscription endpoint to require payment for all paid tier upgrades  
-- ✅ Modified upgrade mutation in user-dashboard to redirect to checkout page when payment is required
-- ✅ Only downgrades to free tier are allowed without payment; all upgrades must go through Stripe checkout
-- ✅ Added comprehensive download functionality to MarketingStrategyBot with PDF, Word, share, and print options
-- ✅ Added icons to all specialized AI bot interfaces (Marketing Strategy, Branding, Content Creator, SEO Expert)
-- ✅ Enhanced bot cards in AI Suite with icons next to bot names for better visual identification
-- ✅ Implemented proper subscription period management - users maintain access until billing cycle ends when canceling
-- ✅ **MAJOR BOT IMPROVEMENT**: Transformed bots from static responses to dynamic, personalized outputs
-- ✅ Enhanced MarketingStrategyBot with dynamic calculations based on user revenue and budget inputs
-- ✅ Upgraded SEOExpertBot with industry-specific scoring, personalized competitor analysis, and dynamic projections
-- ✅ All bots now generate unique responses based on user inputs rather than hardcoded template data
-- ✅ **ENHANCED SEO BOT ISSUES**: Converted generic SEO audit issues to website-specific, personalized issues that reference actual user inputs (URL, industry, keywords, target audience) for authentic analysis results
-- ✅ **REDESIGNED LOGO DESIGN ASSISTANT**: Created advanced logo bot with brand color preferences, logo type selection, style choices, inspirations input, and DALL-E 3 integration for AI-generated logos with 3 redesign attempts max
-- ✅ **REDESIGNED BRAND VOICE GENERATOR**: Built comprehensive brand voice bot with multi-step questionnaire, tone/formality preferences, generates personalized voice profiles with examples and downloadable guidelines
-- ✅ **REMOVED BOT PROGRAMMING PAGE**: Deleted unused bot programming interface and cleaned up navigation and routes
-- ✅ **REDESIGNED AD COPY GENERATOR**: Created advanced ad copy bot with platform-specific outputs (Google ads, Instagram content), A/B testing capabilities, tone selection, and AI-powered content generation
-- ✅ **REDESIGNED CREATIVE CONCEPT BOT**: Built comprehensive creative ideation bot for marketing campaigns, brand names, slogans, with multiple concept generation, visual/tone suggestions, hashtags, and implementation roadmaps
-- ✅ **UPDATED UI DESIGN**: Removed colored filled backgrounds from both AI suite and business suite bot cards, applied clean white backgrounds with gray borders while maintaining colorful icon containers for visual appeal
-- ✅ **SIMPLIFIED NAVIGATION**: Updated all "Back to [Page]" buttons throughout the platform to simply say "Back" and use browser history navigation for consistent UX
-- ✅ **ENHANCED SESSION MANAGEMENT**: Improved session titling system to generate meaningful session names based on project context and user content instead of generic "Session #ID" - sessions now show descriptive titles like "Logo Design for Nike" or "Marketing Strategy: Acme Corp - 3-months plan"
-- ✅ **CREATED LANDING PAGE 2**: Built conversion-focused landing page at /landing-2 designed to capture signups and build a waiting list with hero section, problem/solution sections, pricing, features, social proof, and urgency-driven CTAs
-- ✅ **IMPLEMENTED WAITLIST SYSTEM**: Added database table and API endpoint for capturing early signups with automated SendGrid welcome emails for waitlist subscribers
-- ✅ **UPDATED LANDING PAGE ROUTING**: Changed landing-page-2 to be the main landing page (/) and moved original landing page to /landing-1 for better conversion optimization
-- ✅ **ENHANCED SUPER ADMIN WAITLIST MANAGEMENT**: Replaced Content tab with Waiting List tab in super admin panel to view all waitlist subscribers with email notifications to contact@sage-startups.com for new signups
-- ✅ **ADDED NAME FIELD TO WAITLIST**: Updated waitlist forms and database to capture user names alongside emails, enhanced admin interface to display both name and email with improved logging for email delivery troubleshooting
-- ✅ **MAJOR LANDING PAGE REDESIGN**: Completely redesigned main landing page using conversion-focused copy with new hero headline "Turn Your Idea Into a Launch-Ready Business in Minutes", added benefit-driven features section, How It Works 3-step process, waitlist benefits, early bird lifetime pricing (£30), Coming Soon roadmap, FAQ section, testimonials, and second CTA - following professional copywriting guidelines for high-converting pre-launch pages
-- ✅ **IMPLEMENTED DYNAMIC EARLY BIRD COUNTER**: Created live counter system showing "20 spots remaining" that decrements in real-time when users sign up for the lifetime discount deal ($22/month instead of $44/month), with database tracking and automatic counter updates across all sessions
-- ✅ **CREATED SIGNUP2 PAGE WITH EARLY BIRD PRICING**: Built specialized signup page at /signup2 with simplified pricing structure (Free Trial + Premium at $22/month discounted from $44), includes yearly option at $264, integrates with separate Stripe early bird pricing system, and automatically signs users up for premium package at discounted rate
-- ✅ **UPDATED LANDING PAGE CTA BUTTONS**: Changed "Get Early Access" navigation button on main landing page to redirect to /signup2 instead of /signup, preserving original signup page for post-launch use while directing pre-launch traffic to early bird pricing
-- ✅ **REPLACED PRICING WITH PREVIEW SHOWCASE**: Removed affordable pricing section from main landing page and replaced with visual preview showcase featuring actual platform screenshots (founder dashboard, AI suite, business suite) to demonstrate platform capabilities and drive conversions
-- ✅ **REMOVED HEADER CTA BUTTONS**: Removed "Get Early Access" and "Sign In" buttons from landing page header for cleaner, less cluttered navigation
-- ✅ **CREATED COMPREHENSIVE WEBSITE STRUCTURE**: Built 5 new pages (About, Blog, Contact, Privacy Policy, Terms of Service) with professional content, working contact form, and legal compliance
-- ✅ **UPDATED FOOTER NAVIGATION**: Simplified footer by removing Product column and reorganizing into Company and Support sections only
-- ✅ **ENHANCED ABOUT PAGE WAITLIST**: Replaced simple button with full name/email waitlist form on About page CTA section
-- ✅ **FIXED VIDEO DEPLOYMENT ISSUE**: Replaced problematic 58MB video with static image preview featuring CSS play button overlay for reliable deployment performance
-- ✅ **IMPLEMENTED YOUTUBE VIDEO EMBED**: Replaced problematic video file with YouTube embed (https://youtu.be/oATeTeFWZSI) featuring autoplay, mute, loop, and no controls for seamless user experience that works reliably across all deployment platforms
-- ✅ **SECURITY FIX: PROMPT INJECTION VULNERABILITY**: Fixed Server-Side Request Forgery vulnerability in logo generation endpoint (lines 624-630 in server/routes.ts) by implementing input sanitization, removing harmful characters and instruction keywords, and limiting prompt length to 500 characters to prevent AI manipulation attacks
-- ✅ **IMPLEMENTED LIVE ANALYTICS SYSTEM**: Built completely real-time analytics dashboard with auto-refresh every 10 seconds, professional gradient UI design, loading skeletons, and visual data representations
-- ✅ **ADDED ANALYTICS MIDDLEWARE**: Created comprehensive analytics tracking middleware that automatically records site visits, page views, user actions, device info, and session data
-- ✅ **PROFESSIONAL ANALYTICS DASHBOARD**: Designed modern analytics interface with live status indicators, connection monitoring, last update timestamps, and interactive tabs for different metrics
-- ✅ **REAL-TIME FEATURES**: Added auto-refresh toggle, live badges for newest activities, visual progress bars, percentage calculations, and animated loading states throughout analytics dashboard
-- ✅ **ENHANCED SUPER ADMIN**: Integrated analytics access into super admin dashboard with "View Analytics" button for seamless navigation to real-time analytics data
-- ✅ **GOOGLE ANALYTICS INTEGRATION**: Added Google Analytics tracking code (G-WJTY2Z42SJ) to site's head tag for external analytics tracking and comprehensive user behavior monitoring
 
 ## System Architecture
 
@@ -106,13 +15,14 @@ Preferred communication style: Simple, everyday language.
 - **Routing**: Wouter for client-side routing
 - **Styling**: Tailwind CSS with shadcn/ui component library
 - **State Management**: TanStack Query (React Query) for server state
-- **Build Tool**: Vite for fast development and optimized builds
+- **Build Tool**: Vite
 - **UI Components**: Radix UI primitives with custom styling
+- **UI/UX Decisions**: Clean white backgrounds with gray borders for bot cards, colorful icon containers, simplified navigation (e.g., "Back" button), dynamically generated descriptive session titles. Visual outputs include charts, progress indicators, and structured data.
 
 ### Backend Architecture
 - **Runtime**: Node.js with Express.js
 - **Language**: TypeScript with ES modules
-- **Database ORM**: Drizzle ORM for type-safe database operations
+- **Database ORM**: Drizzle ORM
 - **Database**: PostgreSQL (configured for Neon Database)
 - **AI Integration**: OpenAI GPT-4o for bot responses
 - **Session Management**: Express sessions with PostgreSQL store
@@ -123,71 +33,26 @@ Preferred communication style: Simple, everyday language.
 - `shared/` - Shared TypeScript types and database schema
 - `migrations/` - Database migration files
 
-## Key Components
-
-### Database Schema
-The application uses PostgreSQL with the following main entities:
-- **Users**: Basic user authentication and profiles
-- **Projects**: User-created projects for organizing work
-- **Bot Sessions**: Individual chat sessions with AI bots
-- **Chat Messages**: Conversation history between users and bots
-- **Generated Assets**: AI-created content like logos, copy, strategies
-
-### Bot System
-- **60+ Specialized Bots**: Organized into four main sections (Marketing, Branding, Advertising, Analytics)
-- **Individually Programmed Master Bots**: Each bot has unique interfaces and specialized capabilities
-  - MarketingStrategyBot: Market analysis, ROI projections, channel strategies with visual charts
-  - BrandingBot: Brand identity creation with color palettes, typography, visual guidelines
-  - ContentCreatorBot: Multi-format content generation with SEO and distribution planning
-  - SEOExpertBot: Technical audits, keyword research, competitor analysis with progress tracking
-- **Visual Output Focus**: Bots provide charts, progress indicators, and structured data
-- **Session Management**: Persistent sessions with full state restoration
-
-### Storage Layer
-- **Dual Storage Implementation**: Memory storage for development, database storage for production
-- **Interface-Based Design**: IStorage interface allows switching between storage backends
-- **Type Safety**: Drizzle ORM provides compile-time type checking
-
-## Data Flow
-
-1. **User Authentication**: Simple user system (currently hardcoded to userId=1 for demo)
-2. **Project Creation**: Users create projects to organize their branding work
-3. **Bot Interaction**: Users select bots and start chat sessions within projects
-4. **AI Processing**: Messages sent to OpenAI GPT-4o with specialized prompts
-5. **Asset Generation**: AI responses can include generated assets (logos, copy, etc.)
-6. **Persistence**: All conversations and assets saved to database
+### Key Features & Technical Implementations
+- **Subscription Model**: Three tiers (Free, Pro, Premium) with Replit authentication and Stripe integration for payment.
+- **User Dashboard**: Comprehensive dashboard with subscription management and analytics.
+- **AI Suite**: 60+ specialized bots organized into Marketing, Branding, Advertising, and Analytics sections. Bots are individually programmed master bots with unique interfaces and capabilities (e.g., MarketingStrategyBot, BrandingBot, ContentCreatorBot, SEOExpertBot, Logo Design Assistant, Brand Voice Generator, Ad Copy Generator, Creative Concept Bot). Bots provide dynamic, personalized outputs based on user inputs.
+- **Business Suite**: Categorized startup tools.
+- **Analytics System**: Real-time analytics dashboard with auto-refresh, gradient UI, loading skeletons, and visual data representations. Comprehensive tracking middleware for site visits, page views, user actions, device info, and session data.
+- **Session Management**: Persistent sessions with full state restoration. Meaningful session names generated dynamically.
+- **Landing Pages**: Conversion-focused landing pages with waitlist system, early bird pricing, and dynamic counter.
+- **Security**: Input sanitization and prompt length limits implemented for AI prompt injection vulnerability prevention.
+- **Storage Layer**: Dual storage implementation (memory for dev, database for production) with interface-based design.
 
 ## External Dependencies
 
-### Core Dependencies
 - **@neondatabase/serverless**: PostgreSQL database connectivity
-- **openai**: OpenAI API integration for AI bot responses
+- **openai**: OpenAI API integration
 - **drizzle-orm**: Type-safe database ORM
 - **@tanstack/react-query**: Server state management
 - **@radix-ui/***: Accessible UI component primitives
-
-### Development Tools
-- **Vite**: Build tool and development server
-- **tsx**: TypeScript execution for development
-- **tailwindcss**: Utility-first CSS framework
-- **drizzle-kit**: Database migrations and schema management
-
-## Deployment Strategy
-
-### Build Process
-1. **Frontend Build**: Vite builds React app to `dist/public`
-2. **Backend Build**: esbuild bundles server code to `dist/index.js`
-3. **Database Setup**: Drizzle migrations prepare PostgreSQL schema
-
-### Environment Configuration
-- **Development**: Uses memory storage, local development server
-- **Production**: Requires `DATABASE_URL` and `OPENAI_API_KEY` environment variables
-- **Replit Integration**: Special handling for Replit development environment
-
-### Startup Scripts
-- `npm run dev`: Development with hot reload
-- `npm run build`: Production build
-- `npm start`: Production server
-- `npm run db:push`: Database schema updates
-
-The application is designed as a modern full-stack TypeScript application with strong type safety, scalable architecture, and AI integration for delivering specialized branding assistance to startup users.
+- **Stripe**: Payment processing for subscriptions.
+- **SendGrid**: Email delivery for welcome emails and waitlist notifications.
+- **Google Analytics**: External analytics tracking (G-WJTY2Z42SJ).
+- **DALL-E 3**: Integrated for AI-generated logos.
+- **YouTube**: Video embedding.
