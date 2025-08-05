@@ -4,12 +4,18 @@ import { storage } from '../storage';
 
 const app = express();
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+// Use test keys in development, live keys in production
+const stripeSecretKey = process.env.NODE_ENV === 'development' 
+  ? process.env.STRIPE_TEST_SECRET_KEY 
+  : process.env.STRIPE_SECRET_KEY;
+
+if (!stripeSecretKey) {
+  const requiredKey = process.env.NODE_ENV === 'development' ? 'STRIPE_TEST_SECRET_KEY' : 'STRIPE_SECRET_KEY';
+  throw new Error(`Missing required Stripe secret: ${requiredKey}`);
 }
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2025-06-30.basil",
+const stripe = new Stripe(stripeSecretKey, {
+  apiVersion: "2024-12-18.acacia",
 });
 
 // Webhook endpoint for Stripe events
@@ -39,8 +45,12 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
         console.log(`💰 Payment succeeded: ${paymentIntent.id}`);
         
-        // Get the subscription from payment intent
-        if (paymentIntent.metadata?.subscriptionId) {
+        // Handle early bird payment success
+        if (paymentIntent.metadata?.isEarlyBird === 'true') {
+          await handleEarlyBirdPaymentSuccess(paymentIntent);
+        }
+        // Handle regular subscription payment
+        else if (paymentIntent.metadata?.subscriptionId) {
           const subscription = await stripe.subscriptions.retrieve(paymentIntent.metadata.subscriptionId);
           await handleSubscriptionPaymentSuccess(subscription);
         }
@@ -134,6 +144,41 @@ async function handleSubscriptionPaymentSuccess(subscription: Stripe.Subscriptio
 
   } catch (error: any) {
     console.error(`❌ Error handling subscription success:`, error);
+  }
+}
+
+// Handle successful early bird payment
+async function handleEarlyBirdPaymentSuccess(paymentIntent: Stripe.PaymentIntent) {
+  try {
+    const userId = paymentIntent.metadata?.userId;
+    if (!userId) {
+      console.error('❌ No userId in payment intent metadata');
+      return;
+    }
+
+    const user = await storage.getUser(userId);
+    if (!user) {
+      console.error(`❌ User not found: ${userId}`);
+      return;
+    }
+
+    // Upgrade user to premium with early bird pricing
+    const monthlyPrice = parseInt(paymentIntent.metadata.monthlyPrice || '22');
+    
+    await storage.updateUser(userId, {
+      subscriptionTier: 'premium',
+      subscriptionStatus: 'active',
+      pendingSubscription: null, // Clear pending subscription
+      subscriptionExpires: null // No expiration for paid subscriptions
+    });
+
+    console.log(`✅ User ${userId} upgraded to premium early bird plan at $${monthlyPrice}/month`);
+    
+    // TODO: Set up monthly recurring billing for the early bird price
+    // For now, they get premium access and will need to manually manage billing
+
+  } catch (error: any) {
+    console.error(`❌ Error handling early bird payment success:`, error);
   }
 }
 

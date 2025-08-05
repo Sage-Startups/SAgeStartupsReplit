@@ -103,7 +103,7 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
         await storage.updateUser(userId, { stripeCustomerId });
       }
 
-      // For early bird pricing, use payment intent instead of subscription (since we don't have price IDs yet)
+      // For early bird pricing, create a one-time payment to start their monthly recurring subscription
       if (pricingKey === 'premium-early-bird') {
         console.log(`🔥 Creating early bird payment intent for $${price}`);
         
@@ -111,19 +111,22 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
           amount: Math.round(price * 100), // Convert to cents
           currency: "usd",
           customer: stripeCustomerId,
+          setup_future_usage: 'off_session', // Save payment method for future monthly charges
           metadata: {
             userId,
             tier: 'premium',
-            billingCycle,
+            billingCycle: 'monthly', // Always monthly for early bird
             discount: 'early-bird',
-            originalPrice: billingCycle === 'yearly' ? 432 : 44
+            originalPrice: 44,
+            isEarlyBird: 'true',
+            monthlyPrice: price // $22/month going forward
           },
-          description: `Sage-Startups Premium ${billingCycle} subscription - Early Bird Discount (50% off)`
+          description: `Sage-Startups Premium Early Bird - $${price}/month recurring`
         });
 
         return res.json({ 
           clientSecret: paymentIntent.client_secret,
-          paymentType: 'payment-intent' // Flag to handle differently on frontend
+          paymentType: 'early-bird-payment' // Special flag for early bird payments
         });
       }
 

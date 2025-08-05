@@ -52,8 +52,24 @@ export class AuthService {
       const userId = uuidv4();
       const verificationToken = this.generateVerificationToken();
 
-      // For paid tiers, create user with 'free' initially until payment is complete
-      const initialTier = userData.subscriptionTier === 'free' ? 'free' : 'free';
+      // Set subscription tier and expiration based on user choice
+      let subscriptionTier: string;
+      let subscriptionExpires: Date | null = null;
+      let pendingSubscription: string | null = null;
+      
+      if (userData.subscriptionTier === 'free') {
+        // Free trial: 7 days of free access
+        subscriptionTier = 'free';
+        subscriptionExpires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days from now
+      } else if (userData.subscriptionTier === 'premium') {
+        // Premium early bird: Start as free, upgrade to premium after payment
+        subscriptionTier = 'free';
+        pendingSubscription = 'premium';
+      } else {
+        // Other tiers: Start as free until payment
+        subscriptionTier = 'free';
+        pendingSubscription = userData.subscriptionTier;
+      }
       
       // Create user
       const newUser = await storage.createUser({
@@ -63,10 +79,11 @@ export class AuthService {
         firstName: userData.firstName,
         lastName: userData.lastName,
         company: userData.company || null,
-        subscriptionTier: initialTier,
+        subscriptionTier,
+        subscriptionExpires,
         emailVerificationToken: verificationToken,
         emailVerified: true, // Auto-verify for immediate access
-        pendingSubscription: userData.subscriptionTier !== 'free' ? userData.subscriptionTier : null,
+        pendingSubscription,
       });
 
       // Send welcome email (without verification requirement)

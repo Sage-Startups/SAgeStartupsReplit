@@ -34,7 +34,10 @@ Preferred communication style: Simple, everyday language.
 - `migrations/` - Database migration files
 
 ### Key Features & Technical Implementations
-- **Subscription Model**: Three tiers (Free, Pro, Premium) with Replit authentication and Stripe integration for payment.
+- **Subscription Model**: Three tiers (Free, Pro, Premium) with intelligent signup flow:
+  - **Free Trial**: 7-day free access to platform features
+  - **Premium Early Bird**: Monthly recurring at $22/month (50% lifetime discount from $44/month)
+  - Automatic tier assignment based on softlaunch signup choice
 - **User Dashboard**: Comprehensive dashboard with subscription management and analytics.
 - **AI Suite**: 60+ specialized bots organized into Marketing, Branding, Advertising, and Analytics sections. Bots are individually programmed master bots with unique interfaces and capabilities (e.g., MarketingStrategyBot, BrandingBot, ContentCreatorBot, SEOExpertBot, Logo Design Assistant, Brand Voice Generator, Ad Copy Generator, Creative Concept Bot). Bots provide dynamic, personalized outputs based on user inputs.
 - **Business Suite**: Categorized startup tools.
