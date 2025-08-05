@@ -19,7 +19,7 @@ const stripe = new Stripe(stripeSecretKey, {
   apiVersion: "2024-12-18.acacia",
 });
 
-// Pricing configuration - Updated with correct Price IDs
+// Pricing configuration - Separate for test and live modes
 const PRICING_CONFIG = {
   free: {
     monthlyPrice: 0,
@@ -30,24 +30,52 @@ const PRICING_CONFIG = {
   pro: {
     monthlyPrice: 24,
     yearlyPrice: 240, // $240/year total (20% discount)
-    stripePriceId: 'price_1RncgSGTriQojbPQX65SA4Do',
-    stripeYearlyPriceId: 'price_1RnchDGTriQojbPQ75f5koOK'
+    // Test price IDs - you'll need to create these in Stripe test mode
+    stripePriceId: process.env.NODE_ENV === 'development' ? 'price_test_pro_monthly' : 'price_1RncgSGTriQojbPQX65SA4Do',
+    stripeYearlyPriceId: process.env.NODE_ENV === 'development' ? 'price_test_pro_yearly' : 'price_1RnchDGTriQojbPQ75f5koOK'
   },
   premium: {
     monthlyPrice: 44,
     yearlyPrice: 432, // $432/year total (20% discount)
-    stripePriceId: 'price_1RnchqGTriQojbPQVhsCJgGX',
-    stripeYearlyPriceId: 'price_1RnciZGTriQojbPQUUDxXW1Y'
+    // Test price IDs - you'll need to create these in Stripe test mode
+    stripePriceId: process.env.NODE_ENV === 'development' ? 'price_test_premium_monthly' : 'price_1RnchqGTriQojbPQVhsCJgGX',
+    stripeYearlyPriceId: process.env.NODE_ENV === 'development' ? 'price_test_premium_yearly' : 'price_1RnciZGTriQojbPQUUDxXW1Y'
   },
   'premium-early-bird': {
     monthlyPrice: 22, // 50% off regular premium price
     yearlyPrice: 264, // $22 * 12 months
-    stripePriceId: null, // Will need to create new price IDs for early bird
-    stripeYearlyPriceId: null
+    // Test price IDs for early bird pricing
+    stripePriceId: process.env.NODE_ENV === 'development' ? 'price_test_early_bird_monthly' : null,
+    stripeYearlyPriceId: process.env.NODE_ENV === 'development' ? 'price_test_early_bird_yearly' : null
   }
 };
 
 export function registerStripeRoutes(app: Express, requireAuth: any) {
+  // Helper function to create or get test prices
+  async function getOrCreateTestPrice(productName: string, amount: number, interval: 'month' | 'year') {
+    try {
+      // In test mode, create prices dynamically
+      if (process.env.NODE_ENV === 'development') {
+        const price = await stripe.prices.create({
+          unit_amount: amount * 100, // Convert to cents
+          currency: 'usd',
+          recurring: { interval },
+          product_data: {
+            name: `${productName} Plan - Test Mode`,
+            description: `Test mode subscription for ${productName} plan`
+          },
+        });
+        return price.id;
+      }
+      
+      // In production, return the configured price ID
+      return null; // This should never be reached with current logic
+    } catch (error) {
+      console.error('Error creating test price:', error);
+      throw error;
+    }
+  }
+
   // Create subscription intent
   app.post("/api/stripe/create-subscription-intent", requireAuth, async (req: any, res) => {
     try {
@@ -76,7 +104,14 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
       }
 
       const price = billingCycle === 'yearly' ? pricingConfig.yearlyPrice : pricingConfig.monthlyPrice;
-      const stripePriceId = billingCycle === 'yearly' ? pricingConfig.stripeYearlyPriceId : pricingConfig.stripePriceId;
+      let stripePriceId = billingCycle === 'yearly' ? pricingConfig.stripeYearlyPriceId : pricingConfig.stripePriceId;
+      
+      // In development, create test prices dynamically if needed
+      if (process.env.NODE_ENV === 'development' && (!stripePriceId || stripePriceId.startsWith('price_test_'))) {
+        const interval = billingCycle === 'yearly' ? 'year' : 'month';
+        stripePriceId = await getOrCreateTestPrice(tier, price, interval);
+        console.log(`🧪 Created test price: ${stripePriceId} for ${tier} ${interval}`);
+      }
 
       console.log(`🔍 Stripe subscription request:`, {
         tier,
@@ -135,30 +170,10 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
         return res.status(400).json({ message: "Price ID not configured for this plan" });
       }
 
-      // Verify price exists in Stripe first
-      try {
-        const stripePrice = await stripe.prices.retrieve(stripePriceId);
-        console.log(`✅ Price ID validated:`, {
-          id: stripePrice.id,
-          amount: stripePrice.unit_amount,
-          currency: stripePrice.currency,
-          mode: stripePrice.livemode ? 'live' : 'test'
-        });
-      } catch (priceError: any) {
-        console.error(`❌ Invalid Price ID ${stripePriceId}:`, priceError.message);
-        
-        // Check if it's a Product ID instead of Price ID
-        if (stripePriceId.startsWith('prod_')) {
-          return res.status(400).json({ 
-            message: `Configuration Error: "${stripePriceId}" is a Product ID, but we need a Price ID. Price IDs start with "price_", not "prod_". Please check your Stripe dashboard and get the Price ID for this product.`,
-            error: 'Invalid Price ID format'
-          });
-        }
-        
-        return res.status(400).json({ 
-          message: `Invalid Price ID: ${stripePriceId}. Please check your Stripe dashboard.`,
-          error: priceError.message
-        });
+      // Basic price ID format validation
+      if (!stripePriceId.startsWith('price_')) {
+        console.error(`❌ Invalid Price ID format: ${stripePriceId}`);
+        return res.status(400).json({ message: "Invalid Price ID format" });
       }
 
       // Create subscription
