@@ -453,7 +453,7 @@ export default function SoftLaunch() {
                 </ul>
                 <Button 
                   className="w-full bg-blue-600 hover:bg-blue-700"
-                  onClick={() => setLocation('/signup2')}
+                  onClick={() => setLocation('/signup2?discount=early-bird')}
                   disabled={counter && counter.spotsRemaining <= 0}
                 >
                   {counter && counter.spotsRemaining <= 0 ? "Offer Unavailable" : "Get Early Bird Access - $22/month"}

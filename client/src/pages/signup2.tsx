@@ -60,6 +60,10 @@ export default function SignUp2() {
   const [error, setError] = useState<string>("");
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [isYearly, setIsYearly] = useState(false);
+  
+  // Check for early bird discount from URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const isEarlyBird = urlParams.get('discount') === 'early-bird';
 
   const form = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
@@ -131,9 +135,10 @@ export default function SignUp2() {
           
           // Redirect to checkout with discounted tier and billing cycle after a short delay
           const billingCycle = isYearly ? 'yearly' : 'monthly';
+          const discountParam = isEarlyBird ? '&discount=early-bird' : '';
           setTimeout(() => {
             try {
-              setLocation(`/checkout?tier=premium&plan=${billingCycle}&discount=early-bird`);
+              setLocation(`/checkout?tier=premium&plan=${billingCycle}${discountParam}`);
             } catch (error) {
               console.error('Error redirecting to checkout:', error);
               toast({
@@ -201,8 +206,16 @@ export default function SignUp2() {
           {/* Pricing Plans */}
           <div className="mb-8">
             <div className="text-center mb-8">
+              {isEarlyBird && (
+                <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-center justify-center space-x-2">
+                    <Badge className="bg-blue-500">🔥 Early Bird Special</Badge>
+                    <span className="text-blue-800 font-medium">50% Lifetime Discount Applied!</span>
+                  </div>
+                </div>
+              )}
               <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                Choose Your Plan
+                {isEarlyBird ? "Secure Your Early Bird Deal" : "Choose Your Plan"}
               </h1>
               <p className="text-xl text-gray-600 mb-6">
                 Get started with our early bird pricing - Limited time 50% discount!
