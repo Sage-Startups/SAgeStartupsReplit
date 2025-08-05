@@ -10,12 +10,19 @@ import { MainNavigation } from "@/components/main-navigation";
 import { ArrowLeft, CreditCard, Lock, CheckCircle } from "lucide-react";
 import { Link } from "wouter";
 
-// Make sure to call `loadStripe` outside of a component's render to avoid
-// recreating the `Stripe` object on every render.
-if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
-  throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
+// Use test keys in development, live keys in production
+const stripePublicKey = import.meta.env.DEV 
+  ? import.meta.env.VITE_STRIPE_TEST_PUBLIC_KEY 
+  : import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+
+if (!stripePublicKey) {
+  const requiredKey = import.meta.env.DEV ? 'VITE_STRIPE_TEST_PUBLIC_KEY' : 'VITE_STRIPE_PUBLIC_KEY';
+  throw new Error(`Missing required Stripe key: ${requiredKey}`);
 }
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+
+console.log(`🔒 Frontend using Stripe ${import.meta.env.DEV ? 'TEST' : 'LIVE'} mode`);
+
+const stripePromise = loadStripe(stripePublicKey);
 
 const CheckoutForm = ({ planDetails }: { planDetails: any }) => {
   const stripe = useStripe();
@@ -267,6 +274,21 @@ export default function Checkout() {
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
             </Button>
+          
+          {import.meta.env.DEV && (
+            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+              <div className="flex items-center space-x-2">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+                <div>
+                  <h4 className="font-medium text-green-800">🧪 Test Mode - Safe Testing</h4>
+                  <p className="text-sm text-green-600">
+                    No real charges will be made. Use test card: 4242 4242 4242 4242
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+          
           <h1 className="text-3xl font-bold text-gray-900">Complete Your Subscription</h1>
           <p className="text-gray-600 mt-2">Secure checkout powered by Stripe</p>
         </div>

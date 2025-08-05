@@ -3,11 +3,19 @@ import Stripe from "stripe";
 import { storage } from "../storage";
 // We'll use the requireAuth middleware from routes.ts instead
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+// Use test keys in development, live keys in production
+const stripeSecretKey = process.env.NODE_ENV === 'development' 
+  ? process.env.STRIPE_TEST_SECRET_KEY 
+  : process.env.STRIPE_SECRET_KEY;
+
+if (!stripeSecretKey) {
+  const requiredKey = process.env.NODE_ENV === 'development' ? 'STRIPE_TEST_SECRET_KEY' : 'STRIPE_SECRET_KEY';
+  throw new Error(`Missing required Stripe secret: ${requiredKey}`);
 }
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+console.log(`🔒 Using Stripe ${process.env.NODE_ENV === 'development' ? 'TEST' : 'LIVE'} mode`);
+
+const stripe = new Stripe(stripeSecretKey, {
   apiVersion: "2024-12-18.acacia",
 });
 
