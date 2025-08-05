@@ -43,6 +43,7 @@ function Router() {
       {/* Landing pages available to everyone */}
       <Route path="/landing-1" component={Landing} />
       <Route path="/softlaunch" component={SoftLaunch} />
+      <Route path="/signup2" component={SignUp2} />
       
       {/* Public pages available to everyone */}
       <Route path="/about" component={AboutPage} />
@@ -56,7 +57,6 @@ function Router() {
           <Route path="/" component={LandingPage2} />
           <Route path="/signin" component={SignIn} />
           <Route path="/signup" component={SignUp} />
-          <Route path="/signup2" component={SignUp2} />
         </>
       ) : (
         <>
