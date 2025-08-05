@@ -84,8 +84,7 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
         currency: 'usd',
         recurring: { interval },
         product_data: {
-          name: `${productName} Plan - Test Mode`,
-          description: `Test mode subscription for ${productName} plan`
+          name: `${productName} Plan - Test Mode`
         },
       });
       
