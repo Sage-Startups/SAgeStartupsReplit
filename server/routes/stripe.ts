@@ -186,7 +186,30 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
       console.log(`✅ Stripe subscription created: ${subscription.id}`);
       
       const latestInvoice = subscription.latest_invoice as Stripe.Invoice;
-      const paymentIntent = (latestInvoice as any).payment_intent as Stripe.PaymentIntent;
+      console.log(`🔍 Latest invoice:`, {
+        id: latestInvoice?.id,
+        status: latestInvoice?.status,
+        payment_intent: latestInvoice?.payment_intent ? 'present' : 'missing',
+        amount_due: latestInvoice?.amount_due,
+        total: latestInvoice?.total
+      });
+
+      let paymentIntent: Stripe.PaymentIntent | null = null;
+      
+      if (latestInvoice?.payment_intent) {
+        if (typeof latestInvoice.payment_intent === 'string') {
+          // If payment_intent is just an ID, fetch the full object
+          paymentIntent = await stripe.paymentIntents.retrieve(latestInvoice.payment_intent);
+        } else {
+          paymentIntent = latestInvoice.payment_intent as Stripe.PaymentIntent;
+        }
+      }
+
+      console.log(`🔍 Payment intent:`, {
+        id: paymentIntent?.id,
+        status: paymentIntent?.status,
+        client_secret: paymentIntent?.client_secret ? 'present' : 'missing'
+      });
 
       // Save subscription ID but DON'T upgrade tier until payment is confirmed
       await storage.updateUser(userId, { 
@@ -195,12 +218,69 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
         pendingSubscription: tier
       });
 
+      // If no payment intent, try to create one manually by paying the invoice
       if (!paymentIntent || !paymentIntent.client_secret) {
-        console.error("❌ Payment intent or client_secret is missing");
-        return res.status(400).json({ 
-          message: "Payment intent not found. Please try again.",
-          subscriptionId: subscription.id
+        console.log("⚠️ No payment intent found, attempting to finalize invoice");
+        console.log("🔍 Debug - entering manual payment intent creation logic");
+        console.log("🔍 latestInvoice check:", {
+          hasInvoice: !!latestInvoice,
+          status: latestInvoice?.status,
+          conditionMet: latestInvoice && (latestInvoice.status === 'draft' || latestInvoice.status === 'open')
         });
+        
+        if (latestInvoice && (latestInvoice.status === 'draft' || latestInvoice.status === 'open')) {
+          console.log(`📄 Processing invoice with status: ${latestInvoice.status}`);
+          
+          let invoiceToProcess = latestInvoice;
+          
+          // If draft, finalize it first
+          if (latestInvoice.status === 'draft') {
+            console.log("📄 Finalizing draft invoice");
+            invoiceToProcess = await stripe.invoices.finalizeInvoice(latestInvoice.id, {
+              expand: ['payment_intent']
+            });
+          }
+          
+          // If the invoice doesn't have a payment intent, create one manually
+          if (!invoiceToProcess.payment_intent && invoiceToProcess.amount_due > 0) {
+            console.log("💳 Creating manual payment intent for invoice amount");
+            paymentIntent = await stripe.paymentIntents.create({
+              amount: invoiceToProcess.amount_due,
+              currency: 'usd',
+              customer: stripeCustomerId,
+              description: `Payment for subscription ${subscription.id}`,
+              metadata: {
+                subscription_id: subscription.id,
+                invoice_id: invoiceToProcess.id,
+                user_id: userId,
+                tier,
+                billing_cycle: billingCycle
+              },
+              setup_future_usage: 'off_session'
+            });
+            console.log(`✅ Manual payment intent created: ${paymentIntent.id}`);
+          } else if (invoiceToProcess.payment_intent) {
+            if (typeof invoiceToProcess.payment_intent === 'string') {
+              paymentIntent = await stripe.paymentIntents.retrieve(invoiceToProcess.payment_intent);
+            } else {
+              paymentIntent = invoiceToProcess.payment_intent as Stripe.PaymentIntent;
+            }
+          }
+        }
+        
+        // If still no payment intent, this might be because the subscription doesn't need immediate payment
+        if (!paymentIntent || !paymentIntent.client_secret) {
+          console.error("❌ Payment intent or client_secret is missing after finalization", {
+            hasPaymentIntent: !!paymentIntent,
+            hasClientSecret: !!paymentIntent?.client_secret,
+            subscriptionStatus: subscription.status,
+            invoiceStatus: latestInvoice?.status
+          });
+          return res.status(400).json({ 
+            message: "Payment intent not found. Please try again.",
+            subscriptionId: subscription.id
+          });
+        }
       }
 
       res.json({
