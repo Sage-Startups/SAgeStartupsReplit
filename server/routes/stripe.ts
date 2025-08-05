@@ -3,17 +3,14 @@ import Stripe from "stripe";
 import { storage } from "../storage";
 // We'll use the requireAuth middleware from routes.ts instead
 
-// Use test keys in development, live keys in production
-const stripeSecretKey = process.env.NODE_ENV === 'development' 
-  ? process.env.STRIPE_TEST_SECRET_KEY 
-  : process.env.STRIPE_SECRET_KEY;
+// Force live mode for refund testing - use live keys
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 
 if (!stripeSecretKey) {
-  const requiredKey = process.env.NODE_ENV === 'development' ? 'STRIPE_TEST_SECRET_KEY' : 'STRIPE_SECRET_KEY';
-  throw new Error(`Missing required Stripe secret: ${requiredKey}`);
+  throw new Error(`Missing required Stripe secret: STRIPE_SECRET_KEY`);
 }
 
-console.log(`🔒 Using Stripe ${process.env.NODE_ENV === 'development' ? 'TEST' : 'LIVE'} mode`);
+console.log(`🔒 Using Stripe LIVE mode`);
 
 const stripe = new Stripe(stripeSecretKey, {
   apiVersion: "2024-12-18.acacia",
@@ -31,15 +28,15 @@ const PRICING_CONFIG = {
     monthlyPrice: 24,
     yearlyPrice: 240, // $240/year total (20% discount)
     // Test price IDs - you'll need to create these in Stripe test mode
-    stripePriceId: process.env.NODE_ENV === 'development' ? 'price_test_pro_monthly' : 'price_1RncgSGTriQojbPQX65SA4Do',
-    stripeYearlyPriceId: process.env.NODE_ENV === 'development' ? 'price_test_pro_yearly' : 'price_1RnchDGTriQojbPQ75f5koOK'
+    stripePriceId: 'price_1RncgSGTriQojbPQX65SA4Do',
+    stripeYearlyPriceId: 'price_1RnchDGTriQojbPQ75f5koOK'
   },
   premium: {
     monthlyPrice: 44,
     yearlyPrice: 432, // $432/year total (20% discount)
     // Test price IDs - you'll need to create these in Stripe test mode
-    stripePriceId: process.env.NODE_ENV === 'development' ? 'price_test_premium_monthly' : 'price_1RnchqGTriQojbPQVhsCJgGX',
-    stripeYearlyPriceId: process.env.NODE_ENV === 'development' ? 'price_test_premium_yearly' : 'price_1RnciZGTriQojbPQUUDxXW1Y'
+    stripePriceId: 'price_1RnchqGTriQojbPQVhsCJgGX',
+    stripeYearlyPriceId: 'price_1RnciZGTriQojbPQUUDxXW1Y'
   },
   'premium-early-bird': {
     monthlyPrice: 22, // 50% off regular premium price

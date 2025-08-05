@@ -4,14 +4,11 @@ import { storage } from '../storage';
 
 const app = express();
 
-// Use test keys in development, live keys in production
-const stripeSecretKey = process.env.NODE_ENV === 'development' 
-  ? process.env.STRIPE_TEST_SECRET_KEY 
-  : process.env.STRIPE_SECRET_KEY;
+// Force live mode for refund testing - use live keys
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 
 if (!stripeSecretKey) {
-  const requiredKey = process.env.NODE_ENV === 'development' ? 'STRIPE_TEST_SECRET_KEY' : 'STRIPE_SECRET_KEY';
-  throw new Error(`Missing required Stripe secret: ${requiredKey}`);
+  throw new Error(`Missing required Stripe secret: STRIPE_SECRET_KEY`);
 }
 
 const stripe = new Stripe(stripeSecretKey, {
