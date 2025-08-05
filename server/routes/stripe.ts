@@ -3,24 +3,21 @@ import Stripe from "stripe";
 import { storage } from "../storage";
 // We'll use the requireAuth middleware from routes.ts instead
 
-// Switch back to test mode
-const stripeSecretKey = process.env.NODE_ENV === 'production' 
-  ? process.env.STRIPE_SECRET_KEY 
-  : process.env.STRIPE_TEST_SECRET_KEY;
+// Use live mode (production keys)
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 
 if (!stripeSecretKey) {
-  throw new Error(`Missing required Stripe secret: ${process.env.NODE_ENV === 'production' ? 'STRIPE_SECRET_KEY' : 'STRIPE_TEST_SECRET_KEY'}`);
+  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
 }
 
-console.log(`🧪 Using Stripe ${process.env.NODE_ENV === 'production' ? 'LIVE' : 'TEST'} mode`);
+console.log('🔴 Using Stripe LIVE mode');
 
 const stripe = new Stripe(stripeSecretKey, {
   apiVersion: "2025-07-30.basil",
 });
 
-// Pricing configuration - Different for test and live modes
-const PRICING_CONFIG = process.env.NODE_ENV === 'production' ? {
-  // LIVE MODE PRICES
+// Live mode pricing configuration
+const PRICING_CONFIG = {
   free: {
     monthlyPrice: 0,
     yearlyPrice: 0,
@@ -43,32 +40,6 @@ const PRICING_CONFIG = process.env.NODE_ENV === 'production' ? {
     monthlyPrice: 22,
     yearlyPrice: 264,
     stripePriceId: null,
-    stripeYearlyPriceId: null
-  }
-} : {
-  // TEST MODE PRICES - Create dynamic test prices
-  free: {
-    monthlyPrice: 0,
-    yearlyPrice: 0,
-    stripePriceId: null,
-    stripeYearlyPriceId: null
-  },
-  pro: {
-    monthlyPrice: 24,
-    yearlyPrice: 240,
-    stripePriceId: null, // Will be created dynamically
-    stripeYearlyPriceId: null
-  },
-  premium: {
-    monthlyPrice: 44,
-    yearlyPrice: 432,
-    stripePriceId: null, // Will be created dynamically
-    stripeYearlyPriceId: null
-  },
-  'premium-early-bird': {
-    monthlyPrice: 22,
-    yearlyPrice: 264,
-    stripePriceId: null, // Will be created dynamically
     stripeYearlyPriceId: null
   }
 };
@@ -127,12 +98,7 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
       const price = req.body.price || (billingCycle === 'yearly' ? pricingConfig.yearlyPrice : pricingConfig.monthlyPrice);
       let stripePriceId = billingCycle === 'yearly' ? pricingConfig.stripeYearlyPriceId : pricingConfig.stripePriceId;
       
-      // In development, create test prices dynamically if needed
-      if (process.env.NODE_ENV === 'development' && (!stripePriceId || stripePriceId.startsWith('price_test_'))) {
-        const interval = billingCycle === 'yearly' ? 'year' : 'month';
-        stripePriceId = await getOrCreateTestPrice(tier, price, interval);
-        console.log(`🧪 Created test price: ${stripePriceId} for ${tier} ${interval}`);
-      }
+      // Use configured price IDs for live mode
 
       console.log(`🔍 Stripe subscription request:`, {
         tier,
@@ -197,39 +163,51 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
         return res.status(400).json({ message: "Invalid Price ID format" });
       }
 
-      // For test mode, let's create a setup intent instead of a problematic subscription
-      console.log(`🚀 Creating setup intent for subscription setup`);
-      const setupIntent = await stripe.setupIntents.create({
+      // Create subscription with proper payment intent
+      console.log(`🚀 Creating Stripe subscription with Price ID: ${stripePriceId}`);
+      const subscription = await stripe.subscriptions.create({
         customer: stripeCustomerId,
-        payment_method_types: ['card'],
-        usage: 'off_session',
+        items: [{
+          price: stripePriceId,
+        }],
+        payment_behavior: 'default_incomplete',
+        payment_settings: { 
+          save_default_payment_method: 'on_subscription',
+          payment_method_types: ['card']
+        },
+        expand: ['latest_invoice.payment_intent'],
+        collection_method: 'charge_automatically',
         metadata: {
           userId,
           tier,
           billingCycle,
-          price: price.toString(),
-          stripePriceId
-        }
+        },
+      });
+      console.log(`✅ Stripe subscription created: ${subscription.id}`);
+      
+      const latestInvoice = subscription.latest_invoice as Stripe.Invoice;
+      const paymentIntent = (latestInvoice as any).payment_intent as Stripe.PaymentIntent;
+
+      // Save subscription ID but DON'T upgrade tier until payment is confirmed
+      await storage.updateUser(userId, { 
+        stripeSubscriptionId: subscription.id,
+        subscriptionStatus: subscription.status === 'active' ? 'active' : 'pending',
+        pendingSubscription: tier
       });
 
-      // Store the pending subscription info in user record
-      await storage.updateUser(userId, {
-        pendingSubscription: tier,
-        subscriptionStatus: 'pending'
-      });
-
-      if (!setupIntent.client_secret) {
-        throw new Error('Failed to create setup intent');
+      if (!paymentIntent || !paymentIntent.client_secret) {
+        console.error("❌ Payment intent or client_secret is missing");
+        return res.status(400).json({ 
+          message: "Payment intent not found. Please try again.",
+          subscriptionId: subscription.id
+        });
       }
 
-      console.log(`✅ Setup intent created: ${setupIntent.id}`);
-      return res.json({
-        clientSecret: setupIntent.client_secret,
-        setupIntentId: setupIntent.id,
-        isSetupIntent: true,
+      res.json({
+        subscriptionId: subscription.id,
+        clientSecret: paymentIntent.client_secret,
         price,
-        billingCycle,
-        tier
+        billingCycle
       });
 
 

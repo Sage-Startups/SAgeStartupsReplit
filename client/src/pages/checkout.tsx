@@ -10,16 +10,14 @@ import { MainNavigation } from "@/components/main-navigation";
 import { ArrowLeft, CreditCard, Lock, CheckCircle } from "lucide-react";
 import { Link } from "wouter";
 
-// Switch back to test mode for development
-const stripePublicKey = import.meta.env.NODE_ENV === 'production' 
-  ? import.meta.env.VITE_STRIPE_PUBLIC_KEY 
-  : import.meta.env.VITE_STRIPE_TEST_PUBLIC_KEY;
+// Use live mode (production keys)
+const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
 
 if (!stripePublicKey) {
-  throw new Error(`Missing required Stripe key: ${import.meta.env.NODE_ENV === 'production' ? 'VITE_STRIPE_PUBLIC_KEY' : 'VITE_STRIPE_TEST_PUBLIC_KEY'}`);
+  throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
 }
 
-console.log(`🧪 Frontend using Stripe ${import.meta.env.NODE_ENV === 'production' ? 'LIVE' : 'TEST'} mode`);
+console.log('🔴 Frontend using Stripe LIVE mode');
 
 const stripePromise = loadStripe(stripePublicKey);
 
@@ -39,49 +37,25 @@ const CheckoutForm = ({ planDetails }: { planDetails: any }) => {
     setIsProcessing(true);
 
     try {
-      // Check if this is a setup intent (for test mode) or payment intent
-      if (planDetails.isSetupIntent) {
-        const { error, setupIntent } = await stripe.confirmSetup({
-          elements,
-          confirmParams: {
-            return_url: `${window.location.origin}/account?tab=subscription&success=true`,
-          },
-        });
-        
-        console.log("Setup intent result:", { error, setupIntent });
+      // Live mode - use payment intents
+      const { error } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/account?tab=subscription&success=true`,
+        },
+      });
 
-        if (error) {
-          toast({
-            title: "Setup Failed",
-            description: error.message,
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "Payment Method Saved",
-            description: "Welcome to your new subscription!",
-          });
-        }
+      if (error) {
+        toast({
+          title: "Payment Failed",
+          description: error.message,
+          variant: "destructive",
+        });
       } else {
-        const { error } = await stripe.confirmPayment({
-          elements,
-          confirmParams: {
-            return_url: `${window.location.origin}/account?tab=subscription&success=true`,
-          },
+        toast({
+          title: "Payment Successful",
+          description: "Welcome to your new subscription!",
         });
-
-        if (error) {
-          toast({
-            title: "Payment Failed",
-            description: error.message,
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "Payment Successful",
-            description: "Welcome to your new subscription!",
-          });
-        }
       }
     } catch (error: any) {
       console.error("Payment processing error:", error);
@@ -263,11 +237,10 @@ export default function Checkout() {
         const data = await response.json();
         setClientSecret(data.clientSecret);
         
-        // Update plan details with setup intent flag
+        // Update plan details with response data
         setPlanDetails(prev => ({
           ...prev,
-          isSetupIntent: data.isSetupIntent || false,
-          setupIntentId: data.setupIntentId
+          subscriptionId: data.subscriptionId
         }));
         
         setIsLoading(false);
@@ -317,19 +290,17 @@ export default function Checkout() {
               Back
             </Button>
           
-          {import.meta.env.DEV && (
-            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-              <div className="flex items-center space-x-2">
-                <CheckCircle className="w-5 h-5 text-green-600" />
-                <div>
-                  <h4 className="font-medium text-green-800">🧪 Test Mode - Safe Testing</h4>
-                  <p className="text-sm text-green-600">
-                    No real charges will be made. Use test card: 4242 4242 4242 4242
-                  </p>
-                </div>
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-center space-x-2">
+              <Lock className="w-5 h-5 text-red-600" />
+              <div>
+                <h4 className="font-medium text-red-800">🔴 Live Payment Processing</h4>
+                <p className="text-sm text-red-600">
+                  Real charges will be processed. Your card will be charged immediately.
+                </p>
               </div>
             </div>
-          )}
+          </div>
           
           <h1 className="text-3xl font-bold text-gray-900">Complete Your Subscription</h1>
           <p className="text-gray-600 mt-2">Secure checkout powered by Stripe</p>
