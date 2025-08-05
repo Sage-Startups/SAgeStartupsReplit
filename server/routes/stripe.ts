@@ -347,19 +347,65 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
         }
       }
 
+      // Get the charge to refund
+      const charges = await stripe.charges.list({
+        customer: user.stripeCustomerId,
+        limit: 1
+      });
+
       // Process the refund
       const refund = await stripe.refunds.create({
-        charge: (await stripe.charges.list({
-          customer: user.stripeCustomerId,
-          limit: 1
-        })).data[0].id,
+        charge: charges.data[0].id,
         amount: Math.round(refundAmount * 100) // Convert to cents
+      });
+
+      // Downgrade user account to free trial
+      await storage.updateUser(userId, {
+        subscriptionTier: 'free',
+        subscriptionStatus: 'cancelled',
+        stripeSubscriptionId: null,
+        pendingSubscription: null,
+        nextTier: null,
+        subscriptionExpires: null
+      });
+
+      // Create refund payment record
+      await storage.createPayment({
+        userId,
+        planId: 1,
+        amount: -refundAmount, // Negative amount to indicate refund
+        currency: 'USD',
+        status: 'completed',
+        paymentMethod: 'refund',
+        transactionId: refund.id,
+        metadata: JSON.stringify({
+          originalChargeId: charges.data[0].id,
+          refundReason: refundType,
+          processedBy: req.user.id,
+          originalAmount: charges.data[0].amount / 100
+        })
+      });
+
+      // Create audit log
+      await storage.createAuditLog({
+        userId: req.user.id,
+        action: 'refund',
+        resource: 'payment',
+        resourceId: refund.id,
+        details: {
+          refundedUserId: userId,
+          amount: refundAmount,
+          refundType,
+          userDowngraded: true
+        },
+        ipAddress: req.ip
       });
 
       res.json({ 
         message: "Refund processed successfully",
         amount: refundAmount,
-        refundId: refund.id
+        refundId: refund.id,
+        userDowngraded: true
       });
 
     } catch (error: any) {
