@@ -213,6 +213,8 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
         },
       });
       console.log(`✅ Stripe subscription created:`, subscription.id);
+      
+      const latestInvoice = subscription.latest_invoice as Stripe.Invoice;
       console.log(`🔍 Latest invoice:`, {
         id: latestInvoice?.id,
         status: latestInvoice?.status,
@@ -225,8 +227,6 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
         subscriptionStatus: subscription.status === 'active' ? 'active' : 'pending',
         pendingSubscription: tier // Store the tier they're trying to upgrade to
       });
-
-      const latestInvoice = subscription.latest_invoice as Stripe.Invoice;
       const paymentIntent = (latestInvoice as any).payment_intent as Stripe.PaymentIntent;
 
       if (!paymentIntent || !paymentIntent.client_secret) {
