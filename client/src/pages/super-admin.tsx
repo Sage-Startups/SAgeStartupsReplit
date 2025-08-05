@@ -283,6 +283,29 @@ export default function SuperAdmin() {
     }
   });
 
+  // Refund mutation
+  const refundMutation = useMutation({
+    mutationFn: async (data: { userId: string; amount?: number; refundType: 'last_payment' | 'custom' }) => {
+      const response = await apiRequest("POST", "/api/admin/refund", data);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/payments"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      toast({ 
+        title: "Refund processed successfully",
+        description: `Refunded $${data.amount} to user's card`
+      });
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: "Refund failed", 
+        description: error.message,
+        variant: "destructive" 
+      });
+    }
+  });
+
   if (authLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -987,6 +1010,7 @@ export default function SuperAdmin() {
                         <TableHead>Method</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Date</TableHead>
+                        <TableHead>Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -1013,6 +1037,110 @@ export default function SuperAdmin() {
                           </TableCell>
                           <TableCell>
                             {new Date(payment.createdAt).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell>
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button variant="outline" size="sm" className="text-blue-600">
+                                  <DollarSign className="w-4 h-4 mr-1" />
+                                  Refund
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className="sm:max-w-md">
+                                <DialogHeader>
+                                  <DialogTitle>Process Refund</DialogTitle>
+                                  <DialogDescription>
+                                    Refund payment to {payment.userEmail}
+                                  </DialogDescription>
+                                </DialogHeader>
+                                <div className="space-y-4">
+                                  <div className="p-4 bg-gray-50 rounded-lg">
+                                    <p className="text-sm font-medium">Payment Details</p>
+                                    <p className="text-sm text-gray-600">Amount: ${payment.amount} {payment.currency}</p>
+                                    <p className="text-sm text-gray-600">Transaction: {payment.transactionId}</p>
+                                    <p className="text-sm text-gray-600">Date: {new Date(payment.createdAt).toLocaleDateString()}</p>
+                                  </div>
+                                  <div className="space-y-3">
+                                    <Button
+                                      onClick={() => {
+                                        const confirmed = confirm(`Refund the full amount of $${payment.amount} to ${payment.userEmail}?`);
+                                        if (confirmed) {
+                                          refundMutation.mutate({
+                                            userId: payment.userId,
+                                            refundType: 'last_payment'
+                                          });
+                                        }
+                                      }}
+                                      disabled={refundMutation.isPending}
+                                      className="w-full"
+                                    >
+                                      {refundMutation.isPending ? "Processing..." : `Refund Full Amount ($${payment.amount})`}
+                                    </Button>
+                                    <Dialog>
+                                      <DialogTrigger asChild>
+                                        <Button variant="outline" className="w-full">
+                                          Custom Amount
+                                        </Button>
+                                      </DialogTrigger>
+                                      <DialogContent className="sm:max-w-sm">
+                                        <DialogHeader>
+                                          <DialogTitle>Custom Refund</DialogTitle>
+                                          <DialogDescription>
+                                            Enter custom refund amount
+                                          </DialogDescription>
+                                        </DialogHeader>
+                                        <div className="space-y-4">
+                                          <div>
+                                            <Label htmlFor="custom-amount">Refund Amount ($)</Label>
+                                            <Input
+                                              id="custom-amount"
+                                              type="number"
+                                              placeholder="0.00"
+                                              step="0.01"
+                                              min="0.01"
+                                              max={payment.amount}
+                                              onChange={(e) => {
+                                                const customAmount = parseFloat(e.target.value);
+                                                if (customAmount > 0 && customAmount <= payment.amount) {
+                                                  // Store amount for custom refund
+                                                  e.target.dataset.amount = e.target.value;
+                                                }
+                                              }}
+                                            />
+                                          </div>
+                                          <Button
+                                            onClick={(e) => {
+                                              const input = e.currentTarget.parentElement?.querySelector('input');
+                                              const customAmount = parseFloat(input?.value || '0');
+                                              if (customAmount > 0 && customAmount <= payment.amount) {
+                                                const confirmed = confirm(`Refund $${customAmount} to ${payment.userEmail}?`);
+                                                if (confirmed) {
+                                                  refundMutation.mutate({
+                                                    userId: payment.userId,
+                                                    amount: customAmount,
+                                                    refundType: 'custom'
+                                                  });
+                                                }
+                                              } else {
+                                                toast({
+                                                  title: "Invalid amount",
+                                                  description: `Amount must be between $0.01 and $${payment.amount}`,
+                                                  variant: "destructive"
+                                                });
+                                              }
+                                            }}
+                                            disabled={refundMutation.isPending}
+                                            className="w-full"
+                                          >
+                                            {refundMutation.isPending ? "Processing..." : "Process Custom Refund"}
+                                          </Button>
+                                        </div>
+                                      </DialogContent>
+                                    </Dialog>
+                                  </div>
+                                </div>
+                              </DialogContent>
+                            </Dialog>
                           </TableCell>
                         </TableRow>
                       ))}

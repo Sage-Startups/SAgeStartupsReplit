@@ -424,6 +424,59 @@ export default function Account() {
                     </ul>
                   </div>
 
+                  {/* Subscription Management */}
+                  {currentProfile.subscriptionTier !== 'free' && (
+                    <div className="mt-6 pt-4 border-t">
+                      <h4 className="font-medium mb-3">Subscription Management</h4>
+                      {currentProfile.subscriptionStatus === 'cancelling' ? (
+                        <Alert>
+                          <AlertCircle className="h-4 w-4" />
+                          <AlertDescription>
+                            Your subscription will be cancelled at the end of your current billing period
+                            {currentProfile.subscriptionExpires && (
+                              <span> on {new Date(currentProfile.subscriptionExpires).toLocaleDateString()}</span>
+                            )}. 
+                            You'll continue to have access until then.
+                          </AlertDescription>
+                        </Alert>
+                      ) : (
+                        <div className="space-y-3">
+                          <p className="text-sm text-gray-600">
+                            Cancel your subscription anytime. You'll keep access until the end of your current billing period.
+                          </p>
+                          <Button 
+                            variant="outline" 
+                            className="text-red-600 border-red-300 hover:bg-red-50"
+                            onClick={() => {
+                              const confirmed = confirm(
+                                'Are you sure you want to cancel your subscription? You will keep access until the end of your current billing period, then be downgraded to the free plan.'
+                              );
+                              if (confirmed) {
+                                apiRequest('POST', '/api/stripe/cancel-subscription')
+                                  .then(() => {
+                                    toast({
+                                      title: "Subscription will be cancelled",
+                                      description: "Your subscription will be cancelled at the end of your current billing period."
+                                    });
+                                    queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] });
+                                  })
+                                  .catch((error) => {
+                                    toast({
+                                      title: "Error",
+                                      description: "Failed to cancel subscription. Please try again.",
+                                      variant: "destructive"
+                                    });
+                                  });
+                              }
+                            }}
+                          >
+                            Cancel Subscription
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   {currentProfile.subscriptionExpires && (
                     <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
                       <div className="flex items-center">

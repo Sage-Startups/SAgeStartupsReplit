@@ -297,6 +297,65 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
     }
   });
 
+  // Admin refund endpoint
+  app.post("/api/admin/refund", requireAuth, async (req: any, res) => {
+    try {
+      const { userId, amount, refundType } = req.body;
+      
+      // Check if current user is super admin
+      const currentUser = await storage.getUser(req.user.id);
+      if (!currentUser || currentUser.role !== 'super_admin') {
+        return res.status(403).json({ message: "Only super admins can process refunds" });
+      }
+      
+      const user = await storage.getUser(userId);
+      if (!user || !user.stripeCustomerId) {
+        return res.status(404).json({ message: "User or Stripe customer not found" });
+      }
+
+      let refundAmount: number;
+      
+      if (refundType === 'last_payment') {
+        // Get the latest successful payment for this customer
+        const charges = await stripe.charges.list({
+          customer: user.stripeCustomerId,
+          limit: 1
+        });
+        
+        if (!charges.data.length || charges.data[0].status !== 'succeeded') {
+          return res.status(404).json({ message: "No successful payments found for this user" });
+        }
+        
+        refundAmount = charges.data[0].amount / 100; // Convert from cents
+      } else {
+        // Custom amount
+        refundAmount = amount;
+        if (!refundAmount || refundAmount <= 0) {
+          return res.status(400).json({ message: "Invalid refund amount" });
+        }
+      }
+
+      // Process the refund
+      const refund = await stripe.refunds.create({
+        charge: (await stripe.charges.list({
+          customer: user.stripeCustomerId,
+          limit: 1
+        })).data[0].id,
+        amount: Math.round(refundAmount * 100) // Convert to cents
+      });
+
+      res.json({ 
+        message: "Refund processed successfully",
+        amount: refundAmount,
+        refundId: refund.id
+      });
+
+    } catch (error: any) {
+      console.error("Refund error:", error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   // Stripe webhook handler
   app.post('/api/stripe/webhook', async (req, res) => {
     const sig = req.headers['stripe-signature'] as string;
