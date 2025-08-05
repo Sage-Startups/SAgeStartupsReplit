@@ -24,7 +24,7 @@ const signUpSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
   confirmPassword: z.string(),
   company: z.string().optional(),
-  subscriptionTier: z.enum(["free", "premium"]),
+  subscriptionTier: z.enum(["free", "pro", "premium"]),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],
@@ -40,6 +40,16 @@ const subscriptionTiers = [
     yearlyPrice: 0,
     description: "7 days free access to 8 AI bots",
     features: ["8 AI bots", "7-day free trial", "Basic support", "No credit card required"]
+  },
+  {
+    id: "pro",
+    name: "Pro",
+    monthlyPrice: 22, // Early bird discount from $24
+    yearlyPrice: 264, // $22 * 12 months
+    description: "30 AI bots - Lifetime discount!",
+    features: ["30 AI bots", "Priority support", "Advanced analytics", "Custom branding", "Early Bird Discount"],
+    originalMonthlyPrice: 24,
+    isDiscounted: true
   },
   {
     id: "premium",
@@ -74,7 +84,7 @@ export default function SignUp2() {
       password: "",
       confirmPassword: "",
       company: "",
-      subscriptionTier: "premium", // Default to premium for early bird
+      subscriptionTier: isEarlyBird ? "pro" : "free", // Default to pro for early bird
     },
   });
 
@@ -136,9 +146,10 @@ export default function SignUp2() {
           // Redirect to checkout with discounted tier and billing cycle after a short delay
           const billingCycle = isYearly ? 'yearly' : 'monthly';
           const discountParam = isEarlyBird ? '&discount=early-bird' : '';
+          const selectedTierValue = form.getValues().subscriptionTier;
           setTimeout(() => {
             try {
-              setLocation(`/checkout?tier=premium&plan=${billingCycle}${discountParam}`);
+              setLocation(`/checkout?tier=${selectedTierValue}&plan=${billingCycle}${discountParam}`);
             } catch (error) {
               console.error('Error redirecting to checkout:', error);
               toast({
@@ -241,7 +252,7 @@ export default function SignUp2() {
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
               {subscriptionTiers.map((tier) => {
                 const isSelected = selectedTier === tier.id;
                 const price = isYearly ? tier.yearlyPrice : tier.monthlyPrice;
@@ -255,11 +266,13 @@ export default function SignUp2() {
                         ? 'ring-2 ring-blue-500 shadow-lg'
                         : 'hover:shadow-md'
                     } ${tier.isDiscounted ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-purple-50' : ''}`}
-                    onClick={() => form.setValue('subscriptionTier', tier.id as "free" | "premium")}
+                    onClick={() => form.setValue('subscriptionTier', tier.id as "free" | "pro" | "premium")}
                   >
                     {tier.isDiscounted && (
                       <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                        <Badge className="bg-blue-500">🔥 Early Bird Special - 50% Off!</Badge>
+                        <Badge className="bg-blue-500">
+                          🔥 Early Bird Special - {tier.id === 'pro' ? '$2 Off' : '50% Off'}!
+                        </Badge>
                       </div>
                     )}
                     
