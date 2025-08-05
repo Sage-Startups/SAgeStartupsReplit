@@ -18,8 +18,9 @@ const stripe = new Stripe(stripeSecretKey, {
   apiVersion: "2024-12-18.acacia",
 });
 
-// Pricing configuration - Separate for test and live modes
-const PRICING_CONFIG = {
+// Pricing configuration - Different for test and live modes
+const PRICING_CONFIG = process.env.NODE_ENV === 'production' ? {
+  // LIVE MODE PRICES
   free: {
     monthlyPrice: 0,
     yearlyPrice: 0,
@@ -28,24 +29,47 @@ const PRICING_CONFIG = {
   },
   pro: {
     monthlyPrice: 24,
-    yearlyPrice: 240, // $240/year total (20% discount)
-    // Test price IDs - you'll need to create these in Stripe test mode
+    yearlyPrice: 240,
     stripePriceId: 'price_1RncgSGTriQojbPQX65SA4Do',
     stripeYearlyPriceId: 'price_1RnchDGTriQojbPQ75f5koOK'
   },
   premium: {
     monthlyPrice: 44,
-    yearlyPrice: 432, // $432/year total (20% discount)
-    // Test price IDs - you'll need to create these in Stripe test mode
+    yearlyPrice: 432,
     stripePriceId: 'price_1RnchqGTriQojbPQVhsCJgGX',
     stripeYearlyPriceId: 'price_1RnciZGTriQojbPQUUDxXW1Y'
   },
   'premium-early-bird': {
-    monthlyPrice: 22, // 50% off regular premium price
-    yearlyPrice: 264, // $22 * 12 months
-    // Test price IDs for early bird pricing
-    stripePriceId: process.env.NODE_ENV === 'development' ? 'price_test_early_bird_monthly' : null,
-    stripeYearlyPriceId: process.env.NODE_ENV === 'development' ? 'price_test_early_bird_yearly' : null
+    monthlyPrice: 22,
+    yearlyPrice: 264,
+    stripePriceId: null,
+    stripeYearlyPriceId: null
+  }
+} : {
+  // TEST MODE PRICES - Create dynamic test prices
+  free: {
+    monthlyPrice: 0,
+    yearlyPrice: 0,
+    stripePriceId: null,
+    stripeYearlyPriceId: null
+  },
+  pro: {
+    monthlyPrice: 24,
+    yearlyPrice: 240,
+    stripePriceId: null, // Will be created dynamically
+    stripeYearlyPriceId: null
+  },
+  premium: {
+    monthlyPrice: 44,
+    yearlyPrice: 432,
+    stripePriceId: null, // Will be created dynamically
+    stripeYearlyPriceId: null
+  },
+  'premium-early-bird': {
+    monthlyPrice: 22,
+    yearlyPrice: 264,
+    stripePriceId: null, // Will be created dynamically
+    stripeYearlyPriceId: null
   }
 };
 
@@ -53,24 +77,22 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
   // Helper function to create or get test prices
   async function getOrCreateTestPrice(productName: string, amount: number, interval: 'month' | 'year') {
     try {
-      // In test mode, create prices dynamically
-      if (process.env.NODE_ENV === 'development') {
-        const price = await stripe.prices.create({
-          unit_amount: amount * 100, // Convert to cents
-          currency: 'usd',
-          recurring: { interval },
-          product_data: {
-            name: `${productName} Plan - Test Mode`,
-            description: `Test mode subscription for ${productName} plan`
-          },
-        });
-        return price.id;
-      }
+      console.log(`🧪 Creating test price for ${productName} - $${amount}/${interval}`);
       
-      // In production, return the configured price ID
-      return null; // This should never be reached with current logic
+      const price = await stripe.prices.create({
+        unit_amount: amount * 100, // Convert to cents
+        currency: 'usd',
+        recurring: { interval },
+        product_data: {
+          name: `${productName} Plan - Test Mode`,
+          description: `Test mode subscription for ${productName} plan`
+        },
+      });
+      
+      console.log(`✅ Test price created: ${price.id}`);
+      return price.id;
     } catch (error) {
-      console.error('Error creating test price:', error);
+      console.error(`❌ Error creating test price for ${productName}:`, error);
       throw error;
     }
   }
