@@ -41,12 +41,14 @@ const CheckoutForm = ({ planDetails }: { planDetails: any }) => {
     try {
       // Check if this is a setup intent (for test mode) or payment intent
       if (planDetails.isSetupIntent) {
-        const { error } = await stripe.confirmSetup({
+        const { error, setupIntent } = await stripe.confirmSetup({
           elements,
           confirmParams: {
             return_url: `${window.location.origin}/account?tab=subscription&success=true`,
           },
         });
+        
+        console.log("Setup intent result:", { error, setupIntent });
 
         if (error) {
           toast({
@@ -85,7 +87,7 @@ const CheckoutForm = ({ planDetails }: { planDetails: any }) => {
       console.error("Payment processing error:", error);
       toast({
         title: "Processing Error",
-        description: "Something went wrong. Please try again.",
+        description: error.message || "Something went wrong. Please try again.",
         variant: "destructive",
       });
     }
@@ -242,6 +244,7 @@ export default function Checkout() {
         const response = await apiRequest("POST", "/api/stripe/create-subscription-intent", {
           tier: plan.tier,
           billingCycle: plan.billingCycle,
+          price: plan.price, // Send the correct price
           discount: plan.isEarlyBird ? 'early-bird' : undefined
         });
         

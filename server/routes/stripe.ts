@@ -123,7 +123,8 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
         return res.status(400).json({ message: "Free tier doesn't require payment" });
       }
 
-      const price = billingCycle === 'yearly' ? pricingConfig.yearlyPrice : pricingConfig.monthlyPrice;
+      // Use the price from the request if provided, otherwise calculate from config
+      const price = req.body.price || (billingCycle === 'yearly' ? pricingConfig.yearlyPrice : pricingConfig.monthlyPrice);
       let stripePriceId = billingCycle === 'yearly' ? pricingConfig.stripeYearlyPriceId : pricingConfig.stripePriceId;
       
       // In development, create test prices dynamically if needed
