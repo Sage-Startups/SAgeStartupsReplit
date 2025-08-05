@@ -1039,13 +1039,14 @@ export default function SuperAdmin() {
                             {new Date(payment.createdAt).toLocaleDateString()}
                           </TableCell>
                           <TableCell>
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <Button variant="outline" size="sm" className="text-blue-600">
-                                  <DollarSign className="w-4 h-4 mr-1" />
-                                  Refund
-                                </Button>
-                              </DialogTrigger>
+                            {payment.amount > 0 && payment.paymentMethod !== 'refund' ? (
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button variant="outline" size="sm" className="text-blue-600">
+                                    <DollarSign className="w-4 h-4 mr-1" />
+                                    Refund
+                                  </Button>
+                                </DialogTrigger>
                               <DialogContent className="sm:max-w-md">
                                 <DialogHeader>
                                   <DialogTitle>Process Refund</DialogTitle>
@@ -1140,7 +1141,12 @@ export default function SuperAdmin() {
                                   </div>
                                 </div>
                               </DialogContent>
-                            </Dialog>
+                              </Dialog>
+                            ) : (
+                              <span className="text-gray-400 text-sm">
+                                {payment.paymentMethod === 'refund' ? 'Refund Record' : 'No Refund Available'}
+                              </span>
+                            )}
                           </TableCell>
                         </TableRow>
                       ))}

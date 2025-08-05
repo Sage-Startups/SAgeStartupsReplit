@@ -325,6 +325,13 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
         return res.status(404).json({ message: "User or Stripe customer not found" });
       }
 
+      // Check if user has already been refunded
+      const existingRefund = await storage.getAllPayments();
+      const userRefunds = existingRefund.filter(p => p.userId === userId && p.paymentMethod === 'refund');
+      if (userRefunds.length > 0) {
+        return res.status(400).json({ message: "User has already been refunded" });
+      }
+
       let refundAmount: number;
       
       if (refundType === 'last_payment') {
