@@ -213,6 +213,11 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
         },
       });
       console.log(`✅ Stripe subscription created:`, subscription.id);
+      console.log(`🔍 Latest invoice:`, {
+        id: latestInvoice?.id,
+        status: latestInvoice?.status,
+        hasPaymentIntent: !!(latestInvoice as any)?.payment_intent
+      });
 
       // Save subscription ID but DON'T upgrade tier until payment is confirmed
       await storage.updateUser(userId, { 
@@ -223,6 +228,18 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
 
       const latestInvoice = subscription.latest_invoice as Stripe.Invoice;
       const paymentIntent = (latestInvoice as any).payment_intent as Stripe.PaymentIntent;
+
+      if (!paymentIntent || !paymentIntent.client_secret) {
+        console.error("❌ Payment intent or client_secret is missing:", {
+          hasInvoice: !!latestInvoice,
+          hasPaymentIntent: !!paymentIntent,
+          subscriptionStatus: subscription.status
+        });
+        return res.status(400).json({ 
+          message: "Payment intent not found. Please try again.",
+          subscriptionId: subscription.id
+        });
+      }
 
       res.json({
         subscriptionId: subscription.id,
