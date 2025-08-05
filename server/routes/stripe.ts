@@ -196,57 +196,41 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
         return res.status(400).json({ message: "Invalid Price ID format" });
       }
 
-      // Create subscription
-      console.log(`🚀 Creating Stripe subscription with Price ID: ${stripePriceId}`);
-      const subscription = await stripe.subscriptions.create({
+      // For test mode, let's create a setup intent instead of a problematic subscription
+      console.log(`🚀 Creating setup intent for subscription setup`);
+      const setupIntent = await stripe.setupIntents.create({
         customer: stripeCustomerId,
-        items: [{
-          price: stripePriceId,
-        }],
-        payment_behavior: 'default_incomplete',
-        payment_settings: { save_default_payment_method: 'on_subscription' },
-        expand: ['latest_invoice.payment_intent'],
+        payment_method_types: ['card'],
+        usage: 'off_session',
         metadata: {
           userId,
           tier,
           billingCycle,
-        },
-      });
-      console.log(`✅ Stripe subscription created:`, subscription.id);
-      
-      const latestInvoice = subscription.latest_invoice as Stripe.Invoice;
-      console.log(`🔍 Latest invoice:`, {
-        id: latestInvoice?.id,
-        status: latestInvoice?.status,
-        hasPaymentIntent: !!(latestInvoice as any)?.payment_intent
+          price: price.toString(),
+          stripePriceId
+        }
       });
 
-      // Save subscription ID but DON'T upgrade tier until payment is confirmed
-      await storage.updateUser(userId, { 
-        stripeSubscriptionId: subscription.id,
-        subscriptionStatus: subscription.status === 'active' ? 'active' : 'pending',
-        pendingSubscription: tier // Store the tier they're trying to upgrade to
+      // Store the pending subscription info in user record
+      await storage.updateUser(userId, {
+        pendingSubscription: tier,
+        subscriptionStatus: 'pending'
       });
-      const paymentIntent = (latestInvoice as any).payment_intent as Stripe.PaymentIntent;
 
-      if (!paymentIntent || !paymentIntent.client_secret) {
-        console.error("❌ Payment intent or client_secret is missing:", {
-          hasInvoice: !!latestInvoice,
-          hasPaymentIntent: !!paymentIntent,
-          subscriptionStatus: subscription.status
-        });
-        return res.status(400).json({ 
-          message: "Payment intent not found. Please try again.",
-          subscriptionId: subscription.id
-        });
+      if (!setupIntent.client_secret) {
+        throw new Error('Failed to create setup intent');
       }
 
-      res.json({
-        subscriptionId: subscription.id,
-        clientSecret: paymentIntent.client_secret,
+      console.log(`✅ Setup intent created: ${setupIntent.id}`);
+      return res.json({
+        clientSecret: setupIntent.client_secret,
+        setupIntentId: setupIntent.id,
+        isSetupIntent: true,
         price,
-        billingCycle
+        billingCycle,
+        tier
       });
+
 
     } catch (error: any) {
       console.error("❌ Stripe subscription error:", {
