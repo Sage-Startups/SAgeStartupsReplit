@@ -45,6 +45,9 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
         console.log(`💰 Payment succeeded: ${paymentIntent.id}`);
         
+        // Create payment record for all successful payments
+        await createPaymentRecord(paymentIntent);
+        
         // Handle early bird payment success
         if (paymentIntent.metadata?.isEarlyBird === 'true') {
           await handleEarlyBirdPaymentSuccess(paymentIntent);
@@ -60,6 +63,9 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async
       case 'invoice.payment_succeeded': {
         const invoice = event.data.object as Stripe.Invoice;
         console.log(`📋 Invoice payment succeeded: ${invoice.id}`);
+        
+        // Create payment record for invoice payments
+        await createInvoicePaymentRecord(invoice);
         
         if (invoice.subscription_details?.subscription) {
           const subscription = await stripe.subscriptions.retrieve(invoice.subscription_details.subscription as string);
@@ -179,6 +185,76 @@ async function handleEarlyBirdPaymentSuccess(paymentIntent: Stripe.PaymentIntent
 
   } catch (error: any) {
     console.error(`❌ Error handling early bird payment success:`, error);
+  }
+}
+
+// Create payment record from PaymentIntent
+async function createPaymentRecord(paymentIntent: Stripe.PaymentIntent) {
+  try {
+    const userId = paymentIntent.metadata?.userId;
+    if (!userId) {
+      console.error('❌ No userId in payment intent metadata for payment record');
+      return;
+    }
+
+    const user = await storage.getUser(userId);
+    if (!user) {
+      console.error(`❌ User not found for payment record: ${userId}`);
+      return;
+    }
+
+    // Create payment record
+    await storage.createPayment({
+      userId,
+      planId: 1, // Default to 1, could be derived from metadata
+      amount: (paymentIntent.amount / 100), // Convert from cents
+      currency: paymentIntent.currency.toUpperCase(),
+      status: 'completed',
+      paymentMethod: 'card',
+      transactionId: paymentIntent.id,
+      metadata: JSON.stringify(paymentIntent.metadata || {})
+    });
+
+    console.log(`✅ Payment record created for user ${userId}: $${paymentIntent.amount / 100}`);
+
+  } catch (error: any) {
+    console.error(`❌ Error creating payment record:`, error);
+  }
+}
+
+// Create payment record from Invoice
+async function createInvoicePaymentRecord(invoice: Stripe.Invoice) {
+  try {
+    // Find user by customer ID
+    const users = await storage.getAllUsers();
+    const user = users.find(u => u.stripeCustomerId === invoice.customer);
+    
+    if (!user) {
+      console.error(`❌ User not found for invoice payment: ${invoice.customer}`);
+      return;
+    }
+
+    // Create payment record
+    await storage.createPayment({
+      userId: user.id,
+      planId: 1, // Default to 1, could be derived from subscription
+      amount: (invoice.amount_paid / 100), // Convert from cents
+      currency: invoice.currency.toUpperCase(),
+      status: 'completed',
+      paymentMethod: 'card',
+      transactionId: invoice.id,
+      metadata: JSON.stringify({
+        subscriptionId: invoice.subscription,
+        invoiceId: invoice.id,
+        periodStart: invoice.period_start,
+        periodEnd: invoice.period_end
+      })
+    });
+
+    console.log(`✅ Invoice payment record created for user ${user.id}: $${invoice.amount_paid / 100}`);
+
+  } catch (error: any) {
+    console.error(`❌ Error creating invoice payment record:`, error);
   }
 }
 
