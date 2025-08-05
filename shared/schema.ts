@@ -320,6 +320,17 @@ export const insertFounderMetricsSchema = createInsertSchema(founderMetrics).pic
   goals: true,
 });
 
+export const insertPaymentSchema = createInsertSchema(payments).pick({
+  userId: true,
+  planId: true,
+  amount: true,
+  currency: true,
+  status: true,
+  paymentMethod: true,
+  transactionId: true,
+  metadata: true,
+});
+
 // Site Analytics Tables
 export const siteVisits = pgTable("site_visits", {
   id: serial("id").primaryKey(),
@@ -435,6 +446,7 @@ export type FounderMetrics = typeof founderMetrics.$inferSelect;
 export type AuditLog = typeof auditLogs.$inferSelect;
 export type SubscriptionPlan = typeof subscriptionPlans.$inferSelect;
 export type Payment = typeof payments.$inferSelect;
+export type InsertPayment = z.infer<typeof insertPaymentSchema>;
 export type Content = typeof content.$inferSelect;
 export type Media = typeof media.$inferSelect;
 

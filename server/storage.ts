@@ -1,4 +1,4 @@
-import { users, projects, botSessions, chatMessages, generatedAssets, userAnalytics, founderMetrics, auditLogs, subscriptionPlans, payments, content, media, waitlist, earlyBirdCounter, siteVisits, pageViews, userActions, conversionEvents, type User, type Project, type BotSession, type ChatMessage, type GeneratedAsset, type UserAnalytics, type FounderMetrics, type AuditLog, type SubscriptionPlan, type Payment, type Content, type Media, type UpsertUser, type InsertProject, type InsertBotSession, type InsertChatMessage, type InsertGeneratedAsset, type InsertUserAnalytics, type InsertFounderMetrics, type InsertWaitlist, type Waitlist, type EarlyBirdCounter, type SiteVisit, type PageView, type UserAction, type ConversionEvent, type InsertSiteVisit, type InsertPageView, type InsertUserAction, type InsertConversionEvent } from "@shared/schema";
+import { users, projects, botSessions, chatMessages, generatedAssets, userAnalytics, founderMetrics, auditLogs, subscriptionPlans, payments, content, media, waitlist, earlyBirdCounter, siteVisits, pageViews, userActions, conversionEvents, type User, type Project, type BotSession, type ChatMessage, type GeneratedAsset, type UserAnalytics, type FounderMetrics, type AuditLog, type SubscriptionPlan, type Payment, type InsertPayment, type Content, type Media, type UpsertUser, type InsertProject, type InsertBotSession, type InsertChatMessage, type InsertGeneratedAsset, type InsertUserAnalytics, type InsertFounderMetrics, type InsertWaitlist, type Waitlist, type EarlyBirdCounter, type SiteVisit, type PageView, type UserAction, type ConversionEvent, type InsertSiteVisit, type InsertPageView, type InsertUserAction, type InsertConversionEvent } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
 
@@ -48,6 +48,7 @@ export interface IStorage {
   // Admin operations
   getAllUsers(): Promise<User[]>;
   getAllPayments(): Promise<Payment[]>;
+  createPayment(payment: InsertPayment): Promise<Payment>;
   getAllAuditLogs(): Promise<AuditLog[]>;
   getAllSubscriptionPlans(): Promise<SubscriptionPlan[]>;
   createAuditLog(log: Partial<AuditLog>): Promise<void>;
@@ -342,6 +343,11 @@ export class DatabaseStorage implements IStorage {
 
   async getAllPayments(): Promise<Payment[]> {
     return await db.select().from(payments);
+  }
+
+  async createPayment(paymentData: InsertPayment): Promise<Payment> {
+    const [payment] = await db.insert(payments).values(paymentData as any).returning();
+    return payment;
   }
 
   async getAllAuditLogs(): Promise<AuditLog[]> {

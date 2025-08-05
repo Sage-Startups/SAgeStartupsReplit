@@ -15,7 +15,7 @@ if (!stripeSecretKey) {
 console.log(`🧪 Using Stripe ${process.env.NODE_ENV === 'production' ? 'LIVE' : 'TEST'} mode`);
 
 const stripe = new Stripe(stripeSecretKey, {
-  apiVersion: "2024-12-18.acacia",
+  apiVersion: "2025-07-30.basil",
 });
 
 // Pricing configuration - Different for test and live modes
@@ -222,7 +222,7 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
       });
 
       const latestInvoice = subscription.latest_invoice as Stripe.Invoice;
-      const paymentIntent = latestInvoice.payment_intent as Stripe.PaymentIntent;
+      const paymentIntent = (latestInvoice as any).payment_intent as Stripe.PaymentIntent;
 
       res.json({
         subscriptionId: subscription.id,
@@ -321,7 +321,7 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
       await storage.updateUser(userId, {
         subscriptionStatus: 'cancelling',
         nextTier: 'free',
-        subscriptionExpires: new Date(subscription.current_period_end * 1000)
+        subscriptionExpires: new Date((subscription as any).current_period_end * 1000)
       });
 
       res.json({ message: "Subscription cancelled successfully" });
