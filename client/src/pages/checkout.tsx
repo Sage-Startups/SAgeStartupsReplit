@@ -293,17 +293,7 @@ export default function Checkout() {
               Back
             </Button>
           
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-            <div className="flex items-center space-x-2">
-              <Lock className="w-5 h-5 text-red-600" />
-              <div>
-                <h4 className="font-medium text-red-800">🔴 Live Payment Processing</h4>
-                <p className="text-sm text-red-600">
-                  Real charges will be processed. Your card will be charged immediately.
-                </p>
-              </div>
-            </div>
-          </div>
+
           
           <h1 className="text-3xl font-bold text-gray-900">Complete Your Subscription</h1>
           <p className="text-gray-600 mt-2">Secure checkout powered by Stripe</p>
