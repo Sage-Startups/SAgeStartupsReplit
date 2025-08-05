@@ -3,14 +3,16 @@ import Stripe from "stripe";
 import { storage } from "../storage";
 // We'll use the requireAuth middleware from routes.ts instead
 
-// Force live mode for refund testing - use live keys
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+// Switch back to test mode
+const stripeSecretKey = process.env.NODE_ENV === 'production' 
+  ? process.env.STRIPE_SECRET_KEY 
+  : process.env.STRIPE_TEST_SECRET_KEY;
 
 if (!stripeSecretKey) {
-  throw new Error(`Missing required Stripe secret: STRIPE_SECRET_KEY`);
+  throw new Error(`Missing required Stripe secret: ${process.env.NODE_ENV === 'production' ? 'STRIPE_SECRET_KEY' : 'STRIPE_TEST_SECRET_KEY'}`);
 }
 
-console.log(`🔒 Using Stripe LIVE mode`);
+console.log(`🧪 Using Stripe ${process.env.NODE_ENV === 'production' ? 'LIVE' : 'TEST'} mode`);
 
 const stripe = new Stripe(stripeSecretKey, {
   apiVersion: "2024-12-18.acacia",

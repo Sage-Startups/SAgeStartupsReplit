@@ -10,14 +10,16 @@ import { MainNavigation } from "@/components/main-navigation";
 import { ArrowLeft, CreditCard, Lock, CheckCircle } from "lucide-react";
 import { Link } from "wouter";
 
-// Force live mode for refund testing - use live keys
-const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+// Switch back to test mode for development
+const stripePublicKey = import.meta.env.NODE_ENV === 'production' 
+  ? import.meta.env.VITE_STRIPE_PUBLIC_KEY 
+  : import.meta.env.VITE_STRIPE_TEST_PUBLIC_KEY;
 
 if (!stripePublicKey) {
-  throw new Error(`Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY`);
+  throw new Error(`Missing required Stripe key: ${import.meta.env.NODE_ENV === 'production' ? 'VITE_STRIPE_PUBLIC_KEY' : 'VITE_STRIPE_TEST_PUBLIC_KEY'}`);
 }
 
-console.log(`🔒 Frontend using Stripe LIVE mode`);
+console.log(`🧪 Frontend using Stripe ${import.meta.env.NODE_ENV === 'production' ? 'LIVE' : 'TEST'} mode`);
 
 const stripePromise = loadStripe(stripePublicKey);
 
