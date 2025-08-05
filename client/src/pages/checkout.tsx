@@ -38,23 +38,55 @@ const CheckoutForm = ({ planDetails }: { planDetails: any }) => {
 
     setIsProcessing(true);
 
-    const { error } = await stripe.confirmPayment({
-      elements,
-      confirmParams: {
-        return_url: `${window.location.origin}/account?tab=subscription&success=true`,
-      },
-    });
+    try {
+      // Check if this is a setup intent (for test mode) or payment intent
+      if (planDetails.isSetupIntent) {
+        const { error } = await stripe.confirmSetup({
+          elements,
+          confirmParams: {
+            return_url: `${window.location.origin}/account?tab=subscription&success=true`,
+          },
+        });
 
-    if (error) {
+        if (error) {
+          toast({
+            title: "Setup Failed",
+            description: error.message,
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Payment Method Saved",
+            description: "Welcome to your new subscription!",
+          });
+        }
+      } else {
+        const { error } = await stripe.confirmPayment({
+          elements,
+          confirmParams: {
+            return_url: `${window.location.origin}/account?tab=subscription&success=true`,
+          },
+        });
+
+        if (error) {
+          toast({
+            title: "Payment Failed",
+            description: error.message,
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Payment Successful",
+            description: "Welcome to your new subscription!",
+          });
+        }
+      }
+    } catch (error: any) {
+      console.error("Payment processing error:", error);
       toast({
-        title: "Payment Failed",
-        description: error.message,
+        title: "Processing Error",
+        description: "Something went wrong. Please try again.",
         variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Payment Successful",
-        description: "Welcome to your new subscription!",
       });
     }
 
@@ -227,6 +259,14 @@ export default function Checkout() {
         
         const data = await response.json();
         setClientSecret(data.clientSecret);
+        
+        // Update plan details with setup intent flag
+        setPlanDetails(prev => ({
+          ...prev,
+          isSetupIntent: data.isSetupIntent || false,
+          setupIntentId: data.setupIntentId
+        }));
+        
         setIsLoading(false);
       } catch (error) {
         console.error('Error creating subscription:', error);
