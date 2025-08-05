@@ -184,7 +184,10 @@ export default function Checkout() {
       const isEarlyBird = discountFromUrl === 'early-bird';
       
       const tierPricing = {
-        pro: { monthly: 24, yearly: 240 },
+        pro: { 
+          monthly: isEarlyBird ? 22 : 24, 
+          yearly: isEarlyBird ? 264 : 240 
+        },
         premium: { 
           monthly: isEarlyBird ? 22 : 44, 
           yearly: isEarlyBird ? 264 : 432 

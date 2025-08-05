@@ -78,10 +78,15 @@ export function registerStripeRoutes(app: Express, requireAuth: any) {
         return res.status(404).json({ message: "User not found" });
       }
 
-      // Handle early bird discount for premium tier
+      // Handle early bird discount - apply to both pro and premium tiers
       let pricingKey = tier;
-      if (tier === 'premium' && discount === 'early-bird') {
-        pricingKey = 'premium-early-bird';
+      if (discount === 'early-bird') {
+        if (tier === 'premium') {
+          pricingKey = 'premium-early-bird';
+        } else if (tier === 'pro') {
+          // For pro tier with early bird discount, use the same pricing as premium-early-bird
+          pricingKey = 'premium-early-bird';
+        }
       }
       
       const pricingConfig = PRICING_CONFIG[pricingKey as keyof typeof PRICING_CONFIG];
