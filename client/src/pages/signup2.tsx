@@ -132,7 +132,16 @@ export default function SignUp2() {
           // Redirect to checkout with discounted tier and billing cycle after a short delay
           const billingCycle = isYearly ? 'yearly' : 'monthly';
           setTimeout(() => {
-            setLocation(`/checkout?tier=premium&plan=${billingCycle}&discount=early-bird`);
+            try {
+              setLocation(`/checkout?tier=premium&plan=${billingCycle}&discount=early-bird`);
+            } catch (error) {
+              console.error('Error redirecting to checkout:', error);
+              toast({
+                title: "Navigation Error",
+                description: "Please manually navigate to the checkout page.",
+                variant: "destructive",
+              });
+            }
           }, 500); // Small delay to ensure authentication is established
         } catch (signInError) {
           toast({

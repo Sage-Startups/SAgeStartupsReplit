@@ -152,6 +152,7 @@ export default function Checkout() {
   const [clientSecret, setClientSecret] = useState("");
   const [planDetails, setPlanDetails] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     // Get selected plan from sessionStorage or URL parameters
@@ -210,7 +211,9 @@ export default function Checkout() {
           if (response.status === 401 && retries > 0) {
             // Wait a bit and retry if unauthorized (auth might still be establishing)
             console.log('Authentication issue, retrying...');
-            setTimeout(() => createPaymentIntent(retries - 1), 1000);
+            setTimeout(() => {
+              createPaymentIntent(retries - 1).catch(console.error);
+            }, 1000);
             return;
           }
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -222,14 +225,21 @@ export default function Checkout() {
       } catch (error) {
         console.error('Error creating subscription:', error);
         if (retries === 0) {
-          // If all retries failed, redirect to signin
-          window.location.href = '/signin?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
+          // If all retries failed, show error and redirect to signin
+          toast({
+            title: "Payment Setup Failed",
+            description: "Unable to set up payment. Please try signing in again.",
+            variant: "destructive",
+          });
+          setTimeout(() => {
+            window.location.href = '/signin?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
+          }, 2000);
         }
         setIsLoading(false);
       }
     };
     
-    createPaymentIntent();
+    createPaymentIntent().catch(console.error);
   }, []);
 
   if (isLoading || !clientSecret || !planDetails) {
