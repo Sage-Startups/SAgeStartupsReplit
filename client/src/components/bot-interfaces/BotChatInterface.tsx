@@ -98,24 +98,24 @@ export function BotChatInterface({ sessionId, className = "" }: BotChatInterface
                     <div className={`rounded-lg px-4 py-3 ${
                       message.role === 'user'
                         ? 'bg-blue-500 text-white ml-auto'
-                        : 'bg-gray-50 border'
+                        : 'bg-white border border-gray-200 text-gray-900'
                     }`}>
                       {message.role === 'assistant' ? (
-                        <div className="prose prose-sm max-w-none">
+                        <div className="text-gray-900 bg-transparent">
                           <ReactMarkdown
                             components={{
-                              h1: ({ children }: any) => <h1 className="text-lg font-bold mb-2">{children}</h1>,
-                              h2: ({ children }: any) => <h2 className="text-base font-semibold mb-2">{children}</h2>,
-                              h3: ({ children }: any) => <h3 className="text-sm font-medium mb-1">{children}</h3>,
-                              ul: ({ children }: any) => <ul className="list-disc list-inside space-y-1 mb-2">{children}</ul>,
-                              ol: ({ children }: any) => <ol className="list-decimal list-inside space-y-1 mb-2">{children}</ol>,
-                              li: ({ children }: any) => <li className="text-sm">{children}</li>,
-                              p: ({ children }: any) => <p className="text-sm mb-2 last:mb-0">{children}</p>,
-                              strong: ({ children }: any) => <strong className="font-semibold">{children}</strong>,
-                              em: ({ children }: any) => <em className="italic">{children}</em>,
-                              code: ({ children }: any) => <code className="bg-gray-200 px-1 py-0.5 rounded text-xs">{children}</code>,
+                              h1: ({ children }: any) => <h1 className="text-lg font-bold mb-2 text-gray-900">{children}</h1>,
+                              h2: ({ children }: any) => <h2 className="text-base font-semibold mb-2 text-gray-800">{children}</h2>,
+                              h3: ({ children }: any) => <h3 className="text-sm font-medium mb-1 text-gray-800">{children}</h3>,
+                              ul: ({ children }: any) => <ul className="list-disc list-inside space-y-1 mb-2 text-gray-700">{children}</ul>,
+                              ol: ({ children }: any) => <ol className="list-decimal list-inside space-y-1 mb-2 text-gray-700">{children}</ol>,
+                              li: ({ children }: any) => <li className="text-sm text-gray-700">{children}</li>,
+                              p: ({ children }: any) => <p className="text-sm mb-2 last:mb-0 text-gray-700">{children}</p>,
+                              strong: ({ children }: any) => <strong className="font-semibold text-gray-900">{children}</strong>,
+                              em: ({ children }: any) => <em className="italic text-gray-700">{children}</em>,
+                              code: ({ children }: any) => <code className="bg-gray-100 text-gray-800 px-1 py-0.5 rounded text-xs">{children}</code>,
                               blockquote: ({ children }: any) => (
-                                <blockquote className="border-l-4 border-blue-500 pl-4 italic text-gray-600 my-2">
+                                <blockquote className="border-l-4 border-blue-500 pl-4 italic text-gray-600 my-2 bg-blue-50">
                                   {children}
                                 </blockquote>
                               ),
