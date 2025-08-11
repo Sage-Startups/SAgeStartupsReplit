@@ -10,6 +10,10 @@ import { LogoDesignBot } from "@/components/bot-interfaces/LogoDesignBot";
 import { BrandVoiceBot } from "@/components/bot-interfaces/BrandVoiceBot";
 import AdCopyGeneratorBot from "@/components/bot-interfaces/AdCopyGeneratorBot";
 import CreativeConceptBot from "@/components/bot-interfaces/CreativeConceptBot";
+import { EmailMarketingAssistant } from "@/components/bot-interfaces/EmailMarketingAssistant";
+import { ContentCalendarPlanner } from "@/components/bot-interfaces/ContentCalendarPlanner";
+import { CompetitorAnalysisBot } from "@/components/bot-interfaces/CompetitorAnalysisBot";
+import { InfluencerOutreachBot } from "@/components/bot-interfaces/InfluencerOutreachBot";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -38,6 +42,41 @@ export default function Bot() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { user, isLoading: authLoading } = useAuth();
+
+  // Message sending mutation
+  const sendMessageMutation = useMutation({
+    mutationFn: async (message: string) => {
+      if (!activeSessionId) throw new Error('No active session');
+      const response = await apiRequest('POST', `/api/sessions/${activeSessionId}/messages`, {
+        content: message,
+        role: 'user'
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      // Invalidate messages to refresh the chat
+      queryClient.invalidateQueries({ queryKey: ['/api/sessions', activeSessionId, 'messages'] });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again.",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const handleSendMessage = (message: string) => {
+    if (!activeSessionId) {
+      toast({
+        title: "No active session",
+        description: "Please start a session first to send messages.",
+        variant: "destructive"
+      });
+      return;
+    }
+    sendMessageMutation.mutate(message);
+  };
 
   // Parse URL parameters to load existing session
   useEffect(() => {
@@ -190,6 +229,18 @@ export default function Bot() {
           break;
         case 'creative-concept':
           sessionTitle = `Creative Concepts for ${projectName}`;
+          break;
+        case 'email-marketing':
+          sessionTitle = `Email Campaigns for ${projectName}`;
+          break;
+        case 'content-calendar':
+          sessionTitle = `Content Calendar for ${projectName}`;
+          break;
+        case 'competitor-analysis':
+          sessionTitle = `Competitor Analysis for ${projectName}`;
+          break;
+        case 'influencer-outreach':
+          sessionTitle = `Influencer Strategy for ${projectName}`;
           break;
         default:
           sessionTitle = `${bot.name} - ${projectName}`;
@@ -508,8 +559,44 @@ export default function Bot() {
                   />
                 )}
                 
+                {/* Email Marketing Assistant */}
+                {bot.id === 'email-marketing' && (
+                  <EmailMarketingAssistant 
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                    sessionId={activeSessionId}
+                  />
+                )}
+                
+                {/* Content Calendar Planner */}
+                {bot.id === 'content-calendar' && (
+                  <ContentCalendarPlanner 
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                    sessionId={activeSessionId}
+                  />
+                )}
+                
+                {/* Competitor Analysis Bot */}
+                {bot.id === 'competitor-analysis' && (
+                  <CompetitorAnalysisBot 
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                    sessionId={activeSessionId}
+                  />
+                )}
+                
+                {/* Influencer Outreach Bot */}
+                {bot.id === 'influencer-outreach' && (
+                  <InfluencerOutreachBot 
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                    sessionId={activeSessionId}
+                  />
+                )}
+                
                 {/* Default Enhanced Bot Interface for others */}
-                {!['marketing-strategy', 'brand-identity', 'content-creator', 'blog-writer', 'social-media', 'seo-content', 'keyword-research', 'logo-design', 'brand-voice', 'ad-copy', 'creative-concept'].includes(bot.id) && (
+                {!['marketing-strategy', 'brand-identity', 'content-creator', 'blog-writer', 'social-media', 'seo-content', 'keyword-research', 'logo-design', 'brand-voice', 'ad-copy', 'creative-concept', 'email-marketing', 'content-calendar', 'competitor-analysis', 'influencer-outreach'].includes(bot.id) && (
                   <EnhancedBotInterface 
                     sessionId={activeSessionId}
                     botName={bot.name}
