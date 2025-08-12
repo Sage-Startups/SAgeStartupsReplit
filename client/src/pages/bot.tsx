@@ -14,6 +14,12 @@ import { EmailMarketingAssistant } from "@/components/bot-interfaces/EmailMarket
 import { ContentCalendarPlanner } from "@/components/bot-interfaces/ContentCalendarPlanner";
 import { CompetitorAnalysisBot } from "@/components/bot-interfaces/CompetitorAnalysisBot";
 import { InfluencerOutreachBot } from "@/components/bot-interfaces/InfluencerOutreachBot";
+import { ProductLaunchPlanner } from "@/components/bot-interfaces/ProductLaunchPlanner";
+import { CustomerJourneyMapper } from "@/components/bot-interfaces/CustomerJourneyMapper";
+import { ConversionRateOptimizer } from "@/components/bot-interfaces/ConversionRateOptimizer";
+import { MarketingBudgetPlanner } from "@/components/bot-interfaces/MarketingBudgetPlanner";
+import { BlogPostGenerator } from "@/components/bot-interfaces/BlogPostGenerator";
+import { TopicResearchBot } from "@/components/bot-interfaces/TopicResearchBot";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -241,6 +247,24 @@ export default function Bot() {
           break;
         case 'influencer-outreach':
           sessionTitle = `Influencer Strategy for ${projectName}`;
+          break;
+        case 'product-launch':
+          sessionTitle = `Product Launch Plan for ${projectName}`;
+          break;
+        case 'customer-journey':
+          sessionTitle = `Customer Journey Map for ${projectName}`;
+          break;
+        case 'conversion-optimizer':
+          sessionTitle = `CRO Analysis for ${projectName}`;
+          break;
+        case 'budget-planner':
+          sessionTitle = `Marketing Budget for ${projectName}`;
+          break;
+        case 'blog-generator':
+          sessionTitle = `Blog Content for ${projectName}`;
+          break;
+        case 'topic-research':
+          sessionTitle = `Topic Research for ${projectName}`;
           break;
         default:
           sessionTitle = `${bot.name} - ${projectName}`;
@@ -595,8 +619,62 @@ export default function Bot() {
                   />
                 )}
                 
+                {/* Product Launch Planner */}
+                {bot.id === 'product-launch' && (
+                  <ProductLaunchPlanner 
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                    sessionId={activeSessionId}
+                  />
+                )}
+                
+                {/* Customer Journey Mapper */}
+                {bot.id === 'customer-journey' && (
+                  <CustomerJourneyMapper 
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                    sessionId={activeSessionId}
+                  />
+                )}
+                
+                {/* Conversion Rate Optimizer */}
+                {bot.id === 'conversion-optimizer' && (
+                  <ConversionRateOptimizer 
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                    sessionId={activeSessionId}
+                  />
+                )}
+                
+                {/* Marketing Budget Planner */}
+                {bot.id === 'budget-planner' && (
+                  <MarketingBudgetPlanner 
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                    sessionId={activeSessionId}
+                  />
+                )}
+                
+                {/* Blog Post Generator */}
+                {bot.id === 'blog-generator' && (
+                  <BlogPostGenerator 
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                    sessionId={activeSessionId}
+                  />
+                )}
+                
+                {/* Topic Research Bot */}
+                {bot.id === 'topic-research' && (
+                  <TopicResearchBot 
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                    sessionId={activeSessionId}
+                  />
+                )}
+                
                 {/* Default Enhanced Bot Interface for others */}
-                {!['marketing-strategy', 'brand-identity', 'content-creator', 'blog-writer', 'social-media', 'seo-content', 'keyword-research', 'logo-design', 'brand-voice', 'ad-copy', 'creative-concept', 'email-marketing', 'content-calendar', 'competitor-analysis', 'influencer-outreach'].includes(bot.id) && (
+                {!['marketing-strategy', 'brand-identity', 'content-creator', 'blog-writer', 'social-media', 'seo-content', 'keyword-research', 'logo-design', 'brand-voice', 'ad-copy', 'creative-concept', 'email-marketing', 'content-calendar', 'competitor-analysis', 'influencer-outreach', 'product-launch', 'customer-journey', 'conversion-optimizer', 'budget-planner', 'blog-generator', 'topic-research'].includes(bot.id) && (
                   <EnhancedBotInterface 
                     sessionId={activeSessionId}
                     botName={bot.name}
