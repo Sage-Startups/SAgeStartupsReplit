@@ -20,6 +20,14 @@ import { ConversionRateOptimizer } from "@/components/bot-interfaces/ConversionR
 import { MarketingBudgetPlanner } from "@/components/bot-interfaces/MarketingBudgetPlanner";
 import { BlogPostGenerator } from "@/components/bot-interfaces/BlogPostGenerator";
 import { TopicResearchBot } from "@/components/bot-interfaces/TopicResearchBot";
+import { SEOArticleOptimizer } from "@/components/bot-interfaces/SEOArticleOptimizer";
+import { EditorialCalendar } from "@/components/bot-interfaces/EditorialCalendar";
+import { HeadlineGenerator } from "@/components/bot-interfaces/HeadlineGenerator";
+import { ContentRepurposer } from "@/components/bot-interfaces/ContentRepurposer";
+import { ProofreadingAssistant } from "@/components/bot-interfaces/ProofreadingAssistant";
+import { MetaDescriptionWriter } from "@/components/bot-interfaces/MetaDescriptionWriter";
+import { GuestPostOutreach } from "@/components/bot-interfaces/GuestPostOutreach";
+import { ContentPerformanceTracker } from "@/components/bot-interfaces/ContentPerformanceTracker";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -265,6 +273,30 @@ export default function Bot() {
           break;
         case 'topic-research':
           sessionTitle = `Topic Research for ${projectName}`;
+          break;
+        case 'seo-optimizer':
+          sessionTitle = `SEO Optimization for ${projectName}`;
+          break;
+        case 'editorial-calendar':
+          sessionTitle = `Editorial Calendar for ${projectName}`;
+          break;
+        case 'headline-generator':
+          sessionTitle = `Headlines for ${projectName}`;
+          break;
+        case 'content-repurposer':
+          sessionTitle = `Content Repurposing for ${projectName}`;
+          break;
+        case 'proofreading':
+          sessionTitle = `Proofreading for ${projectName}`;
+          break;
+        case 'meta-descriptions':
+          sessionTitle = `Meta Descriptions for ${projectName}`;
+          break;
+        case 'guest-posting':
+          sessionTitle = `Guest Post Strategy for ${projectName}`;
+          break;
+        case 'content-performance':
+          sessionTitle = `Content Analytics for ${projectName}`;
           break;
         default:
           sessionTitle = `${bot.name} - ${projectName}`;
@@ -673,8 +705,80 @@ export default function Bot() {
                   />
                 )}
                 
+                {/* SEO Article Optimizer */}
+                {bot.id === 'seo-optimizer' && (
+                  <SEOArticleOptimizer 
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                    sessionId={activeSessionId}
+                  />
+                )}
+                
+                {/* Editorial Calendar */}
+                {bot.id === 'editorial-calendar' && (
+                  <EditorialCalendar 
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                    sessionId={activeSessionId}
+                  />
+                )}
+                
+                {/* Headline Generator */}
+                {bot.id === 'headline-generator' && (
+                  <HeadlineGenerator 
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                    sessionId={activeSessionId}
+                  />
+                )}
+                
+                {/* Content Repurposer */}
+                {bot.id === 'content-repurposer' && (
+                  <ContentRepurposer 
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                    sessionId={activeSessionId}
+                  />
+                )}
+                
+                {/* Proofreading Assistant */}
+                {bot.id === 'proofreading' && (
+                  <ProofreadingAssistant 
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                    sessionId={activeSessionId}
+                  />
+                )}
+                
+                {/* Meta Description Writer */}
+                {bot.id === 'meta-descriptions' && (
+                  <MetaDescriptionWriter 
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                    sessionId={activeSessionId}
+                  />
+                )}
+                
+                {/* Guest Post Outreach */}
+                {bot.id === 'guest-posting' && (
+                  <GuestPostOutreach 
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                    sessionId={activeSessionId}
+                  />
+                )}
+                
+                {/* Content Performance Tracker */}
+                {bot.id === 'content-performance' && (
+                  <ContentPerformanceTracker 
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                    sessionId={activeSessionId}
+                  />
+                )}
+                
                 {/* Default Enhanced Bot Interface for others */}
-                {!['marketing-strategy', 'brand-identity', 'content-creator', 'blog-writer', 'social-media', 'seo-content', 'keyword-research', 'logo-design', 'brand-voice', 'ad-copy', 'creative-concept', 'email-marketing', 'content-calendar', 'competitor-analysis', 'influencer-outreach', 'product-launch', 'customer-journey', 'conversion-optimizer', 'budget-planner', 'blog-generator', 'topic-research'].includes(bot.id) && (
+                {!['marketing-strategy', 'brand-identity', 'content-creator', 'blog-writer', 'social-media', 'seo-content', 'keyword-research', 'logo-design', 'brand-voice', 'ad-copy', 'creative-concept', 'email-marketing', 'content-calendar', 'competitor-analysis', 'influencer-outreach', 'product-launch', 'customer-journey', 'conversion-optimizer', 'budget-planner', 'blog-generator', 'topic-research', 'seo-optimizer', 'editorial-calendar', 'headline-generator', 'content-repurposer', 'proofreading', 'meta-descriptions', 'guest-posting', 'content-performance'].includes(bot.id) && (
                   <EnhancedBotInterface 
                     sessionId={activeSessionId}
                     botName={bot.name}
