@@ -192,33 +192,6 @@ export const bots: BotDefinition[] = [
     features: ['Memorable slogans', 'Message testing', 'Tagline variations', 'Performance analysis']
   },
   {
-    id: 'typography',
-    name: 'Typography Selector',
-    description: 'Font pairing & hierarchy',
-    section: 'branding',
-    icon: 'font',
-    color: 'text-secondary',
-    features: ['Font pairing', 'Typography hierarchy', 'Readability analysis', 'Style guidelines']
-  },
-  {
-    id: 'brand-guidelines',
-    name: 'Brand Guidelines Builder',
-    description: 'Comprehensive style guide',
-    section: 'branding',
-    icon: 'book',
-    color: 'text-secondary',
-    features: ['Style guide creation', 'Usage rules', 'Visual standards', 'Brand application']
-  },
-  {
-    id: 'tagline-generator',
-    name: 'Tagline Generator',
-    description: 'Memorable brand slogans',
-    section: 'branding',
-    icon: 'quote-left',
-    color: 'text-secondary',
-    features: ['Slogan creation', 'Tagline variations', 'Message testing', 'Impact analysis']
-  },
-  {
     id: 'brand-story',
     name: 'Brand Story Writer',
     description: 'Compelling narratives',
