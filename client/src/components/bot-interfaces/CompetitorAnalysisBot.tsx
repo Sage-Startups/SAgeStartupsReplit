@@ -352,7 +352,7 @@ Please use web search to gather the most current and accurate information about 
       {sessionId && (
         <div className="mt-8">
           <h3 className="text-lg font-semibold mb-4">AI Assistant Response</h3>
-          <BotChatInterface sessionId={sessionId} />
+          <BotChatInterface sessionId={sessionId} botType="competitor-analysis" />
         </div>
       )}
     </div>

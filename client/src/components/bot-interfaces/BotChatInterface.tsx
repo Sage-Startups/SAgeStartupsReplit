@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Copy, Bot, User, CheckCircle } from "lucide-react";
 import ReactMarkdown from 'react-markdown';
 import { motion, AnimatePresence } from "framer-motion";
+import { BotResultDisplay } from "./BotResultDisplay";
 
 interface Message {
   id: number;
@@ -18,10 +19,12 @@ interface Message {
 interface BotChatInterfaceProps {
   sessionId: number;
   className?: string;
+  botType?: string;
 }
 
-export function BotChatInterface({ sessionId, className = "" }: BotChatInterfaceProps) {
+export function BotChatInterface({ sessionId, className = "", botType }: BotChatInterfaceProps) {
   const [copiedId, setCopiedId] = useState<number | null>(null);
+  const [useRichDisplay, setUseRichDisplay] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const { data: messages = [], isLoading } = useQuery({
@@ -66,9 +69,49 @@ export function BotChatInterface({ sessionId, className = "" }: BotChatInterface
     );
   }
 
+  // Check if we have an assistant response to show in rich display
+  const lastAssistantMessage = messages.filter((m: Message) => m.role === 'assistant').pop();
+  
+  // Show rich display if we have an assistant message and useRichDisplay is true
+  if (useRichDisplay && lastAssistantMessage) {
+    return (
+      <div className="space-y-4">
+        {/* Toggle button for switching views */}
+        <div className="flex justify-end">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setUseRichDisplay(false)}
+          >
+            View Conversation History
+          </Button>
+        </div>
+        
+        {/* Rich display for the result */}
+        <BotResultDisplay 
+          content={lastAssistantMessage.content} 
+          botType={botType}
+        />
+      </div>
+    );
+  }
+
   return (
     <Card className={className}>
       <CardContent className="p-0">
+        {/* Toggle button to switch back to rich display */}
+        {lastAssistantMessage && (
+          <div className="p-4 border-b">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setUseRichDisplay(true)}
+            >
+              View Formatted Results
+            </Button>
+          </div>
+        )}
+        
         <ScrollArea className="h-[500px] p-4">
           <div className="space-y-4">
             <AnimatePresence>

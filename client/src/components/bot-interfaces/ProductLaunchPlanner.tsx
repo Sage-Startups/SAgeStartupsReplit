@@ -399,7 +399,7 @@ Make this actionable with specific deadlines, content examples, and measurable g
       {sessionId && (
         <div className="mt-8">
           <h3 className="text-lg font-semibold mb-4">AI Assistant Response</h3>
-          <BotChatInterface sessionId={sessionId} />
+          <BotChatInterface sessionId={sessionId} botType="product-launch" />
         </div>
       )}
     </div>

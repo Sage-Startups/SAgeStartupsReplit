@@ -501,7 +501,7 @@ https://youtube.com/video456"
       {sessionId && (
         <div className="mt-8">
           <h3 className="text-lg font-semibold mb-4">Performance Tracking System & Analytics</h3>
-          <BotChatInterface sessionId={sessionId} />
+          <BotChatInterface sessionId={sessionId} botType="content-performance" />
         </div>
       )}
     </div>

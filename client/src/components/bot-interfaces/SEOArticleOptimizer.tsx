@@ -351,7 +351,7 @@ https://competitor2.com/article"
       {sessionId && (
         <div className="mt-8">
           <h3 className="text-lg font-semibold mb-4">SEO Optimization Results</h3>
-          <BotChatInterface sessionId={sessionId} />
+          <BotChatInterface sessionId={sessionId} botType="seo-optimizer" />
         </div>
       )}
     </div>

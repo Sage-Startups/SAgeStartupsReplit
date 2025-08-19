@@ -448,7 +448,7 @@ Present the palette visually with color swatches, provide exact color codes, and
       {sessionId && (
         <div className="mt-8">
           <h3 className="text-lg font-semibold mb-4">Color Palette & Guidelines</h3>
-          <BotChatInterface sessionId={sessionId} />
+          <BotChatInterface sessionId={sessionId} botType="color-palette" />
         </div>
       )}
     </div>

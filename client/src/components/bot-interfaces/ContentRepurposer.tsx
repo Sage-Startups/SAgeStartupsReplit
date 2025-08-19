@@ -503,7 +503,7 @@ Provide ready-to-use content adaptations with specific formatting, optimal posti
       {sessionId && (
         <div className="mt-8">
           <h3 className="text-lg font-semibold mb-4">Repurposed Content & Distribution Strategy</h3>
-          <BotChatInterface sessionId={sessionId} />
+          <BotChatInterface sessionId={sessionId} botType="content-repurposer" />
         </div>
       )}
     </div>

@@ -377,7 +377,7 @@ Provide ready-to-use email templates, actionable outreach strategies, and system
       {sessionId && (
         <div className="mt-8">
           <h3 className="text-lg font-semibold mb-4">Outreach Strategy & Templates</h3>
-          <BotChatInterface sessionId={sessionId} />
+          <BotChatInterface sessionId={sessionId} botType="guest-posting" />
         </div>
       )}
     </div>

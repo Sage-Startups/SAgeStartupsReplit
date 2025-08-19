@@ -506,7 +506,7 @@ Make this actionable with specific dollar amounts, percentages, timelines, and m
       {sessionId && (
         <div className="mt-8">
           <h3 className="text-lg font-semibold mb-4">AI Assistant Response</h3>
-          <BotChatInterface sessionId={sessionId} />
+          <BotChatInterface sessionId={sessionId} botType="budget-planner" />
         </div>
       )}
     </div>

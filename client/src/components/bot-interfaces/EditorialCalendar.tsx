@@ -486,7 +486,7 @@ Format the calendar in an easy-to-read, actionable structure with specific dates
       {sessionId && (
         <div className="mt-8">
           <h3 className="text-lg font-semibold mb-4">Editorial Calendar Results</h3>
-          <BotChatInterface sessionId={sessionId} />
+          <BotChatInterface sessionId={sessionId} botType="editorial-calendar" />
         </div>
       )}
     </div>

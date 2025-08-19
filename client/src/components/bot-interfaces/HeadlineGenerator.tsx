@@ -432,7 +432,7 @@ Format headlines clearly with performance predictions, testing recommendations, 
       {sessionId && (
         <div className="mt-8">
           <h3 className="text-lg font-semibold mb-4">Generated Headlines & Testing Strategy</h3>
-          <BotChatInterface sessionId={sessionId} />
+          <BotChatInterface sessionId={sessionId} botType="headline-generator" />
         </div>
       )}
     </div>

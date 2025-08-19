@@ -375,7 +375,7 @@ Provide specific corrections with explanations, alternative phrasings, and a fin
       {sessionId && (
         <div className="mt-8">
           <h3 className="text-lg font-semibold mb-4">Proofreading Results & Improvements</h3>
-          <BotChatInterface sessionId={sessionId} />
+          <BotChatInterface sessionId={sessionId} botType="proofreading" />
         </div>
       )}
     </div>

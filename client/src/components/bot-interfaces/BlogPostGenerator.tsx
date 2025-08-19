@@ -441,7 +441,7 @@ Make this a complete, professional blog post that's ready to publish and optimiz
       {sessionId && (
         <div className="mt-8">
           <h3 className="text-lg font-semibold mb-4">AI Assistant Response</h3>
-          <BotChatInterface sessionId={sessionId} />
+          <BotChatInterface sessionId={sessionId} botType="blog-generator" />
         </div>
       )}
     </div>

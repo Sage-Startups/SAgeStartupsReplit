@@ -383,7 +383,7 @@ Format meta descriptions clearly with character counts, optimization explanation
       {sessionId && (
         <div className="mt-8">
           <h3 className="text-lg font-semibold mb-4">Optimized Meta Descriptions & SERP Strategy</h3>
-          <BotChatInterface sessionId={sessionId} />
+          <BotChatInterface sessionId={sessionId} botType="meta-descriptions" />
         </div>
       )}
     </div>
