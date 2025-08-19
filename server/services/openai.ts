@@ -46,7 +46,7 @@ export async function generateBotResponse(
     return content;
   } catch (error) {
     console.error('Error in generateBotResponse:', error);
-    throw new Error(`Failed to generate bot response: ${error.message}`);
+    throw new Error(`Failed to generate bot response: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 

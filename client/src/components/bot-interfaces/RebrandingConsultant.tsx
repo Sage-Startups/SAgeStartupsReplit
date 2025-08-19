@@ -111,145 +111,35 @@ export function RebrandingConsultant() {
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
     try {
-      const prompt = `As a Rebranding Consultant and Brand Evolution Strategist, develop a comprehensive rebranding strategy with evolution planning, rebrand strategy, transition planning, and stakeholder communication based on the following information:
+      const prompt = `As a Rebranding Consultant, create a comprehensive rebranding strategy for ${data.brandName} (${data.industry}).
 
-**Current Brand Situation:**
-- Brand Name: ${data.brandName}
-- Industry: ${data.industry}
-- Rebranding Reason: ${data.rebrandingReason}
-- Current Brand Issues: ${data.currentBrandIssues}
-- Brand History: ${data.brandHistory}
-- Current Brand Assets: ${data.currentAssets}
+**Situation Analysis:**
+Reason: ${data.rebrandingReason}
+Issues: ${data.currentBrandIssues}
+Scope: ${data.rebrandingScope}
+Timeline: ${data.timeline}
+Goals: ${data.rebrandingGoals}
 
-**Target & Market Context:**
-- Target Audience: ${data.targetAudience}
-- Market Changes: ${data.marketChanges}
-- Competitive Landscape: ${data.competitiveLandscape}
-- Desired Brand Image: ${data.desiredBrandImage}
+**Key Context:**
+Target: ${data.targetAudience}
+Market Changes: ${data.marketChanges}
+Desired Image: ${data.desiredBrandImage}
+Stakeholder Concerns: ${data.stakeholderConcerns}
+Budget: ${data.budget}
+${data.additionalContext ? `Additional: ${data.additionalContext}` : ""}
 
-**Rebranding Scope & Constraints:**
-- Rebranding Scope: ${data.rebrandingScope}
-- Budget Considerations: ${data.budget}
-- Timeline: ${data.timeline}
-- Rebranding Goals: ${data.rebrandingGoals}
+Provide a strategic rebranding plan with:
 
-**Challenges & Stakeholders:**
-- Stakeholder Concerns: ${data.stakeholderConcerns}
-- Risk Factors: ${data.riskFactors}
-- Communication Challenges: ${data.communicationChallenges}
-- Customer Retention Strategy: ${data.customerRetention}
-- Success Metrics: ${data.successMetrics}
-${data.changeManagement ? `- Change Management Needs: ${data.changeManagement}` : ""}
-${data.additionalContext ? `- Additional Context: ${data.additionalContext}` : ""}
+1. **Evolution Strategy** - Brand assessment, evolution approach, equity preservation
+2. **Rebrand Framework** - Positioning evolution, visual transformation, digital migration
+3. **Implementation Roadmap** - Phases, milestones, resource allocation, coordination
+4. **Stakeholder Communication** - Internal alignment, customer education, PR strategy
+5. **Risk Management** - Assessment matrix, prevention strategies, contingency plans
+6. **Change Management** - Organizational strategy, employee adoption, training programs
+7. **Performance Tracking** - KPIs, perception monitoring, success measurement
+8. **Budget Planning** - Cost breakdown, resource optimization, ROI projections
 
-Please provide a comprehensive rebranding strategy and implementation plan that includes:
-
-1. **Brand Evolution Strategy:**
-   - Current brand audit and assessment
-   - Evolution vs. revolution approach analysis
-   - Brand equity preservation strategies
-   - Legacy element retention recommendations
-   - Progressive evolution timeline and phases
-
-2. **Comprehensive Rebrand Strategy:**
-   - Strategic rebranding framework
-   - Brand positioning and messaging evolution
-   - Visual identity transformation plan
-   - Digital presence migration strategy
-   - Product and service branding updates
-
-3. **Detailed Transition Planning:**
-   - Phase-by-phase implementation roadmap
-   - Critical milestone identification
-   - Resource allocation and team structure
-   - Vendor and partner coordination
-   - Quality control and approval processes
-
-4. **Stakeholder Communication Plan:**
-   - Internal stakeholder alignment strategy
-   - Employee communication and training
-   - Customer notification and education
-   - Partner and vendor communication
-   - Media and public relations strategy
-
-5. **Risk Management & Mitigation:**
-   - Rebranding risk assessment matrix
-   - Customer confusion prevention strategies
-   - Brand equity protection measures
-   - Crisis communication protocols
-   - Contingency planning and backup strategies
-
-6. **Implementation Timeline:**
-   - Detailed project timeline with dependencies
-   - Pre-launch preparation phases
-   - Launch sequence and coordination
-   - Post-launch monitoring and optimization
-   - Long-term brand establishment phases
-
-7. **Change Management Framework:**
-   - Organizational change strategy
-   - Employee adoption and buy-in tactics
-   - Training and education programs
-   - Cultural integration approaches
-   - Performance and behavior alignment
-
-8. **Customer Retention Strategy:**
-   - Customer loyalty preservation tactics
-   - Communication to minimize confusion
-   - Value proposition continuity
-   - Service level maintenance
-   - Feedback collection and response systems
-
-9. **Asset Management & Migration:**
-   - Current asset inventory and audit
-   - Asset retirement and archival plan
-   - New asset development priorities
-   - Digital asset migration strategy
-   - Legal and trademark considerations
-
-10. **Launch & Communication Strategy:**
-    - Launch event planning and execution
-    - Marketing campaign development
-    - Media relations and PR strategy
-    - Digital and social media rollout
-    - Customer experience continuity
-
-11. **Performance Monitoring:**
-    - Key performance indicators (KPIs)
-    - Brand perception tracking
-    - Customer satisfaction monitoring
-    - Market response analysis
-    - ROI and success measurement
-
-12. **Post-Rebrand Optimization:**
-    - Performance review and analysis
-    - Continuous improvement processes
-    - Long-term brand building strategy
-    - Market position strengthening
-    - Competitive advantage maximization
-
-13. **Budget & Resource Planning:**
-    - Detailed budget breakdown by category
-    - Resource allocation and optimization
-    - Cost-benefit analysis framework
-    - ROI projections and timelines
-    - Contingency budget recommendations
-
-14. **Legal & Compliance Considerations:**
-    - Trademark and intellectual property issues
-    - Regulatory compliance requirements
-    - Contract and agreement updates
-    - Vendor and partner legal considerations
-    - Risk assessment and mitigation
-
-15. **Success Measurement Framework:**
-    - Pre and post-rebrand benchmarking
-    - Quantitative and qualitative metrics
-    - Customer perception studies
-    - Market share and position tracking
-    - Long-term impact assessment
-
-Format the response with detailed implementation guidance, timeline specifics, and actionable recommendations. Include risk mitigation strategies, communication templates, and success measurement tools.`;
+Include specific timelines, actionable recommendations, and practical implementation guidance.`;
 
       const response = await apiRequest("POST", "/api/sessions", {
         botType: "rebranding-consultant",
@@ -264,9 +154,10 @@ Format the response with detailed implementation guidance, timeline specifics, a
         description: "Creating comprehensive rebrand plan with transition strategy...",
       });
     } catch (error) {
+      console.error("Rebranding consultant error:", error);
       toast({
-        title: "Error",
-        description: "Failed to start rebranding consultation. Please try again.",
+        title: "Error", 
+        description: `Failed to start rebranding consultation: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive",
       });
     } finally {
