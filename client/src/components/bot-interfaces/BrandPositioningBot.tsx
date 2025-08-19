@@ -18,25 +18,25 @@ import { useToast } from "@/hooks/use-toast";
 const formSchema = z.object({
   brandName: z.string().min(1, "Brand name is required"),
   industry: z.string().min(1, "Industry is required"),
-  targetMarket: z.string().min(1, "Target market is required"),
-  primaryAudience: z.string().min(1, "Primary audience is required"),
-  secondaryAudience: z.string().optional(),
-  currentPosition: z.string().min(1, "Current market position is required"),
-  desiredPosition: z.string().min(1, "Desired market position is required"),
-  uniqueValueProp: z.string().min(1, "Unique value proposition is required"),
-  keyBenefits: z.string().min(1, "Key benefits are required"),
-  competitorAnalysis: z.string().min(1, "Competitor analysis is required"),
-  marketChallenges: z.string().min(1, "Market challenges are required"),
-  brandStrengths: z.string().min(1, "Brand strengths are required"),
-  brandWeaknesses: z.string().min(1, "Brand weaknesses are required"),
-  marketOpportunities: z.string().min(1, "Market opportunities are required"),
-  competitiveThreats: z.string().min(1, "Competitive threats are required"),
+  targetMarket: z.string().min(1, "Who is your target market?"),
+  uniqueValueProp: z.string().min(1, "What makes you unique?"),
+  competitorAnalysis: z.string().min(1, "Who are your main competitors?"),
   pricingStrategy: z.string().min(1, "Pricing strategy is required"),
-  distributionChannels: z.string().min(1, "Distribution channels are required"),
-  messagingStrategy: z.string().min(1, "Messaging strategy is required"),
-  positioningGoals: z.string().min(1, "Positioning goals are required"),
-  successMetrics: z.string().min(1, "Success metrics are required"),
-  timeframe: z.string().min(1, "Implementation timeframe is required"),
+  primaryAudience: z.string().optional(),
+  secondaryAudience: z.string().optional(),
+  currentPosition: z.string().optional(),
+  desiredPosition: z.string().optional(),
+  keyBenefits: z.string().optional(),
+  marketChallenges: z.string().optional(),
+  brandStrengths: z.string().optional(),
+  brandWeaknesses: z.string().optional(),
+  marketOpportunities: z.string().optional(),
+  competitiveThreats: z.string().optional(),
+  distributionChannels: z.string().optional(),
+  messagingStrategy: z.string().optional(),
+  positioningGoals: z.string().optional(),
+  successMetrics: z.string().optional(),
+  timeframe: z.string().optional(),
   additionalContext: z.string().optional(),
 });
 
@@ -100,40 +100,22 @@ export function BrandPositioningBot() {
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
     try {
-      const prompt = `As a Brand Positioning Strategist and Market Differentiation Expert, develop a comprehensive brand positioning strategy with competitive advantage framework and value proposition optimization based on the following information:
+      const prompt = `Create a brand positioning strategy for ${data.brandName} in the ${data.industry} industry.
 
-**Brand & Market Foundation:**
-- Brand Name: ${data.brandName}
-- Industry: ${data.industry}
+**Core Information:**
 - Target Market: ${data.targetMarket}
-- Primary Audience: ${data.primaryAudience}
-${data.secondaryAudience ? `- Secondary Audience: ${data.secondaryAudience}` : ""}
-
-**Current vs. Desired Positioning:**
-- Current Market Position: ${data.currentPosition}
-- Desired Market Position: ${data.desiredPosition}
-- Positioning Goals: ${data.positioningGoals}
-
-**Value Proposition & Benefits:**
 - Unique Value Proposition: ${data.uniqueValueProp}
-- Key Benefits: ${data.keyBenefits}
-- Messaging Strategy: ${data.messagingStrategy}
-
-**Competitive Landscape:**
 - Competitor Analysis: ${data.competitorAnalysis}
-- Market Challenges: ${data.marketChallenges}
-
-**SWOT Analysis:**
-- Brand Strengths: ${data.brandStrengths}
-- Brand Weaknesses: ${data.brandWeaknesses}
-- Market Opportunities: ${data.marketOpportunities}
-- Competitive Threats: ${data.competitiveThreats}
-
-**Strategic Elements:**
 - Pricing Strategy: ${data.pricingStrategy}
-- Distribution Channels: ${data.distributionChannels}
-- Success Metrics: ${data.successMetrics}
-- Implementation Timeframe: ${data.timeframe}
+${data.primaryAudience ? `- Primary Audience: ${data.primaryAudience}` : ""}
+${data.currentPosition ? `- Current Position: ${data.currentPosition}` : ""}
+${data.desiredPosition ? `- Desired Position: ${data.desiredPosition}` : ""}
+${data.keyBenefits ? `- Key Benefits: ${data.keyBenefits}` : ""}
+${data.marketChallenges ? `- Market Challenges: ${data.marketChallenges}` : ""}
+${data.brandStrengths ? `- Brand Strengths: ${data.brandStrengths}` : ""}
+${data.brandWeaknesses ? `- Brand Weaknesses: ${data.brandWeaknesses}` : ""}
+${data.marketOpportunities ? `- Market Opportunities: ${data.marketOpportunities}` : ""}
+${data.positioningGoals ? `- Positioning Goals: ${data.positioningGoals}` : ""}
 ${data.additionalContext ? `- Additional Context: ${data.additionalContext}` : ""}
 
 Please provide a comprehensive brand positioning strategy that includes:

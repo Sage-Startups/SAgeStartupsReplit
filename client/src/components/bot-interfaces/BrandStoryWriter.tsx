@@ -18,20 +18,20 @@ import { useToast } from "@/hooks/use-toast";
 const formSchema = z.object({
   brandName: z.string().min(1, "Brand name is required"),
   industry: z.string().min(1, "Industry is required"),
-  foundingStory: z.string().min(1, "Founding story is required"),
-  founderBackground: z.string().min(1, "Founder background is required"),
-  brandMission: z.string().min(1, "Brand mission is required"),
-  coreValues: z.string().min(1, "Core values are required"),
-  targetAudience: z.string().min(1, "Target audience is required"),
-  uniqueValue: z.string().min(1, "Unique value is required"),
-  keyMilestones: z.string().min(1, "Key milestones are required"),
-  challenges: z.string().min(1, "Challenges overcome are required"),
-  emotionalConnection: z.string().min(1, "Emotional connection is required"),
-  brandPersonality: z.string().min(1, "Brand personality is required"),
-  futureVision: z.string().min(1, "Future vision is required"),
-  customerImpact: z.string().min(1, "Customer impact is required"),
+  foundingStory: z.string().min(1, "Tell us how your brand started"),
+  brandMission: z.string().min(1, "What's your brand's mission?"),
+  targetAudience: z.string().min(1, "Who is your target audience?"),
   storyTone: z.string().min(1, "Story tone is required"),
-  narrativeStyle: z.string().min(1, "Narrative style is required"),
+  founderBackground: z.string().optional(),
+  coreValues: z.string().optional(),
+  uniqueValue: z.string().optional(),
+  keyMilestones: z.string().optional(),
+  challenges: z.string().optional(),
+  emotionalConnection: z.string().optional(),
+  brandPersonality: z.string().optional(),
+  futureVision: z.string().optional(),
+  customerImpact: z.string().optional(),
+  narrativeStyle: z.string().optional(),
   keyThemes: z.string().optional(),
   competitorStories: z.string().optional(),
   additionalContext: z.string().optional(),
@@ -98,34 +98,26 @@ export function BrandStoryWriter() {
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
     try {
-      const prompt = `As a Brand Story Expert and Narrative Strategist, create a compelling brand story with comprehensive narrative development, story structure, and emotional connection strategies based on the following information:
+      const prompt = `Create a compelling brand story for ${data.brandName} in the ${data.industry} industry.
 
-**Brand Foundation:**
-- Brand Name: ${data.brandName}
-- Industry: ${data.industry}
-- Brand Mission: ${data.brandMission}
-- Core Values: ${data.coreValues}
-- Target Audience: ${data.targetAudience}
-- Brand Personality: ${data.brandPersonality}
-
-**Story Elements:**
+**Core Information:**
 - Founding Story: ${data.foundingStory}
-- Founder Background: ${data.founderBackground}
-- Unique Value Proposition: ${data.uniqueValue}
-- Key Milestones: ${data.keyMilestones}
-- Challenges Overcome: ${data.challenges}
-- Customer Impact: ${data.customerImpact}
-- Future Vision: ${data.futureVision}
-
-**Narrative Direction:**
-- Desired Emotional Connection: ${data.emotionalConnection}
+- Brand Mission: ${data.brandMission}
+- Target Audience: ${data.targetAudience}
 - Story Tone: ${data.storyTone}
-- Narrative Style: ${data.narrativeStyle}
-${data.keyThemes ? `- Key Themes: ${data.keyThemes}` : ""}
-${data.competitorStories ? `- Competitor Story Analysis: ${data.competitorStories}` : ""}
+${data.founderBackground ? `- Founder Background: ${data.founderBackground}` : ""}
+${data.coreValues ? `- Core Values: ${data.coreValues}` : ""}
+${data.uniqueValue ? `- Unique Value: ${data.uniqueValue}` : ""}
+${data.keyMilestones ? `- Key Milestones: ${data.keyMilestones}` : ""}
+${data.challenges ? `- Challenges Overcome: ${data.challenges}` : ""}
+${data.brandPersonality ? `- Brand Personality: ${data.brandPersonality}` : ""}
+${data.futureVision ? `- Future Vision: ${data.futureVision}` : ""}
+${data.customerImpact ? `- Customer Impact: ${data.customerImpact}` : ""}
+${data.emotionalConnection ? `- Emotional Connection: ${data.emotionalConnection}` : ""}
+${data.narrativeStyle ? `- Narrative Style: ${data.narrativeStyle}` : ""}
 ${data.additionalContext ? `- Additional Context: ${data.additionalContext}` : ""}
 
-Please provide a comprehensive brand story development package that includes:
+Please provide a comprehensive brand story that includes:
 
 1. **Core Brand Story (Multiple Versions):**
    - Executive summary version (2-3 sentences)

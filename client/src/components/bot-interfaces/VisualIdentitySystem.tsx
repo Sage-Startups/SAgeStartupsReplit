@@ -18,22 +18,22 @@ import { useToast } from "@/hooks/use-toast";
 const formSchema = z.object({
   brandName: z.string().min(1, "Brand name is required"),
   industry: z.string().min(1, "Industry is required"),
-  brandPersonality: z.string().min(1, "Brand personality is required"),
-  targetAudience: z.string().min(1, "Target audience is required"),
   designStyle: z.string().min(1, "Design style is required"),
-  colorPalette: z.string().min(1, "Color palette is required"),
-  typography: z.string().optional(),
+  colorPalette: z.string().min(1, "What colors do you prefer?"),
   logoStyle: z.string().min(1, "Logo style is required"),
-  imageryStyle: z.string().min(1, "Imagery style is required"),
-  usageContexts: z.array(z.string()).min(1, "At least one usage context is required"),
-  brandValues: z.string().min(1, "Brand values are required"),
-  competitivePositioning: z.string().min(1, "Competitive positioning is required"),
-  visualGoals: z.string().min(1, "Visual goals are required"),
-  patternNeeds: z.string().min(1, "Pattern needs are required"),
-  iconographyStyle: z.string().min(1, "Iconography style is required"),
-  layoutPreferences: z.string().min(1, "Layout preferences are required"),
-  brandDifferentiators: z.string().min(1, "Brand differentiators are required"),
-  implementationScope: z.string().min(1, "Implementation scope is required"),
+  brandPersonality: z.string().optional(),
+  targetAudience: z.string().optional(),
+  typography: z.string().optional(),
+  imageryStyle: z.string().optional(),
+  usageContexts: z.array(z.string()).optional(),
+  brandValues: z.string().optional(),
+  competitivePositioning: z.string().optional(),
+  visualGoals: z.string().optional(),
+  patternNeeds: z.string().optional(),
+  iconographyStyle: z.string().optional(),
+  layoutPreferences: z.string().optional(),
+  brandDifferentiators: z.string().optional(),
+  implementationScope: z.string().optional(),
   additionalRequirements: z.string().optional(),
 });
 
@@ -135,7 +135,7 @@ export function VisualIdentitySystem() {
   });
 
   const handleUsageContextChange = (context: string, checked: boolean) => {
-    const currentContexts = form.getValues("usageContexts");
+    const currentContexts = form.getValues("usageContexts") || [];
     if (checked) {
       form.setValue("usageContexts", [...currentContexts, context]);
     } else {
@@ -146,34 +146,23 @@ export function VisualIdentitySystem() {
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
     try {
-      const prompt = `As a Visual Identity System Expert and Design Strategist, create a comprehensive visual identity system with cohesive design elements, visual system architecture, and complete pattern library based on the following brand requirements:
+      const prompt = `Create a visual identity system for ${data.brandName} in the ${data.industry} industry.
 
-**Brand Foundation:**
-- Brand Name: ${data.brandName}
-- Industry: ${data.industry}
-- Brand Personality: ${data.brandPersonality}
-- Target Audience: ${data.targetAudience}
-- Brand Values: ${data.brandValues}
-- Competitive Positioning: ${data.competitivePositioning}
-- Brand Differentiators: ${data.brandDifferentiators}
-
-**Visual Direction:**
+**Core Requirements:**
 - Design Style: ${data.designStyle}
 - Color Palette: ${data.colorPalette}
-${data.typography ? `- Typography: ${data.typography}` : ""}
 - Logo Style: ${data.logoStyle}
-- Imagery Style: ${data.imageryStyle}
-- Iconography Style: ${data.iconographyStyle}
-
-**System Requirements:**
-- Usage Contexts: ${data.usageContexts.join(", ")}
-- Visual Goals: ${data.visualGoals}
-- Pattern Needs: ${data.patternNeeds}
-- Layout Preferences: ${data.layoutPreferences}
-- Implementation Scope: ${data.implementationScope}
+${data.brandPersonality ? `- Brand Personality: ${data.brandPersonality}` : ""}
+${data.targetAudience ? `- Target Audience: ${data.targetAudience}` : ""}
+${data.typography ? `- Typography: ${data.typography}` : ""}
+${data.imageryStyle ? `- Imagery Style: ${data.imageryStyle}` : ""}
+${data.usageContexts?.length ? `- Usage Contexts: ${data.usageContexts.join(", ")}` : ""}
+${data.brandValues ? `- Brand Values: ${data.brandValues}` : ""}
+${data.visualGoals ? `- Visual Goals: ${data.visualGoals}` : ""}
+${data.iconographyStyle ? `- Iconography Style: ${data.iconographyStyle}` : ""}
 ${data.additionalRequirements ? `- Additional Requirements: ${data.additionalRequirements}` : ""}
 
-Please create a comprehensive visual identity system package that includes:
+Please create a comprehensive visual identity system that includes:
 
 1. **Visual System Architecture:**
    - Brand identity hierarchy and structure
