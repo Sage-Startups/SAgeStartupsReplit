@@ -32,6 +32,10 @@ import { ColorPaletteCreator } from "@/components/bot-interfaces/ColorPaletteCre
 import { TypographySelector } from "@/components/bot-interfaces/TypographySelector";
 import { BrandGuidelinesBuilder } from "@/components/bot-interfaces/BrandGuidelinesBuilder";
 import { TaglineGenerator } from "@/components/bot-interfaces/TaglineGenerator";
+import { BrandStoryWriter } from "@/components/bot-interfaces/BrandStoryWriter";
+import { VisualIdentitySystem } from "@/components/bot-interfaces/VisualIdentitySystem";
+import { BrandPositioningBot } from "@/components/bot-interfaces/BrandPositioningBot";
+import { RebrandingConsultant } from "@/components/bot-interfaces/RebrandingConsultant";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -304,6 +308,27 @@ export default function Bot() {
           break;
         case 'color-palette':
           sessionTitle = `Color Palette for ${projectName}`;
+          break;
+        case 'typography-selector':
+          sessionTitle = `Typography Selection for ${projectName}`;
+          break;
+        case 'brand-guidelines':
+          sessionTitle = `Brand Guidelines for ${projectName}`;
+          break;
+        case 'tagline-generator':
+          sessionTitle = `Tagline Generation for ${projectName}`;
+          break;
+        case 'brand-story':
+          sessionTitle = `Brand Story for ${projectName}`;
+          break;
+        case 'visual-identity':
+          sessionTitle = `Visual Identity System for ${projectName}`;
+          break;
+        case 'brand-positioning':
+          sessionTitle = `Brand Positioning for ${projectName}`;
+          break;
+        case 'rebranding-consultant':
+          sessionTitle = `Rebranding Strategy for ${projectName}`;
           break;
         default:
           sessionTitle = `${bot.name} - ${projectName}`;
@@ -808,8 +833,28 @@ export default function Bot() {
                   <TaglineGenerator />
                 )}
                 
+                {/* Brand Story Writer */}
+                {bot.id === 'brand-story' && (
+                  <BrandStoryWriter />
+                )}
+                
+                {/* Visual Identity System */}
+                {bot.id === 'visual-identity' && (
+                  <VisualIdentitySystem />
+                )}
+                
+                {/* Brand Positioning Bot */}
+                {bot.id === 'brand-positioning' && (
+                  <BrandPositioningBot />
+                )}
+                
+                {/* Rebranding Consultant */}
+                {bot.id === 'rebranding-consultant' && (
+                  <RebrandingConsultant />
+                )}
+                
                 {/* Default Enhanced Bot Interface for others */}
-                {!['marketing-strategy', 'brand-identity', 'content-creator', 'blog-writer', 'social-media', 'seo-content', 'keyword-research', 'logo-design', 'brand-voice', 'ad-copy', 'creative-concept', 'email-marketing', 'content-calendar', 'competitor-analysis', 'influencer-outreach', 'product-launch', 'customer-journey', 'conversion-optimizer', 'budget-planner', 'blog-generator', 'topic-research', 'seo-optimizer', 'editorial-calendar', 'headline-generator', 'content-repurposer', 'proofreading', 'meta-descriptions', 'guest-posting', 'content-performance', 'color-palette', 'typography-selector', 'brand-guidelines', 'tagline-generator'].includes(bot.id) && (
+                {!['marketing-strategy', 'brand-identity', 'content-creator', 'blog-writer', 'social-media', 'seo-content', 'keyword-research', 'logo-design', 'brand-voice', 'ad-copy', 'creative-concept', 'email-marketing', 'content-calendar', 'competitor-analysis', 'influencer-outreach', 'product-launch', 'customer-journey', 'conversion-optimizer', 'budget-planner', 'blog-generator', 'topic-research', 'seo-optimizer', 'editorial-calendar', 'headline-generator', 'content-repurposer', 'proofreading', 'meta-descriptions', 'guest-posting', 'content-performance', 'color-palette', 'typography-selector', 'brand-guidelines', 'tagline-generator', 'brand-story', 'visual-identity', 'brand-positioning', 'rebranding-consultant'].includes(bot.id) && (
                   <EnhancedBotInterface 
                     sessionId={activeSessionId}
                     botName={bot.name}

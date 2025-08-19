@@ -194,38 +194,38 @@ export const bots: BotDefinition[] = [
   {
     id: 'brand-story',
     name: 'Brand Story Writer',
-    description: 'Compelling narratives',
+    description: 'Compelling narratives & story development',
     section: 'branding',
     icon: 'feather',
     color: 'text-secondary',
-    features: ['Story development', 'Narrative structure', 'Emotional connection', 'Message consistency']
+    features: ['Story development', 'Narrative structure', 'Emotional connection', 'Multi-channel adaptation']
   },
   {
     id: 'visual-identity',
     name: 'Visual Identity System',
-    description: 'Cohesive design elements',
+    description: 'Cohesive design elements & pattern library',
     section: 'branding',
-    icon: 'layer-group',
+    icon: 'layers',
     color: 'text-secondary',
     features: ['Visual system', 'Design elements', 'Pattern library', 'Brand consistency']
   },
   {
     id: 'brand-positioning',
     name: 'Brand Positioning Bot',
-    description: 'Market differentiation',
+    description: 'Market differentiation & competitive advantage',
     section: 'branding',
     icon: 'target',
     color: 'text-secondary',
     features: ['Market positioning', 'Competitive advantage', 'Value proposition', 'Differentiation strategy']
   },
   {
-    id: 'rebranding',
+    id: 'rebranding-consultant',
     name: 'Rebranding Consultant',
-    description: 'Evolution strategy',
+    description: 'Evolution strategy & transition planning',
     section: 'branding',
-    icon: 'sync',
+    icon: 'refresh-cw',
     color: 'text-secondary',
-    features: ['Rebrand strategy', 'Transition planning', 'Stakeholder communication', 'Change management']
+    features: ['Evolution strategy', 'Rebrand strategy', 'Transition planning', 'Stakeholder communication']
   },
 
   // Advertising Bots
