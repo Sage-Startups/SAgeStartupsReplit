@@ -69,8 +69,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }));
 
   // Analytics middleware (before all routes to track visits)
-  app.use(analyticsMiddleware);
-  app.use(actionTrackingMiddleware);
+  app.use(analyticsMiddleware as any);
+  app.use(actionTrackingMiddleware as any);
 
   // Custom authentication routes
   app.use('/api/auth', authRoutes);
@@ -323,7 +323,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (user.stripeSubscriptionId) {
           try {
             const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-              apiVersion: "2025-06-30.basil"
+              apiVersion: "2025-07-30.basil"
             });
             // Cancel at period end instead of immediately
             await stripe.subscriptions.update(user.stripeSubscriptionId, {
