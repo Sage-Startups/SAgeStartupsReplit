@@ -28,6 +28,7 @@ import { ProofreadingAssistant } from "@/components/bot-interfaces/ProofreadingA
 import { MetaDescriptionWriter } from "@/components/bot-interfaces/MetaDescriptionWriter";
 import { GuestPostOutreach } from "@/components/bot-interfaces/GuestPostOutreach";
 import { ContentPerformanceTracker } from "@/components/bot-interfaces/ContentPerformanceTracker";
+import { ColorPaletteCreator } from "@/components/bot-interfaces/ColorPaletteCreator";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -297,6 +298,9 @@ export default function Bot() {
           break;
         case 'content-performance':
           sessionTitle = `Content Analytics for ${projectName}`;
+          break;
+        case 'color-palette':
+          sessionTitle = `Color Palette for ${projectName}`;
           break;
         default:
           sessionTitle = `${bot.name} - ${projectName}`;
@@ -777,8 +781,17 @@ export default function Bot() {
                   />
                 )}
                 
+                {/* Color Palette Creator */}
+                {bot.id === 'color-palette' && (
+                  <ColorPaletteCreator 
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                    sessionId={activeSessionId}
+                  />
+                )}
+                
                 {/* Default Enhanced Bot Interface for others */}
-                {!['marketing-strategy', 'brand-identity', 'content-creator', 'blog-writer', 'social-media', 'seo-content', 'keyword-research', 'logo-design', 'brand-voice', 'ad-copy', 'creative-concept', 'email-marketing', 'content-calendar', 'competitor-analysis', 'influencer-outreach', 'product-launch', 'customer-journey', 'conversion-optimizer', 'budget-planner', 'blog-generator', 'topic-research', 'seo-optimizer', 'editorial-calendar', 'headline-generator', 'content-repurposer', 'proofreading', 'meta-descriptions', 'guest-posting', 'content-performance'].includes(bot.id) && (
+                {!['marketing-strategy', 'brand-identity', 'content-creator', 'blog-writer', 'social-media', 'seo-content', 'keyword-research', 'logo-design', 'brand-voice', 'ad-copy', 'creative-concept', 'email-marketing', 'content-calendar', 'competitor-analysis', 'influencer-outreach', 'product-launch', 'customer-journey', 'conversion-optimizer', 'budget-planner', 'blog-generator', 'topic-research', 'seo-optimizer', 'editorial-calendar', 'headline-generator', 'content-repurposer', 'proofreading', 'meta-descriptions', 'guest-posting', 'content-performance', 'color-palette'].includes(bot.id) && (
                   <EnhancedBotInterface 
                     sessionId={activeSessionId}
                     botName={bot.name}
