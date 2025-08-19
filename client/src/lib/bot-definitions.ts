@@ -191,33 +191,7 @@ export const bots: BotDefinition[] = [
     color: 'text-secondary',
     features: ['Memorable slogans', 'Message testing', 'Tagline variations', 'Performance analysis']
   },
-  {
-    id: 'typography',
-    name: 'Typography Selector',
-    description: 'Font pairing & hierarchy',
-    section: 'branding',
-    icon: 'font',
-    color: 'text-secondary',
-    features: ['Font pairing', 'Typography hierarchy', 'Readability analysis', 'Style guidelines']
-  },
-  {
-    id: 'brand-guidelines',
-    name: 'Brand Guidelines Builder',
-    description: 'Comprehensive style guide',
-    section: 'branding',
-    icon: 'book',
-    color: 'text-secondary',
-    features: ['Style guide creation', 'Usage rules', 'Visual standards', 'Brand application']
-  },
-  {
-    id: 'tagline-generator',
-    name: 'Tagline Generator',
-    description: 'Memorable brand slogans',
-    section: 'branding',
-    icon: 'quote-left',
-    color: 'text-secondary',
-    features: ['Slogan creation', 'Tagline variations', 'Message testing', 'Impact analysis']
-  },
+
   {
     id: 'brand-story',
     name: 'Brand Story Writer',
@@ -227,24 +201,8 @@ export const bots: BotDefinition[] = [
     color: 'text-secondary',
     features: ['Story development', 'Narrative structure', 'Emotional connection', 'Message consistency']
   },
-  {
-    id: 'visual-identity',
-    name: 'Visual Identity System',
-    description: 'Cohesive design elements',
-    section: 'branding',
-    icon: 'layer-group',
-    color: 'text-secondary',
-    features: ['Visual system', 'Design elements', 'Pattern library', 'Brand consistency']
-  },
-  {
-    id: 'brand-positioning',
-    name: 'Brand Positioning Bot',
-    description: 'Market differentiation',
-    section: 'branding',
-    icon: 'target',
-    color: 'text-secondary',
-    features: ['Market positioning', 'Competitive advantage', 'Value proposition', 'Differentiation strategy']
-  },
+
+
   {
     id: 'rebranding',
     name: 'Rebranding Consultant',
