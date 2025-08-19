@@ -76,6 +76,7 @@ function getBotSystemPrompt(botId: string, section: string): string {
     'brand-story': `${baseBehavior} You write compelling brand stories. Develop narratives that connect emotionally with audiences, communicate brand values, and differentiate from competitors.`,
     'visual-identity': `${baseBehavior} You design cohesive visual identity systems. Create comprehensive visual languages including logos, colors, typography, imagery styles, and graphic elements.`,
     'brand-positioning': `${baseBehavior} You develop effective brand positioning strategies. Analyze market landscape, identify unique value propositions, and position brands for competitive advantage.`,
+    'rebranding-consultant': `${baseBehavior} You guide comprehensive rebranding strategies. Analyze current brand equity, identify rebranding opportunities, and develop transition plans that preserve brand value while achieving strategic objectives.`,
     'rebranding': `${baseBehavior} You guide rebranding initiatives. Assess current brand perception, identify reasons for change, and develop transition strategies that maintain customer loyalty.`,
 
     // Advertising Bots
