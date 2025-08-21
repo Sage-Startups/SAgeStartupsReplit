@@ -36,6 +36,10 @@ import { BrandStoryWriter } from "@/components/bot-interfaces/BrandStoryWriter";
 import { VisualIdentitySystem } from "@/components/bot-interfaces/VisualIdentitySystem";
 import { BrandPositioningBot } from "@/components/bot-interfaces/BrandPositioningBot";
 import { RebrandingConsultant } from "@/components/bot-interfaces/RebrandingConsultant";
+import { AudienceTargetingAssistant } from "@/components/bot-interfaces/AudienceTargetingAssistant";
+import { BudgetOptimizer } from "@/components/bot-interfaces/BudgetOptimizer";
+import { ABTestDesigner } from "@/components/bot-interfaces/ABTestDesigner";
+import { LandingPageBuilder } from "@/components/bot-interfaces/LandingPageBuilder";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -329,6 +333,18 @@ export default function Bot() {
           break;
         case 'rebranding-consultant':
           sessionTitle = `Rebranding Strategy for ${projectName}`;
+          break;
+        case 'audience-targeting':
+          sessionTitle = `Audience Targeting for ${projectName}`;
+          break;
+        case 'budget-optimizer':
+          sessionTitle = `Budget Optimization for ${projectName}`;
+          break;
+        case 'ab-testing':
+          sessionTitle = `A/B Testing for ${projectName}`;
+          break;
+        case 'landing-pages':
+          sessionTitle = `Landing Page for ${projectName}`;
           break;
         default:
           sessionTitle = `${bot.name} - ${projectName}`;
@@ -853,8 +869,28 @@ export default function Bot() {
                   <RebrandingConsultant />
                 )}
                 
+                {/* Audience Targeting Assistant */}
+                {bot.id === 'audience-targeting' && (
+                  <AudienceTargetingAssistant />
+                )}
+                
+                {/* Budget Optimizer */}
+                {bot.id === 'budget-optimizer' && (
+                  <BudgetOptimizer />
+                )}
+                
+                {/* A/B Test Designer */}
+                {bot.id === 'ab-testing' && (
+                  <ABTestDesigner />
+                )}
+                
+                {/* Landing Page Builder */}
+                {bot.id === 'landing-pages' && (
+                  <LandingPageBuilder />
+                )}
+                
                 {/* Default Enhanced Bot Interface for others */}
-                {!['marketing-strategy', 'brand-identity', 'content-creator', 'blog-writer', 'social-media', 'seo-content', 'keyword-research', 'logo-design', 'brand-voice', 'ad-copy', 'creative-concept', 'email-marketing', 'content-calendar', 'competitor-analysis', 'influencer-outreach', 'product-launch', 'customer-journey', 'conversion-optimizer', 'budget-planner', 'blog-generator', 'topic-research', 'seo-optimizer', 'editorial-calendar', 'headline-generator', 'content-repurposer', 'proofreading', 'meta-descriptions', 'guest-posting', 'content-performance', 'color-palette', 'typography-selector', 'brand-guidelines', 'tagline-generator', 'brand-story', 'visual-identity', 'brand-positioning', 'rebranding-consultant'].includes(bot.id) && (
+                {!['marketing-strategy', 'brand-identity', 'content-creator', 'blog-writer', 'social-media', 'seo-content', 'keyword-research', 'logo-design', 'brand-voice', 'ad-copy', 'creative-concept', 'email-marketing', 'content-calendar', 'competitor-analysis', 'influencer-outreach', 'product-launch', 'customer-journey', 'conversion-optimizer', 'budget-planner', 'blog-generator', 'topic-research', 'seo-optimizer', 'editorial-calendar', 'headline-generator', 'content-repurposer', 'proofreading', 'meta-descriptions', 'guest-posting', 'content-performance', 'color-palette', 'typography-selector', 'brand-guidelines', 'tagline-generator', 'brand-story', 'visual-identity', 'brand-positioning', 'rebranding-consultant', 'audience-targeting', 'budget-optimizer', 'ab-testing', 'landing-pages'].includes(bot.id) && (
                   <EnhancedBotInterface 
                     sessionId={activeSessionId}
                     botName={bot.name}
