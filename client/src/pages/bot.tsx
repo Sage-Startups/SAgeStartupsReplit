@@ -1086,7 +1086,7 @@ export default function Bot() {
             )}
 
             {/* Show initial message only when no session is active and no project selected */}
-            {!activeSessionId && !selectedProjectId && (
+            {!activeSessionId && (
               <Card className="h-96">
                 <CardContent className="flex items-center justify-center h-full">
                   <div className="text-center">
@@ -1104,11 +1104,16 @@ export default function Bot() {
                       Ready to start with {bot.name}
                     </h3>
                     <p className="text-gray-600 mb-4">
-                      Select a project and start a new session to begin your AI-powered {bot.section} workflow.
+                      {!selectedProjectId ? 
+                        `Select a project and start a new session to begin your AI-powered ${bot.section} workflow.` :
+                        `Click "Start New Session" to begin your AI-powered ${bot.section} workflow.`
+                      }
                     </p>
-                    <p className="text-sm text-amber-600">
-                      Please select a project first to get started.
-                    </p>
+                    {!selectedProjectId && (
+                      <p className="text-sm text-amber-600">
+                        Please select a project first to get started.
+                      </p>
+                    )}
                   </div>
                 </CardContent>
               </Card>
