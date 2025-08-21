@@ -48,6 +48,10 @@ export function SocialMediaAnalytics({ sessionId, botName }: SocialMediaAnalytic
 
   const createAnalyticsMutation = useMutation({
     mutationFn: async () => {
+      if (!sessionId) {
+        throw new Error('No session available');
+      }
+      
       setPhase('processing');
       
       await apiRequest('PUT', `/api/sessions/${sessionId}`, { 

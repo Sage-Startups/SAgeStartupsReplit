@@ -32,13 +32,13 @@ export function CustomerReportBuilder({ sessionId, botName }: CustomerReportBuil
   const [processingProgress, setProcessingProgress] = useState(0);
   const { toast } = useToast();
 
-  const { data: messages = [] } = useQuery({
+  const { data: messages = [] } = useQuery<any[]>({
     queryKey: ['/api/sessions', sessionId, 'messages'],
     enabled: !!sessionId
   });
 
   useEffect(() => {
-    if (messages && messages.length > 0) {
+    if (Array.isArray(messages) && messages.length > 0) {
       const lastMessage = messages[messages.length - 1] as any;
       if (lastMessage.role === 'assistant') {
         setPhase('complete');
@@ -48,6 +48,10 @@ export function CustomerReportBuilder({ sessionId, botName }: CustomerReportBuil
 
   const createReportMutation = useMutation({
     mutationFn: async () => {
+      if (!sessionId) {
+        throw new Error('No session available');
+      }
+      
       setPhase('processing');
       
       await apiRequest('PUT', `/api/sessions/${sessionId}`, { 
