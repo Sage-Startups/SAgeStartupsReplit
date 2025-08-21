@@ -152,6 +152,10 @@ Format with actionable targeting parameters, specific audience sizes, and platfo
 
       if (onSendMessage) {
         onSendMessage(prompt);
+        toast({
+          title: "Audience Targeting Analysis Started",
+          description: "Developing precise targeting strategies and demographic analysis...",
+        });
       } else {
         toast({
           title: "No active session",

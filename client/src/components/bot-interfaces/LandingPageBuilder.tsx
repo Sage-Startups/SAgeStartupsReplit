@@ -176,6 +176,10 @@ Format with specific design recommendations, copy suggestions, and implementatio
 
       if (onSendMessage) {
         onSendMessage(prompt);
+        toast({
+          title: "Landing Page Strategy Started",
+          description: "Creating conversion-focused design and UX optimization...",
+        });
       } else {
         toast({
           title: "No active session",

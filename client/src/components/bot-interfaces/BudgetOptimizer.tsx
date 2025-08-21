@@ -152,6 +152,10 @@ Format with specific dollar amounts, percentages, and actionable implementation 
 
       if (onSendMessage) {
         onSendMessage(prompt);
+        toast({
+          title: "Budget Optimization Started",
+          description: "Analyzing cost-effective allocation and ROI strategies...",
+        });
       } else {
         toast({
           title: "No active session",

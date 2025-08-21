@@ -167,6 +167,10 @@ Format with specific statistical calculations, actionable implementation steps, 
 
       if (onSendMessage) {
         onSendMessage(prompt);
+        toast({
+          title: "A/B Test Design Started",
+          description: "Creating experiment framework with statistical analysis...",
+        });
       } else {
         toast({
           title: "No active session",
