@@ -5,58 +5,29 @@ import { z } from "zod";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Layout, Target, TrendingUp, Zap, ArrowRight } from "lucide-react";
+import { Layout, Target, TrendingUp, Zap } from "lucide-react";
 import { BotChatInterface } from "./BotChatInterface";
-import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
   businessName: z.string().min(1, "Business name is required"),
-  industry: z.string().min(1, "Industry is required"),
-  pageObjective: z.string().min(1, "Page objective is required"),
+  primaryGoal: z.string().min(1, "Primary goal is required"),
   targetAudience: z.string().min(1, "Target audience is required"),
-  pageType: z.string().min(1, "Page type is required"),
-  productService: z.string().optional(),
-  valueProposition: z.string().optional(),
-  keyBenefits: z.string().optional(),
-  currentConversionRate: z.string().optional(),
-  targetConversionRate: z.string().optional(),
-  trafficSource: z.array(z.string()).optional(),
-  pageElements: z.array(z.string()).optional(),
-  designStyle: z.string().optional(),
-  brandGuidelines: z.string().optional(),
-  competitors: z.string().optional(),
-  userJourney: z.string().optional(),
-  painPoints: z.string().optional(),
-  objections: z.string().optional(),
-  socialProof: z.string().optional(),
-  budget: z.string().optional(),
-  timeline: z.string().optional(),
-  technicalRequirements: z.string().optional(),
-  additionalContext: z.string().optional(),
+  valueProposition: z.string().min(1, "Value proposition is required"),
+  designStyle: z.string().min(1, "Design style is required"),
 });
 
 type FormData = z.infer<typeof formSchema>;
 
-const pageTypeOptions = [
-  "Product Launch", "Lead Generation", "Sales Page", "Sign-up Page", "Download Page", "Event Registration", "Webinar Registration", "Service Page"
-];
-
-const trafficSourceOptions = [
-  "Google Ads", "Facebook Ads", "Email Campaign", "Social Media", "SEO/Organic", "Direct Traffic", "Affiliate", "PR/Media"
-];
-
-const pageElementOptions = [
-  "Hero Section", "Value Proposition", "Benefits", "Social Proof", "Testimonials", "Features", "Pricing", "FAQ", "Contact Form", "CTA Buttons", "Product Demo", "Video"
+const goalOptions = [
+  "Generate leads", "Increase sales", "Build email list", "Promote product launch", "Drive app downloads", "Register users"
 ];
 
 const designStyleOptions = [
-  "Minimal", "Modern", "Professional", "Creative", "Corporate", "Tech/SaaS", "E-commerce", "Startup"
+  "Minimal", "Modern", "Professional", "Creative", "Tech/SaaS", "E-commerce"
 ];
 
 interface LandingPageBuilderProps {
@@ -74,105 +45,61 @@ export function LandingPageBuilder({ sessionId: propSessionId, onSendMessage, is
     resolver: zodResolver(formSchema),
     defaultValues: {
       businessName: "",
-      industry: "",
-      pageObjective: "",
+      primaryGoal: "",
       targetAudience: "",
-      pageType: "",
-      productService: "",
       valueProposition: "",
-      keyBenefits: "",
-      currentConversionRate: "",
-      targetConversionRate: "",
-      trafficSource: [],
-      pageElements: [],
       designStyle: "",
-      brandGuidelines: "",
-      competitors: "",
-      userJourney: "",
-      painPoints: "",
-      objections: "",
-      socialProof: "",
-      budget: "",
-      timeline: "",
-      technicalRequirements: "",
-      additionalContext: "",
     },
   });
-
-  const handleTrafficSourceChange = (source: string, checked: boolean) => {
-    const currentSources = form.getValues("trafficSource") || [];
-    if (checked) {
-      form.setValue("trafficSource", [...currentSources, source]);
-    } else {
-      form.setValue("trafficSource", currentSources.filter(s => s !== source));
-    }
-  };
-
-  const handleElementChange = (element: string, checked: boolean) => {
-    const currentElements = form.getValues("pageElements") || [];
-    if (checked) {
-      form.setValue("pageElements", [...currentElements, element]);
-    } else {
-      form.setValue("pageElements", currentElements.filter(e => e !== element));
-    }
-  };
 
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
     try {
-      const prompt = `Create a comprehensive landing page strategy for ${data.businessName} in the ${data.industry} industry.
+      const prompt = `Create a high-converting landing page strategy for ${data.businessName}.
 
-**Page Foundation:**
-- Page Objective: ${data.pageObjective}
-- Page Type: ${data.pageType}
+**Project Brief:**
+- Primary Goal: ${data.primaryGoal}
 - Target Audience: ${data.targetAudience}
-${data.productService ? `- Product/Service: ${data.productService}` : ""}
+- Value Proposition: ${data.valueProposition}
+- Design Style: ${data.designStyle}
 
-**Conversion Goals:**
-${data.valueProposition ? `- Value Proposition: ${data.valueProposition}` : ""}
-${data.keyBenefits ? `- Key Benefits: ${data.keyBenefits}` : ""}
-${data.currentConversionRate ? `- Current Conversion Rate: ${data.currentConversionRate}` : ""}
-${data.targetConversionRate ? `- Target Conversion Rate: ${data.targetConversionRate}` : ""}
+Please provide a comprehensive, actionable landing page strategy with:
 
-**Traffic & Design:**
-${data.trafficSource?.length ? `- Traffic Sources: ${data.trafficSource.join(", ")}` : ""}
-${data.designStyle ? `- Design Style: ${data.designStyle}` : ""}
-${data.brandGuidelines ? `- Brand Guidelines: ${data.brandGuidelines}` : ""}
+## 📝 **Page Structure & Copy**
+- Hero section with compelling headline and subheadline
+- Value proposition statement
+- Key benefits (3-5 bullet points)
+- Call-to-action buttons and placement
+- Social proof section
+- FAQ or objection handling
 
-**Page Structure:**
-${data.pageElements?.length ? `- Required Elements: ${data.pageElements.join(", ")}` : ""}
-${data.userJourney ? `- User Journey: ${data.userJourney}` : ""}
+## 🎨 **Visual Design & Layout**
+- Page layout wireframe description
+- Color scheme recommendations
+- Typography hierarchy
+- Visual elements and imagery suggestions
+- Mobile-responsive considerations
 
-**User Psychology:**
-${data.painPoints ? `- Pain Points: ${data.painPoints}` : ""}
-${data.objections ? `- Common Objections: ${data.objections}` : ""}
-${data.socialProof ? `- Social Proof Available: ${data.socialProof}` : ""}
+## 🚀 **Conversion Optimization**
+- CTA optimization strategies
+- Trust signals and credibility boosters
+- Urgency and scarcity tactics
+- Form design best practices
+- A/B testing recommendations
 
-**Competitive Context:**
-${data.competitors ? `- Competitor Analysis: ${data.competitors}` : ""}
+## 📊 **Performance & Analytics**
+- Key metrics to track
+- Conversion tracking setup
+- Analytics implementation
+- Success benchmarks
 
-**Project Context:**
-${data.budget ? `- Budget: ${data.budget}` : ""}
-${data.timeline ? `- Timeline: ${data.timeline}` : ""}
-${data.technicalRequirements ? `- Technical Requirements: ${data.technicalRequirements}` : ""}
-${data.additionalContext ? `- Additional Context: ${data.additionalContext}` : ""}
+## 💡 **Implementation Tips**
+- Technical requirements
+- Timeline suggestions
+- Common pitfalls to avoid
+- Optimization opportunities
 
-Please provide a comprehensive landing page strategy that includes:
-
-1. **Page Structure & Layout** - Optimal page flow, section hierarchy, and content organization
-2. **Conversion Optimization** - CRO best practices, persuasion principles, and conversion elements
-3. **UX Design Principles** - User experience guidelines, navigation, and interaction design
-4. **Performance Tracking** - Analytics setup, conversion tracking, and success metrics
-5. **Copy Framework** - Headlines, subheadings, body copy, and CTA optimization
-6. **Visual Design Strategy** - Layout principles, visual hierarchy, and design elements
-7. **Mobile Optimization** - Responsive design considerations and mobile-first approach
-8. **Loading & Technical** - Page speed optimization and technical implementation
-9. **Testing Strategy** - A/B testing recommendations and optimization opportunities
-10. **Conversion Elements** - Forms, CTAs, trust signals, and persuasion techniques
-11. **Content Strategy** - Messaging hierarchy, value communication, and benefit articulation
-12. **User Journey Mapping** - Visitor flow optimization and experience design
-
-Format with specific design recommendations, copy suggestions, and implementation guidelines with wireframe descriptions.`;
+Format each section with specific, actionable recommendations and include actual copy examples where possible.`;
 
       if (onSendMessage) {
         onSendMessage(prompt);
@@ -267,521 +194,151 @@ Format with specific design recommendations, copy suggestions, and implementatio
       {sessionId && propSessionId ? (
         <BotChatInterface sessionId={sessionId} botType="landing-pages" />
       ) : (
-        <>
-          {/* Form */}
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ArrowRight className="h-5 w-5" />
-                Landing Page Configuration
-              </CardTitle>
-              <CardDescription>
-                Define your page objectives and requirements for optimal conversion design
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                  {/* Business Foundation */}
-                  <div className="space-y-6">
-                    <h3 className="text-lg font-semibold border-b pb-2">Business Foundation</h3>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <FormField
-                        control={form.control}
-                        name="businessName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Business Name *</FormLabel>
-                            <FormControl>
-                              <Input 
-                                placeholder="Enter your business name" 
-                                {...field} 
-                                data-testid="input-business-name"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="industry"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Industry *</FormLabel>
-                            <FormControl>
-                              <Input 
-                                placeholder="e.g., E-commerce, SaaS, Healthcare" 
-                                {...field} 
-                                data-testid="input-industry"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <FormField
-                        control={form.control}
-                        name="pageObjective"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Page Objective *</FormLabel>
-                            <FormControl>
-                              <Textarea 
-                                placeholder="What should this landing page achieve? (e.g., generate leads, drive sales, increase signups)"
-                                className="min-h-[80px]"
-                                {...field} 
-                                data-testid="textarea-page-objective"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="targetAudience"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Target Audience *</FormLabel>
-                            <FormControl>
-                              <Textarea 
-                                placeholder="Describe your ideal visitor for this page..."
-                                className="min-h-[80px]"
-                                {...field} 
-                                data-testid="textarea-target-audience"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <FormField
-                        control={form.control}
-                        name="pageType"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Page Type *</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger data-testid="select-page-type">
-                                  <SelectValue placeholder="Select page type" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {pageTypeOptions.map((option) => (
-                                  <SelectItem key={option} value={option}>{option}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="designStyle"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Design Style</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger data-testid="select-design-style">
-                                  <SelectValue placeholder="Select design style" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {designStyleOptions.map((option) => (
-                                  <SelectItem key={option} value={option}>{option}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    <FormField
-                      control={form.control}
-                      name="productService"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Product/Service Description</FormLabel>
-                          <FormControl>
-                            <Textarea 
-                              placeholder="Describe what you're promoting on this landing page..."
-                              className="min-h-[80px]"
-                              {...field} 
-                              data-testid="textarea-product-service"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  {/* Value Proposition */}
-                  <div className="space-y-6">
-                    <h3 className="text-lg font-semibold border-b pb-2">Value Proposition</h3>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <FormField
-                        control={form.control}
-                        name="valueProposition"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Value Proposition</FormLabel>
-                            <FormControl>
-                              <Textarea 
-                                placeholder="What unique value do you provide? Why should visitors choose you?"
-                                className="min-h-[80px]"
-                                {...field} 
-                                data-testid="textarea-value-proposition"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="keyBenefits"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Key Benefits</FormLabel>
-                            <FormControl>
-                              <Textarea 
-                                placeholder="List the main benefits visitors will get (one per line)"
-                                className="min-h-[80px]"
-                                {...field} 
-                                data-testid="textarea-key-benefits"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <FormField
-                        control={form.control}
-                        name="painPoints"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Pain Points</FormLabel>
-                            <FormControl>
-                              <Textarea 
-                                placeholder="What problems does your audience face that you solve?"
-                                className="min-h-[80px]"
-                                {...field} 
-                                data-testid="textarea-pain-points"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="objections"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Common Objections</FormLabel>
-                            <FormControl>
-                              <Textarea 
-                                placeholder="What concerns or objections do visitors typically have?"
-                                className="min-h-[80px]"
-                                {...field} 
-                                data-testid="textarea-objections"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Conversion & Performance */}
-                  <div className="space-y-6">
-                    <h3 className="text-lg font-semibold border-b pb-2">Conversion & Performance</h3>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <FormField
-                        control={form.control}
-                        name="currentConversionRate"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Current Conversion Rate</FormLabel>
-                            <FormControl>
-                              <Input 
-                                placeholder="e.g., 2.5%, Not applicable" 
-                                {...field} 
-                                data-testid="input-current-conversion-rate"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="targetConversionRate"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Target Conversion Rate</FormLabel>
-                            <FormControl>
-                              <Input 
-                                placeholder="e.g., 5%, 10%" 
-                                {...field} 
-                                data-testid="input-target-conversion-rate"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    <div>
-                      <Label className="text-base font-medium">Traffic Sources</Label>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
-                        {trafficSourceOptions.map((source) => (
-                          <div key={source} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={`traffic-${source}`}
-                              checked={form.watch("trafficSource")?.includes(source)}
-                              onCheckedChange={(checked) => handleTrafficSourceChange(source, checked as boolean)}
-                            />
-                            <Label htmlFor={`traffic-${source}`} className="text-sm">{source}</Label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <FormField
-                      control={form.control}
-                      name="userJourney"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>User Journey</FormLabel>
-                          <FormControl>
-                            <Textarea 
-                              placeholder="Describe how visitors typically find and interact with your business..."
-                              className="min-h-[80px]"
-                              {...field} 
-                              data-testid="textarea-user-journey"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  {/* Page Elements */}
-                  <div className="space-y-6">
-                    <h3 className="text-lg font-semibold border-b pb-2">Page Elements</h3>
-                    
-                    <div>
-                      <Label className="text-base font-medium">Required Page Elements</Label>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
-                        {pageElementOptions.map((element) => (
-                          <div key={element} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={`element-${element}`}
-                              checked={form.watch("pageElements")?.includes(element)}
-                              onCheckedChange={(checked) => handleElementChange(element, checked as boolean)}
-                            />
-                            <Label htmlFor={`element-${element}`} className="text-sm">{element}</Label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <FormField
-                        control={form.control}
-                        name="socialProof"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Social Proof Available</FormLabel>
-                            <FormControl>
-                              <Textarea 
-                                placeholder="Testimonials, reviews, case studies, client logos, awards..."
-                                className="min-h-[80px]"
-                                {...field} 
-                                data-testid="textarea-social-proof"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="brandGuidelines"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Brand Guidelines</FormLabel>
-                            <FormControl>
-                              <Textarea 
-                                placeholder="Colors, fonts, logos, style preferences..."
-                                className="min-h-[80px]"
-                                {...field} 
-                                data-testid="textarea-brand-guidelines"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    <FormField
-                      control={form.control}
-                      name="competitors"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Competitor Analysis</FormLabel>
-                          <FormControl>
-                            <Textarea 
-                              placeholder="What are competitors doing on their landing pages? What works/doesn't work?"
-                              className="min-h-[80px]"
-                              {...field} 
-                              data-testid="textarea-competitors"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  {/* Project Details */}
-                  <div className="space-y-6">
-                    <h3 className="text-lg font-semibold border-b pb-2">Project Details</h3>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <FormField
-                        control={form.control}
-                        name="budget"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Budget</FormLabel>
-                            <FormControl>
-                              <Input 
-                                placeholder="e.g., $5,000, $50,000, No budget limit" 
-                                {...field} 
-                                data-testid="input-budget"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="timeline"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Timeline</FormLabel>
-                            <FormControl>
-                              <Input 
-                                placeholder="e.g., 2 weeks, 1 month, ASAP" 
-                                {...field} 
-                                data-testid="input-timeline"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <FormField
-                        control={form.control}
-                        name="technicalRequirements"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Technical Requirements</FormLabel>
-                            <FormControl>
-                              <Textarea 
-                                placeholder="Platform, CMS, integrations, mobile requirements..."
-                                className="min-h-[80px]"
-                                {...field} 
-                                data-testid="textarea-technical-requirements"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="additionalContext"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Additional Context</FormLabel>
-                            <FormControl>
-                              <Textarea 
-                                placeholder="Any other relevant information for landing page design..."
-                                className="min-h-[80px]"
-                                {...field} 
-                                data-testid="textarea-additional-context"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-
-                  <Button 
-                    type="submit" 
-                    size="lg" 
-                    className="w-full"
-                    disabled={isLoading || propIsLoading}
-                    data-testid="button-build-page"
-                  >
-                    {isLoading || propIsLoading ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                        Building Landing Page Strategy...
-                      </>
-                    ) : (
-                      <>
-                        <Layout className="w-4 h-4 mr-2" />
-                        Generate Page Strategy
-                      </>
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Layout className="h-5 w-5" />
+              Landing Page Configuration
+            </CardTitle>
+            <CardDescription>
+              Tell us about your business and goals to create the perfect landing page strategy
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="businessName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Business Name *</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Enter your business name" 
+                            {...field} 
+                            data-testid="input-business-name"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
-                  </Button>
-                </form>
-              </Form>
-            </CardContent>
-          </Card>
-        </>
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="primaryGoal"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Primary Goal *</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger data-testid="select-primary-goal">
+                              <SelectValue placeholder="What's your main objective?" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {goalOptions.map((goal) => (
+                              <SelectItem key={goal} value={goal}>
+                                {goal}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="targetAudience"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Target Audience *</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Describe your ideal customers (e.g., small business owners, tech professionals, young parents...)"
+                          {...field} 
+                          data-testid="textarea-target-audience"
+                          rows={3}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="valueProposition"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Value Proposition *</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="What unique value do you offer? What problem do you solve?"
+                          {...field} 
+                          data-testid="textarea-value-proposition"
+                          rows={3}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="designStyle"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Design Style *</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-design-style">
+                            <SelectValue placeholder="Choose your preferred style" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {designStyleOptions.map((style) => (
+                            <SelectItem key={style} value={style}>
+                              {style}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <Button 
+                  type="submit" 
+                  size="lg" 
+                  className="w-full"
+                  disabled={isLoading || propIsLoading}
+                  data-testid="button-build-page"
+                >
+                  {isLoading || propIsLoading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                      Building Landing Page Strategy...
+                    </>
+                  ) : (
+                    <>
+                      <Layout className="w-4 h-4 mr-2" />
+                      Build Landing Page Strategy
+                    </>
+                  )}
+                </Button>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
