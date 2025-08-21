@@ -203,7 +203,7 @@ Format with specific timestamps, actual dialogue, and detailed visual descriptio
         </div>
       </div>
 
-      {propSessionId ? (
+      {false ? (
         <BotChatInterface sessionId={propSessionId} botType="video-scripts" />
       ) : (
         <Card className="mb-8">

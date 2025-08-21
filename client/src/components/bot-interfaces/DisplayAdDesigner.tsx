@@ -221,7 +221,7 @@ Format with specific design specifications, hex color codes, and detailed visual
         </div>
       </div>
 
-      {propSessionId ? (
+      {false ? (
         <BotChatInterface sessionId={propSessionId} botType="display-ads" />
       ) : (
         <Card className="mb-8">
