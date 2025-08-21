@@ -603,6 +603,80 @@ export default function Bot() {
 
           {/* Main Content - Chat Interface */}
           <div className="lg:col-span-2">
+            {/* Advertising Bots - Handle their own session logic */}
+            {/* Audience Targeting Assistant */}
+            {bot.id === 'audience-targeting' && (
+              <AudienceTargetingAssistant 
+                sessionId={activeSessionId}
+                onSendMessage={handleSendMessage}
+                isLoading={sendMessageMutation.isPending}
+              />
+            )}
+            
+            {/* Budget Optimizer */}
+            {bot.id === 'budget-optimizer' && (
+              <BudgetOptimizer 
+                sessionId={activeSessionId}
+                onSendMessage={handleSendMessage}
+                isLoading={sendMessageMutation.isPending}
+              />
+            )}
+            
+            {/* A/B Test Designer */}
+            {bot.id === 'ab-testing' && (
+              <ABTestDesigner 
+                sessionId={activeSessionId}
+                onSendMessage={handleSendMessage}
+                isLoading={sendMessageMutation.isPending}
+              />
+            )}
+            
+            {/* Landing Page Builder */}
+            {bot.id === 'landing-pages' && (
+              <LandingPageBuilder 
+                sessionId={activeSessionId}
+                onSendMessage={handleSendMessage}
+                isLoading={sendMessageMutation.isPending}
+              />
+            )}
+            
+            {/* Video Ad Scripter */}
+            {bot.id === 'video-scripts' && (
+              <VideoAdScripter 
+                sessionId={activeSessionId}
+                onSendMessage={handleSendMessage}
+                isLoading={sendMessageMutation.isPending}
+              />
+            )}
+            
+            {/* Display Ad Designer */}
+            {bot.id === 'display-ads' && (
+              <DisplayAdDesigner 
+                sessionId={activeSessionId}
+                onSendMessage={handleSendMessage}
+                isLoading={sendMessageMutation.isPending}
+              />
+            )}
+            
+            {/* Retargeting Strategist */}
+            {bot.id === 'retargeting' && (
+              <RetargetingStrategist 
+                sessionId={activeSessionId}
+                onSendMessage={handleSendMessage}
+                isLoading={sendMessageMutation.isPending}
+              />
+            )}
+            
+            {/* Ad Performance Analyzer */}
+            {bot.id === 'performance-analyzer' && (
+              <AdPerformanceAnalyzer 
+                sessionId={activeSessionId}
+                onSendMessage={handleSendMessage}
+                isLoading={sendMessageMutation.isPending}
+              />
+            )}
+
+            {/* Session-dependent bots */}
             {activeSessionId ? (
               <>
                 {/* Marketing Strategy Bot */}
@@ -873,77 +947,7 @@ export default function Bot() {
                   <RebrandingConsultant />
                 )}
                 
-                {/* Audience Targeting Assistant */}
-                {bot.id === 'audience-targeting' && (
-                  <AudienceTargetingAssistant 
-                    sessionId={activeSessionId}
-                    onSendMessage={handleSendMessage}
-                    isLoading={sendMessageMutation.isPending}
-                  />
-                )}
-                
-                {/* Budget Optimizer */}
-                {bot.id === 'budget-optimizer' && (
-                  <BudgetOptimizer 
-                    sessionId={activeSessionId}
-                    onSendMessage={handleSendMessage}
-                    isLoading={sendMessageMutation.isPending}
-                  />
-                )}
-                
-                {/* A/B Test Designer */}
-                {bot.id === 'ab-testing' && (
-                  <ABTestDesigner 
-                    sessionId={activeSessionId}
-                    onSendMessage={handleSendMessage}
-                    isLoading={sendMessageMutation.isPending}
-                  />
-                )}
-                
-                {/* Landing Page Builder */}
-                {bot.id === 'landing-pages' && (
-                  <LandingPageBuilder 
-                    sessionId={activeSessionId}
-                    onSendMessage={handleSendMessage}
-                    isLoading={sendMessageMutation.isPending}
-                  />
-                )}
-                
-                {/* Video Ad Scripter */}
-                {bot.id === 'video-scripts' && (
-                  <VideoAdScripter 
-                    sessionId={activeSessionId}
-                    onSendMessage={handleSendMessage}
-                    isLoading={sendMessageMutation.isPending}
-                  />
-                )}
-                
-                {/* Display Ad Designer */}
-                {bot.id === 'display-ads' && (
-                  <DisplayAdDesigner 
-                    sessionId={activeSessionId}
-                    onSendMessage={handleSendMessage}
-                    isLoading={sendMessageMutation.isPending}
-                  />
-                )}
-                
-                {/* Retargeting Strategist */}
-                {bot.id === 'retargeting' && (
-                  <RetargetingStrategist 
-                    sessionId={activeSessionId}
-                    onSendMessage={handleSendMessage}
-                    isLoading={sendMessageMutation.isPending}
-                  />
-                )}
-                
-                {/* Ad Performance Analyzer */}
-                {bot.id === 'performance-analyzer' && (
-                  <AdPerformanceAnalyzer 
-                    sessionId={activeSessionId}
-                    onSendMessage={handleSendMessage}
-                    isLoading={sendMessageMutation.isPending}
-                  />
-                )}
+
                 
                 {/* Default Enhanced Bot Interface for others */}
                 {!['marketing-strategy', 'brand-identity', 'content-creator', 'blog-writer', 'social-media', 'seo-content', 'keyword-research', 'logo-design', 'brand-voice', 'ad-copy', 'creative-concept', 'email-marketing', 'content-calendar', 'competitor-analysis', 'influencer-outreach', 'product-launch', 'customer-journey', 'conversion-optimizer', 'budget-planner', 'blog-generator', 'topic-research', 'seo-optimizer', 'editorial-calendar', 'headline-generator', 'content-repurposer', 'proofreading', 'meta-descriptions', 'guest-posting', 'content-performance', 'color-palette', 'typography-selector', 'brand-guidelines', 'tagline-generator', 'brand-story', 'visual-identity', 'brand-positioning', 'rebranding-consultant', 'audience-targeting', 'budget-optimizer', 'ab-testing', 'landing-pages', 'video-scripts', 'display-ads', 'retargeting', 'performance-analyzer'].includes(bot.id) && (

@@ -227,7 +227,7 @@ Format with specific numbers, percentages, and actionable steps for immediate im
         </div>
       </div>
 
-      {false ? (
+      {propSessionId ? (
         <BotChatInterface sessionId={propSessionId} botType="ad-performance" />
       ) : (
         <Card className="mb-8">

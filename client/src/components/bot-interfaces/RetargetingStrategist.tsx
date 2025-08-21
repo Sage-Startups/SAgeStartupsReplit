@@ -222,7 +222,7 @@ Format with specific timeframes, message examples, and implementation guidelines
         </div>
       </div>
 
-      {false ? (
+      {propSessionId ? (
         <BotChatInterface sessionId={propSessionId} botType="retargeting" />
       ) : (
         <Card className="mb-8">
