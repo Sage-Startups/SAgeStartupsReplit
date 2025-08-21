@@ -84,14 +84,11 @@ Focus on creating professional, actionable reports that meet specific business n
         </div>
       </div>
 
-      {propSessionId ? (
-        <BotChatInterface sessionId={propSessionId} botType="customer-report-builder" />
-      ) : (
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>Report Configuration</CardTitle>
-          </CardHeader>
-          <CardContent>
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>Report Configuration</CardTitle>
+        </CardHeader>
+        <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
@@ -192,7 +189,6 @@ Focus on creating professional, actionable reports that meet specific business n
             </form>
           </CardContent>
         </Card>
-      )}
     </div>
   );
 }

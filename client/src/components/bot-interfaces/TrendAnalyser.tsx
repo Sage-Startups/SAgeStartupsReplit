@@ -84,14 +84,11 @@ Focus on actionable trend insights that can guide business strategy.`;
         </div>
       </div>
 
-      {propSessionId ? (
-        <BotChatInterface sessionId={propSessionId} botType="trend-analyser" />
-      ) : (
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>Trend Analysis Configuration</CardTitle>
-          </CardHeader>
-          <CardContent>
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>Trend Analysis Configuration</CardTitle>
+        </CardHeader>
+        <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
@@ -176,7 +173,6 @@ Focus on actionable trend insights that can guide business strategy.`;
             </form>
           </CardContent>
         </Card>
-      )}
     </div>
   );
 }

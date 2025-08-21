@@ -83,14 +83,11 @@ Focus on creating a practical, actionable dashboard strategy that provides clear
         </div>
       </div>
 
-      {propSessionId ? (
-        <BotChatInterface sessionId={propSessionId} botType="performance-dashboard" />
-      ) : (
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>Dashboard Configuration</CardTitle>
-          </CardHeader>
-          <CardContent>
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>Dashboard Configuration</CardTitle>
+        </CardHeader>
+        <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
@@ -174,9 +171,8 @@ Focus on creating a practical, actionable dashboard strategy that provides clear
                 {isLoading ? "Creating Dashboard Strategy..." : "Generate Performance Dashboard"}
               </Button>
             </form>
-          </CardContent>
-        </Card>
-      )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

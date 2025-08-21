@@ -84,14 +84,11 @@ Focus on delivering actionable insights to improve investment returns.`;
         </div>
       </div>
 
-      {propSessionId ? (
-        <BotChatInterface sessionId={propSessionId} botType="roi-calculator" />
-      ) : (
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>ROI Analysis Setup</CardTitle>
-          </CardHeader>
-          <CardContent>
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>ROI Analysis Setup</CardTitle>
+        </CardHeader>
+        <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
@@ -179,9 +176,8 @@ Focus on delivering actionable insights to improve investment returns.`;
                 {isLoading ? "Calculating ROI..." : "Calculate ROI & Generate Analysis"}
               </Button>
             </form>
-          </CardContent>
-        </Card>
-      )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

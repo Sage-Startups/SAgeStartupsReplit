@@ -83,14 +83,11 @@ Focus on delivering clear, actionable insights that can drive business decisions
         </div>
       </div>
 
-      {propSessionId ? (
-        <BotChatInterface sessionId={propSessionId} botType="insights-generator" />
-      ) : (
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>Insights Analysis Setup</CardTitle>
-          </CardHeader>
-          <CardContent>
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>Insights Analysis Setup</CardTitle>
+        </CardHeader>
+        <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
@@ -176,9 +173,8 @@ Focus on delivering clear, actionable insights that can drive business decisions
                 {isLoading ? "Generating Insights..." : "Generate Actionable Insights"}
               </Button>
             </form>
-          </CardContent>
-        </Card>
-      )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
