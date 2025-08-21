@@ -240,8 +240,8 @@ Format with actionable targeting parameters, specific audience sizes, and platfo
         </div>
       </div>
 
-      {sessionId && propSessionId ? (
-        <BotChatInterface sessionId={sessionId} botType="audience-targeting" />
+      {propSessionId ? (
+        <BotChatInterface sessionId={propSessionId} botType="audience-targeting" />
       ) : (
         <>
           {/* Form */}

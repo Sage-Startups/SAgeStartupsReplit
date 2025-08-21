@@ -191,8 +191,8 @@ Format each section with specific, actionable recommendations and include actual
         </div>
       </div>
 
-      {sessionId && propSessionId ? (
-        <BotChatInterface sessionId={sessionId} botType="landing-pages" />
+      {propSessionId ? (
+        <BotChatInterface sessionId={propSessionId} botType="landing-pages" />
       ) : (
         <Card className="mb-8">
           <CardHeader>

@@ -255,8 +255,8 @@ Format with specific statistical calculations, actionable implementation steps, 
         </div>
       </div>
 
-      {sessionId && propSessionId ? (
-        <BotChatInterface sessionId={sessionId} botType="ab-testing" />
+      {propSessionId ? (
+        <BotChatInterface sessionId={propSessionId} botType="ab-testing" />
       ) : (
         <>
           {/* Form */}

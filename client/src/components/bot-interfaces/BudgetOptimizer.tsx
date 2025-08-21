@@ -240,8 +240,8 @@ Format with specific dollar amounts, percentages, and actionable implementation 
         </div>
       </div>
 
-      {sessionId && propSessionId ? (
-        <BotChatInterface sessionId={sessionId} botType="budget-optimizer" />
+      {propSessionId ? (
+        <BotChatInterface sessionId={propSessionId} botType="budget-optimizer" />
       ) : (
         <>
           {/* Form */}

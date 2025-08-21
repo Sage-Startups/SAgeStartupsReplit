@@ -40,6 +40,10 @@ import { AudienceTargetingAssistant } from "@/components/bot-interfaces/Audience
 import { BudgetOptimizer } from "@/components/bot-interfaces/BudgetOptimizer";
 import { ABTestDesigner } from "@/components/bot-interfaces/ABTestDesigner";
 import { LandingPageBuilder } from "@/components/bot-interfaces/LandingPageBuilder";
+import { VideoAdScripter } from "@/components/bot-interfaces/VideoAdScripter";
+import { DisplayAdDesigner } from "@/components/bot-interfaces/DisplayAdDesigner";
+import { RetargetingStrategist } from "@/components/bot-interfaces/RetargetingStrategist";
+import { AdPerformanceAnalyzer } from "@/components/bot-interfaces/AdPerformanceAnalyzer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -905,8 +909,44 @@ export default function Bot() {
                   />
                 )}
                 
+                {/* Video Ad Scripter */}
+                {bot.id === 'video-scripts' && (
+                  <VideoAdScripter 
+                    sessionId={activeSessionId}
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                  />
+                )}
+                
+                {/* Display Ad Designer */}
+                {bot.id === 'display-ads' && (
+                  <DisplayAdDesigner 
+                    sessionId={activeSessionId}
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                  />
+                )}
+                
+                {/* Retargeting Strategist */}
+                {bot.id === 'retargeting' && (
+                  <RetargetingStrategist 
+                    sessionId={activeSessionId}
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                  />
+                )}
+                
+                {/* Ad Performance Analyzer */}
+                {bot.id === 'performance-analyzer' && (
+                  <AdPerformanceAnalyzer 
+                    sessionId={activeSessionId}
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                  />
+                )}
+                
                 {/* Default Enhanced Bot Interface for others */}
-                {!['marketing-strategy', 'brand-identity', 'content-creator', 'blog-writer', 'social-media', 'seo-content', 'keyword-research', 'logo-design', 'brand-voice', 'ad-copy', 'creative-concept', 'email-marketing', 'content-calendar', 'competitor-analysis', 'influencer-outreach', 'product-launch', 'customer-journey', 'conversion-optimizer', 'budget-planner', 'blog-generator', 'topic-research', 'seo-optimizer', 'editorial-calendar', 'headline-generator', 'content-repurposer', 'proofreading', 'meta-descriptions', 'guest-posting', 'content-performance', 'color-palette', 'typography-selector', 'brand-guidelines', 'tagline-generator', 'brand-story', 'visual-identity', 'brand-positioning', 'rebranding-consultant', 'audience-targeting', 'budget-optimizer', 'ab-testing', 'landing-pages'].includes(bot.id) && (
+                {!['marketing-strategy', 'brand-identity', 'content-creator', 'blog-writer', 'social-media', 'seo-content', 'keyword-research', 'logo-design', 'brand-voice', 'ad-copy', 'creative-concept', 'email-marketing', 'content-calendar', 'competitor-analysis', 'influencer-outreach', 'product-launch', 'customer-journey', 'conversion-optimizer', 'budget-planner', 'blog-generator', 'topic-research', 'seo-optimizer', 'editorial-calendar', 'headline-generator', 'content-repurposer', 'proofreading', 'meta-descriptions', 'guest-posting', 'content-performance', 'color-palette', 'typography-selector', 'brand-guidelines', 'tagline-generator', 'brand-story', 'visual-identity', 'brand-positioning', 'rebranding-consultant', 'audience-targeting', 'budget-optimizer', 'ab-testing', 'landing-pages', 'video-scripts', 'display-ads', 'retargeting', 'performance-analyzer'].includes(bot.id) && (
                   <EnhancedBotInterface 
                     sessionId={activeSessionId}
                     botName={bot.name}
