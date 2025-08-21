@@ -613,169 +613,6 @@ export default function Bot() {
 
           {/* Main Content - Chat Interface */}
           <div className="lg:col-span-2">
-            {/* Advertising Bots - Handle their own session logic */}
-            {/* Audience Targeting Assistant */}
-            {bot.id === 'audience-targeting' && (
-              <AudienceTargetingAssistant 
-                sessionId={activeSessionId}
-                onSendMessage={handleSendMessage}
-                isLoading={sendMessageMutation.isPending}
-              />
-            )}
-            
-            {/* Budget Optimizer */}
-            {bot.id === 'budget-optimizer' && (
-              <BudgetOptimizer 
-                sessionId={activeSessionId}
-                onSendMessage={handleSendMessage}
-                isLoading={sendMessageMutation.isPending}
-              />
-            )}
-            
-            {/* A/B Test Designer */}
-            {bot.id === 'ab-testing' && (
-              <ABTestDesigner 
-                sessionId={activeSessionId}
-                onSendMessage={handleSendMessage}
-                isLoading={sendMessageMutation.isPending}
-              />
-            )}
-            
-            {/* Landing Page Builder */}
-            {bot.id === 'landing-pages' && (
-              <LandingPageBuilder 
-                sessionId={activeSessionId}
-                onSendMessage={handleSendMessage}
-                isLoading={sendMessageMutation.isPending}
-              />
-            )}
-            
-            {/* Video Ad Scripter */}
-            {bot.id === 'video-scripts' && (
-              <VideoAdScripter 
-                sessionId={activeSessionId}
-                onSendMessage={handleSendMessage}
-                isLoading={sendMessageMutation.isPending}
-              />
-            )}
-            
-            {/* Display Ad Designer */}
-            {bot.id === 'display-ads' && (
-              <DisplayAdDesigner 
-                sessionId={activeSessionId}
-                onSendMessage={handleSendMessage}
-                isLoading={sendMessageMutation.isPending}
-              />
-            )}
-            
-            {/* Retargeting Strategist */}
-            {bot.id === 'retargeting' && (
-              <RetargetingStrategist 
-                sessionId={activeSessionId}
-                onSendMessage={handleSendMessage}
-                isLoading={sendMessageMutation.isPending}
-              />
-            )}
-            
-            {/* Ad Performance Analyzer */}
-            {bot.id === 'performance-analyzer' && (
-              <AdPerformanceAnalyzer 
-                sessionId={activeSessionId}
-                onSendMessage={handleSendMessage}
-                isLoading={sendMessageMutation.isPending}
-              />
-            )}
-
-            {/* Analytics Bots - Handle their own session logic */}
-            {/* Performance Dashboard */}
-            {bot.id === 'performance-dashboard' && (
-              <PerformanceDashboard 
-                sessionId={activeSessionId}
-                onSendMessage={handleSendMessage}
-                isLoading={sendMessageMutation.isPending}
-              />
-            )}
-            
-            {/* Insights Generator */}
-            {bot.id === 'insights-generator' && (
-              <InsightsGenerator 
-                sessionId={activeSessionId}
-                onSendMessage={handleSendMessage}
-                isLoading={sendMessageMutation.isPending}
-              />
-            )}
-            
-            {/* ROI Calculator */}
-            {bot.id === 'roi-calculator' && (
-              <ROICalculator 
-                sessionId={activeSessionId}
-                onSendMessage={handleSendMessage}
-                isLoading={sendMessageMutation.isPending}
-              />
-            )}
-            
-            {/* Trend Analyser */}
-            {bot.id === 'trend-analysis' && (
-              <TrendAnalyser 
-                sessionId={activeSessionId}
-                onSendMessage={handleSendMessage}
-                isLoading={sendMessageMutation.isPending}
-              />
-            )}
-            
-            {/* Customer Report Builder */}
-            {bot.id === 'customer-reports' && (
-              <CustomerReportBuilder 
-                sessionId={activeSessionId}
-                onSendMessage={handleSendMessage}
-                isLoading={sendMessageMutation.isPending}
-              />
-            )}
-            
-            {/* Competitor Benchmarking */}
-            {bot.id === 'competitor-benchmarking' && (
-              <CompetitorBenchmarking 
-                sessionId={activeSessionId}
-                onSendMessage={handleSendMessage}
-                isLoading={sendMessageMutation.isPending}
-              />
-            )}
-            
-            {/* Predictive Analytics */}
-            {bot.id === 'predictive-analytics' && (
-              <PredictiveAnalytics 
-                sessionId={activeSessionId}
-                onSendMessage={handleSendMessage}
-                isLoading={sendMessageMutation.isPending}
-              />
-            )}
-            
-            {/* Attribution Modeler */}
-            {bot.id === 'attribution-modeling' && (
-              <AttributionModeler 
-                sessionId={activeSessionId}
-                onSendMessage={handleSendMessage}
-                isLoading={sendMessageMutation.isPending}
-              />
-            )}
-            
-            {/* Audience Segmenter */}
-            {bot.id === 'audience-segmentation' && (
-              <AudienceSegmenter 
-                sessionId={activeSessionId}
-                onSendMessage={handleSendMessage}
-                isLoading={sendMessageMutation.isPending}
-              />
-            )}
-            
-            {/* Data Visualizer */}
-            {bot.id === 'data-visualization' && (
-              <DataVisualizer 
-                sessionId={activeSessionId}
-                onSendMessage={handleSendMessage}
-                isLoading={sendMessageMutation.isPending}
-              />
-            )}
 
             {/* Session-dependent bots */}
             {activeSessionId ? (
@@ -1047,8 +884,170 @@ export default function Bot() {
                 {bot.id === 'rebranding-consultant' && (
                   <RebrandingConsultant />
                 )}
-                
 
+                {/* Advertising Bots */}
+                {/* Audience Targeting Assistant */}
+                {bot.id === 'audience-targeting' && (
+                  <AudienceTargetingAssistant 
+                    sessionId={activeSessionId}
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                  />
+                )}
+                
+                {/* Budget Optimizer */}
+                {bot.id === 'budget-optimizer' && (
+                  <BudgetOptimizer 
+                    sessionId={activeSessionId}
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                  />
+                )}
+                
+                {/* A/B Test Designer */}
+                {bot.id === 'ab-testing' && (
+                  <ABTestDesigner 
+                    sessionId={activeSessionId}
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                  />
+                )}
+                
+                {/* Landing Page Builder */}
+                {bot.id === 'landing-pages' && (
+                  <LandingPageBuilder 
+                    sessionId={activeSessionId}
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                  />
+                )}
+                
+                {/* Video Ad Scripter */}
+                {bot.id === 'video-scripts' && (
+                  <VideoAdScripter 
+                    sessionId={activeSessionId}
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                  />
+                )}
+                
+                {/* Display Ad Designer */}
+                {bot.id === 'display-ads' && (
+                  <DisplayAdDesigner 
+                    sessionId={activeSessionId}
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                  />
+                )}
+                
+                {/* Retargeting Strategist */}
+                {bot.id === 'retargeting' && (
+                  <RetargetingStrategist 
+                    sessionId={activeSessionId}
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                  />
+                )}
+                
+                {/* Ad Performance Analyzer */}
+                {bot.id === 'performance-analyzer' && (
+                  <AdPerformanceAnalyzer 
+                    sessionId={activeSessionId}
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                  />
+                )}
+
+                {/* Analytics Bots */}
+                {/* Performance Dashboard */}
+                {bot.id === 'performance-dashboard' && (
+                  <PerformanceDashboard 
+                    sessionId={activeSessionId}
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                  />
+                )}
+                
+                {/* Insights Generator */}
+                {bot.id === 'insights-generator' && (
+                  <InsightsGenerator 
+                    sessionId={activeSessionId}
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                  />
+                )}
+                
+                {/* ROI Calculator */}
+                {bot.id === 'roi-calculator' && (
+                  <ROICalculator 
+                    sessionId={activeSessionId}
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                  />
+                )}
+                
+                {/* Trend Analyser */}
+                {bot.id === 'trend-analysis' && (
+                  <TrendAnalyser 
+                    sessionId={activeSessionId}
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                  />
+                )}
+                
+                {/* Customer Report Builder */}
+                {bot.id === 'customer-reports' && (
+                  <CustomerReportBuilder 
+                    sessionId={activeSessionId}
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                  />
+                )}
+                
+                {/* Competitor Benchmarking */}
+                {bot.id === 'competitor-benchmarking' && (
+                  <CompetitorBenchmarking 
+                    sessionId={activeSessionId}
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                  />
+                )}
+                
+                {/* Predictive Analytics */}
+                {bot.id === 'predictive-analytics' && (
+                  <PredictiveAnalytics 
+                    sessionId={activeSessionId}
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                  />
+                )}
+                
+                {/* Attribution Modeler */}
+                {bot.id === 'attribution-modeling' && (
+                  <AttributionModeler 
+                    sessionId={activeSessionId}
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                  />
+                )}
+                
+                {/* Audience Segmenter */}
+                {bot.id === 'audience-segmentation' && (
+                  <AudienceSegmenter 
+                    sessionId={activeSessionId}
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                  />
+                )}
+                
+                {/* Data Visualizer */}
+                {bot.id === 'data-visualization' && (
+                  <DataVisualizer 
+                    sessionId={activeSessionId}
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                  />
+                )}
                 
                 {/* Default Enhanced Bot Interface for others */}
                 {!['marketing-strategy', 'brand-identity', 'content-creator', 'blog-writer', 'social-media', 'seo-content', 'keyword-research', 'logo-design', 'brand-voice', 'ad-copy', 'creative-concept', 'email-marketing', 'content-calendar', 'competitor-analysis', 'influencer-outreach', 'product-launch', 'customer-journey', 'conversion-optimizer', 'budget-planner', 'blog-generator', 'topic-research', 'seo-optimizer', 'editorial-calendar', 'headline-generator', 'content-repurposer', 'proofreading', 'meta-descriptions', 'guest-posting', 'content-performance', 'color-palette', 'typography-selector', 'brand-guidelines', 'tagline-generator', 'brand-story', 'visual-identity', 'brand-positioning', 'rebranding-consultant', 'audience-targeting', 'budget-optimizer', 'ab-testing', 'landing-pages', 'video-scripts', 'display-ads', 'retargeting', 'performance-analyzer', 'performance-dashboard', 'insights-generator', 'roi-calculator', 'trend-analysis', 'customer-reports', 'competitor-benchmarking', 'predictive-analytics', 'attribution-modeling', 'audience-segmentation', 'data-visualization'].includes(bot.id) && (
