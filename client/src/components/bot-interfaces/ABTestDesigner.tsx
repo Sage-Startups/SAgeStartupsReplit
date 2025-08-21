@@ -60,8 +60,14 @@ const trafficSplitOptions = [
   "50/50", "33/33/33", "25/25/25/25", "60/40", "70/30", "80/20"
 ];
 
-export function ABTestDesigner() {
-  const [sessionId, setSessionId] = useState<number | null>(null);
+interface ABTestDesignerProps {
+  sessionId?: number | null;
+  onSendMessage?: (message: string) => void;
+  isLoading?: boolean;
+}
+
+export function ABTestDesigner({ sessionId: propSessionId, onSendMessage, isLoading: propIsLoading }: ABTestDesignerProps = {}) {
+  const [sessionId, setSessionId] = useState<number | null>(propSessionId || null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -159,18 +165,15 @@ Please provide a comprehensive A/B testing strategy that includes:
 
 Format with specific statistical calculations, actionable implementation steps, and clear success criteria.`;
 
-      const response = await apiRequest("POST", "/api/sessions", {
-        botType: "ab-testing",
-        initialMessage: prompt,
-      });
-
-      const session = await response.json();
-      setSessionId(session.id);
-
-      toast({
-        title: "A/B Test Design Started",
-        description: "Creating experiment framework with statistical analysis...",
-      });
+      if (onSendMessage) {
+        onSendMessage(prompt);
+      } else {
+        toast({
+          title: "No active session",
+          description: "Please start a session from the bot page to use this tool.",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       console.error("A/B test designer error:", error);
       toast({
@@ -248,7 +251,7 @@ Format with specific statistical calculations, actionable implementation steps, 
         </div>
       </div>
 
-      {sessionId ? (
+      {sessionId && propSessionId ? (
         <BotChatInterface sessionId={sessionId} botType="ab-testing" />
       ) : (
         <>
@@ -675,10 +678,10 @@ Format with specific statistical calculations, actionable implementation steps, 
                     type="submit" 
                     size="lg" 
                     className="w-full"
-                    disabled={isLoading}
+                    disabled={isLoading || propIsLoading}
                     data-testid="button-design-test"
                   >
-                    {isLoading ? (
+                    {isLoading || propIsLoading ? (
                       <>
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
                         Designing A/B Test...

@@ -59,8 +59,14 @@ const designStyleOptions = [
   "Minimal", "Modern", "Professional", "Creative", "Corporate", "Tech/SaaS", "E-commerce", "Startup"
 ];
 
-export function LandingPageBuilder() {
-  const [sessionId, setSessionId] = useState<number | null>(null);
+interface LandingPageBuilderProps {
+  sessionId?: number | null;
+  onSendMessage?: (message: string) => void;
+  isLoading?: boolean;
+}
+
+export function LandingPageBuilder({ sessionId: propSessionId, onSendMessage, isLoading: propIsLoading }: LandingPageBuilderProps = {}) {
+  const [sessionId, setSessionId] = useState<number | null>(propSessionId || null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -168,18 +174,15 @@ Please provide a comprehensive landing page strategy that includes:
 
 Format with specific design recommendations, copy suggestions, and implementation guidelines with wireframe descriptions.`;
 
-      const response = await apiRequest("POST", "/api/sessions", {
-        botType: "landing-pages",
-        initialMessage: prompt,
-      });
-
-      const session = await response.json();
-      setSessionId(session.id);
-
-      toast({
-        title: "Landing Page Design Started",
-        description: "Creating conversion-focused page structure and UX strategy...",
-      });
+      if (onSendMessage) {
+        onSendMessage(prompt);
+      } else {
+        toast({
+          title: "No active session",
+          description: "Please start a session from the bot page to use this tool.",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       console.error("Landing page builder error:", error);
       toast({
@@ -257,7 +260,7 @@ Format with specific design recommendations, copy suggestions, and implementatio
         </div>
       </div>
 
-      {sessionId ? (
+      {sessionId && propSessionId ? (
         <BotChatInterface sessionId={sessionId} botType="landing-pages" />
       ) : (
         <>
@@ -755,10 +758,10 @@ Format with specific design recommendations, copy suggestions, and implementatio
                     type="submit" 
                     size="lg" 
                     className="w-full"
-                    disabled={isLoading}
+                    disabled={isLoading || propIsLoading}
                     data-testid="button-build-page"
                   >
-                    {isLoading ? (
+                    {isLoading || propIsLoading ? (
                       <>
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
                         Building Landing Page Strategy...

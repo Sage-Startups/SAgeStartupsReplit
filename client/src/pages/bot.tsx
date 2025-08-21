@@ -871,22 +871,38 @@ export default function Bot() {
                 
                 {/* Audience Targeting Assistant */}
                 {bot.id === 'audience-targeting' && (
-                  <AudienceTargetingAssistant />
+                  <AudienceTargetingAssistant 
+                    sessionId={activeSessionId}
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                  />
                 )}
                 
                 {/* Budget Optimizer */}
                 {bot.id === 'budget-optimizer' && (
-                  <BudgetOptimizer />
+                  <BudgetOptimizer 
+                    sessionId={activeSessionId}
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                  />
                 )}
                 
                 {/* A/B Test Designer */}
                 {bot.id === 'ab-testing' && (
-                  <ABTestDesigner />
+                  <ABTestDesigner 
+                    sessionId={activeSessionId}
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                  />
                 )}
                 
                 {/* Landing Page Builder */}
                 {bot.id === 'landing-pages' && (
-                  <LandingPageBuilder />
+                  <LandingPageBuilder 
+                    sessionId={activeSessionId}
+                    onSendMessage={handleSendMessage}
+                    isLoading={sendMessageMutation.isPending}
+                  />
                 )}
                 
                 {/* Default Enhanced Bot Interface for others */}

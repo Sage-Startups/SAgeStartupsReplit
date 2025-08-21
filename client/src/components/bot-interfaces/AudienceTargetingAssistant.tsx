@@ -53,8 +53,14 @@ const campaignTypeOptions = [
 const genderOptions = ["All Genders", "Male", "Female", "Non-binary"];
 const incomeOptions = ["All Income Levels", "Low Income", "Middle Income", "High Income", "Luxury Market"];
 
-export function AudienceTargetingAssistant() {
-  const [sessionId, setSessionId] = useState<number | null>(null);
+interface AudienceTargetingAssistantProps {
+  sessionId?: number | null;
+  onSendMessage?: (message: string) => void;
+  isLoading?: boolean;
+}
+
+export function AudienceTargetingAssistant({ sessionId: propSessionId, onSendMessage, isLoading: propIsLoading }: AudienceTargetingAssistantProps = {}) {
+  const [sessionId, setSessionId] = useState<number | null>(propSessionId || null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -144,18 +150,15 @@ Please provide a comprehensive audience targeting strategy that includes:
 
 Format with actionable targeting parameters, specific audience sizes, and platform-specific implementation guidance.`;
 
-      const response = await apiRequest("POST", "/api/sessions", {
-        botType: "audience-targeting",
-        initialMessage: prompt,
-      });
-
-      const session = await response.json();
-      setSessionId(session.id);
-
-      toast({
-        title: "Audience Targeting Analysis Started",
-        description: "Developing precise targeting strategies and demographic analysis...",
-      });
+      if (onSendMessage) {
+        onSendMessage(prompt);
+      } else {
+        toast({
+          title: "No active session",
+          description: "Please start a session from the bot page to use this tool.",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       console.error("Audience targeting error:", error);
       toast({
@@ -233,7 +236,7 @@ Format with actionable targeting parameters, specific audience sizes, and platfo
         </div>
       </div>
 
-      {sessionId ? (
+      {sessionId && propSessionId ? (
         <BotChatInterface sessionId={sessionId} botType="audience-targeting" />
       ) : (
         <>
@@ -631,10 +634,10 @@ Format with actionable targeting parameters, specific audience sizes, and platfo
                     type="submit" 
                     size="lg" 
                     className="w-full"
-                    disabled={isLoading}
+                    disabled={isLoading || propIsLoading}
                     data-testid="button-generate-targeting"
                   >
-                    {isLoading ? (
+                    {isLoading || propIsLoading ? (
                       <>
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
                         Analyzing Target Audience...

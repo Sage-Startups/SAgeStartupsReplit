@@ -52,8 +52,14 @@ const bidStrategyOptions = [
   "Manual CPC", "Enhanced CPC", "Target CPA", "Target ROAS", "Maximize Clicks", "Maximize Conversions", "Target Impression Share"
 ];
 
-export function BudgetOptimizer() {
-  const [sessionId, setSessionId] = useState<number | null>(null);
+interface BudgetOptimizerProps {
+  sessionId?: number | null;
+  onSendMessage?: (message: string) => void;
+  isLoading?: boolean;
+}
+
+export function BudgetOptimizer({ sessionId: propSessionId, onSendMessage, isLoading: propIsLoading }: BudgetOptimizerProps = {}) {
+  const [sessionId, setSessionId] = useState<number | null>(propSessionId || null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -144,18 +150,15 @@ Please provide a comprehensive budget optimization strategy that includes:
 
 Format with specific dollar amounts, percentages, and actionable implementation steps.`;
 
-      const response = await apiRequest("POST", "/api/sessions", {
-        botType: "budget-optimizer",
-        initialMessage: prompt,
-      });
-
-      const session = await response.json();
-      setSessionId(session.id);
-
-      toast({
-        title: "Budget Optimization Started",
-        description: "Analyzing cost-effective allocation and ROI strategies...",
-      });
+      if (onSendMessage) {
+        onSendMessage(prompt);
+      } else {
+        toast({
+          title: "No active session",
+          description: "Please start a session from the bot page to use this tool.",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       console.error("Budget optimizer error:", error);
       toast({
@@ -233,7 +236,7 @@ Format with specific dollar amounts, percentages, and actionable implementation 
         </div>
       </div>
 
-      {sessionId ? (
+      {sessionId && propSessionId ? (
         <BotChatInterface sessionId={sessionId} botType="budget-optimizer" />
       ) : (
         <>
@@ -667,10 +670,10 @@ Format with specific dollar amounts, percentages, and actionable implementation 
                     type="submit" 
                     size="lg" 
                     className="w-full"
-                    disabled={isLoading}
+                    disabled={isLoading || propIsLoading}
                     data-testid="button-optimize-budget"
                   >
-                    {isLoading ? (
+                    {isLoading || propIsLoading ? (
                       <>
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
                         Optimizing Budget Allocation...
