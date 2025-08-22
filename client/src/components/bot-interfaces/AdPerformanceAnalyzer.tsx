@@ -1,353 +1,419 @@
-import { useState, useEffect } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Progress } from "@/components/ui/progress";
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest, queryClient } from "@/lib/queryClient";
-import { BarChart3, Target, TrendingUp, ArrowRight } from "lucide-react";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { BarChart3, TrendingUp, DollarSign, Target } from "lucide-react";
 import { BotChatInterface } from "./BotChatInterface";
+import { useToast } from "@/hooks/use-toast";
+
+const formSchema = z.object({
+  businessName: z.string().min(1, "Business name is required"),
+  campaignName: z.string().min(1, "Campaign name is required"),
+  platform: z.string().min(1, "Platform is required"),
+  campaignType: z.string().min(1, "Campaign type is required"),
+  budget: z.string().min(1, "Budget is required"),
+  currentMetrics: z.string().min(1, "Current metrics are required"),
+  goals: z.string().min(1, "Campaign goals are required"),
+});
+
+type FormData = z.infer<typeof formSchema>;
+
+const platformOptions = [
+  "Google Ads", "Facebook Ads", "Instagram Ads", "LinkedIn Ads", "Twitter Ads", "TikTok Ads", "YouTube Ads", "Multi-Platform"
+];
+
+const campaignTypeOptions = [
+  "Search", "Display", "Video", "Shopping", "Social", "Remarketing", "Brand Awareness", "Lead Generation"
+];
 
 interface AdPerformanceAnalyzerProps {
-  sessionId: number;
-  botName: string;
+  sessionId?: number | null;
+  onSendMessage?: (message: string) => void;
+  isLoading?: boolean;
 }
 
-export function AdPerformanceAnalyzer({ sessionId, botName }: AdPerformanceAnalyzerProps) {
-  const [phase, setPhase] = useState<'input' | 'processing' | 'complete'>('input');
-  const [formData, setFormData] = useState({
-    businessName: '',
-    adCampaigns: '',
-    platforms: '',
-    budget: '',
-    goals: '',
-    timeframe: '',
-    keyMetrics: '',
-    challenges: ''
-  });
-  const [processingProgress, setProcessingProgress] = useState(0);
+export function AdPerformanceAnalyzer({ sessionId: propSessionId, onSendMessage, isLoading: propIsLoading }: AdPerformanceAnalyzerProps = {}) {
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const { data: messages = [] } = useQuery({
-    queryKey: ['/api/sessions', sessionId, 'messages'],
-    enabled: !!sessionId
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      businessName: "",
+      campaignName: "",
+      platform: "",
+      campaignType: "",
+      budget: "",
+      currentMetrics: "",
+      goals: "",
+    },
   });
 
-  useEffect(() => {
-    if (messages && messages.length > 0) {
-      const lastMessage = messages[messages.length - 1] as any;
-      if (lastMessage.role === 'assistant') {
-        setPhase('complete');
-      }
-    }
-  }, [messages]);
-
-  const createAnalysisMutation = useMutation({
-    mutationFn: async () => {
-      setPhase('processing');
-      
-      await apiRequest('PUT', `/api/sessions/${sessionId}`, { 
-        sessionTitle: `Ad Performance Analysis: ${formData.businessName}`
-      });
-
-      for (let i = 0; i <= 100; i += 10) {
-        setProcessingProgress(i);
-        await new Promise(resolve => setTimeout(resolve, 200));
-      }
-
-      const prompt = `Analyze advertising performance for ${formData.businessName}.
+  const onSubmit = async (data: FormData) => {
+    setIsLoading(true);
+    try {
+      const prompt = `Analyze ad performance and provide optimization recommendations for ${data.businessName}'s ${data.campaignName} campaign.
 
 **Campaign Details:**
-- Business Name: ${formData.businessName}
-- Ad Campaigns: ${formData.adCampaigns}
-- Advertising Platforms: ${formData.platforms}
-- Budget Information: ${formData.budget}
-- Campaign Goals: ${formData.goals}
-- Analysis Timeframe: ${formData.timeframe}
-- Key Metrics: ${formData.keyMetrics}
-- Current Challenges: ${formData.challenges}
+- Platform: ${data.platform}
+- Campaign Type: ${data.campaignType}
+- Budget: ${data.budget}
+- Current Metrics: ${data.currentMetrics}
+- Goals: ${data.goals}
 
-Please provide comprehensive ad performance analysis with:
+Please provide comprehensive performance analysis and optimization recommendations:
 
-## 📊 **Performance Metrics Analysis**
-- Click-through rates (CTR) and trends
-- Conversion rates and funnel analysis
-- Cost per click (CPC) and cost per acquisition (CPA)
-- Return on ad spend (ROAS)
-- Impression share and reach analysis
-- Engagement rates and quality scores
+## 💰 **ROI Analysis**
+- Current ROI calculation
+- Cost per acquisition breakdown
+- Revenue attribution analysis
+- Profit margin assessment
+- Lifetime value considerations
+- Budget efficiency score
 
-## 🎯 **Campaign Effectiveness Review**
-- Campaign-by-campaign performance breakdown
-- Platform comparison and effectiveness
-- Audience targeting performance
-- Creative performance analysis
-- Budget allocation efficiency
-- Goal achievement assessment
+## 📊 **Performance Metrics Deep Dive**
+- CTR analysis and benchmarks
+- Conversion rate optimization opportunities
+- Quality score improvements
+- Impression share analysis
+- Audience engagement metrics
+- Device and placement performance
 
-## 📈 **Trend Analysis & Insights**
-- Performance trends over time
-- Seasonal patterns and variations
-- Peak performance periods identification
-- Declining performance indicators
-- Competitive landscape impact
-- Market condition influences
+## 🎯 **Optimization Recommendations**
+### Immediate Actions (Quick Wins)
+- Bid adjustments
+- Negative keywords
+- Ad schedule optimization
+- Budget reallocation
+- Underperforming ad pausing
 
-## 💡 **Optimization Recommendations**
-- Immediate improvement opportunities
-- Budget reallocation strategies
-- Targeting refinement suggestions
-- Creative optimization ideas
-- Platform-specific optimizations
-- Bidding strategy adjustments
+### Medium-term Improvements
+- Creative refresh strategies
+- Landing page optimization
+- Audience refinement
+- New ad formats to test
+- Geographic expansion/restriction
 
-## 🚀 **Action Plan & Strategy**
-- Priority optimization tasks
-- Testing and experimentation plan
-- Performance improvement timeline
-- Resource allocation recommendations
-- Success measurement framework
-- Monitoring and reporting setup
+### Long-term Strategic Changes
+- Campaign structure overhaul
+- Attribution model changes
+- Cross-channel integration
+- Competitive positioning
+- Market expansion opportunities
 
-## 📋 **Executive Summary**
-- Key findings and insights
-- Performance highlights and concerns
-- Strategic recommendations
-- Expected impact projections
-- Next steps and priorities
+## 📈 **Performance Forecasting**
+- Expected improvements from optimizations
+- ROI projections (30/60/90 days)
+- Budget scaling recommendations
+- Risk assessment
+- Seasonal considerations
 
-Format with specific metrics, performance data, and actionable optimization strategies.`;
+## 🔍 **Competitive Analysis**
+- Industry benchmarks comparison
+- Competitive gaps and opportunities
+- Share of voice analysis
+- Pricing strategy recommendations
+- Unique selling proposition refinement
 
-      const response = await apiRequest('POST', `/api/sessions/${sessionId}/messages`, {
-        content: prompt,
-        role: 'user'
-      });
+## 🛠️ **Testing Framework**
+- A/B test priorities
+- Testing timeline
+- Success metrics
+- Statistical significance requirements
+- Implementation roadmap
 
-      return response.json();
-    },
-    onSuccess: () => {
-      setPhase('complete');
-      toast({
-        title: "Analysis Complete!",
-        description: "Your ad performance analysis has been generated.",
-      });
-      queryClient.invalidateQueries({ queryKey: ['/api/sessions', sessionId, 'messages'] });
-    },
-    onError: (error) => {
-      setPhase('input');
+## 📝 **Action Plan**
+- Week 1 priorities
+- Month 1 milestones
+- Quarter 1 goals
+- Resource requirements
+- Monitoring schedule
+
+Format with specific numbers, percentages, and actionable steps for immediate implementation.`;
+
+      if (onSendMessage) {
+        onSendMessage(prompt);
+        toast({
+          title: "Performance Analysis Started",
+          description: "Analyzing ROI and generating optimization recommendations...",
+        });
+      } else {
+        toast({
+          title: "No active session",
+          description: "Please start a session from the bot page to use this tool.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Ad performance analyzer error:", error);
       toast({
         title: "Error",
-        description: `Failed to analyze performance: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        description: `Failed to analyze ad performance: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
-  });
-
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
   };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.businessName || !formData.adCampaigns || !formData.platforms) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in all required fields.",
-        variant: "destructive",
-      });
-      return;
-    }
-    createAnalysisMutation.mutate();
-  };
-
-  if (phase === 'complete') {
-    return <BotChatInterface sessionId={sessionId} botType="ad-performance-analyzer" />;
-  }
-
-  if (phase === 'processing') {
-    return (
-      <div className="space-y-6">
-        <Card>
-          <CardContent className="p-8">
-            <div className="text-center space-y-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-orange-600 rounded-full flex items-center justify-center mx-auto">
-                <BarChart3 className="w-8 h-8 text-white animate-pulse" />
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Analyzing Ad Performance</h3>
-                <p className="text-gray-600 mb-4">Evaluating campaign effectiveness and identifying optimization opportunities...</p>
-                <Progress value={processingProgress} className="w-full max-w-md mx-auto" />
-                <p className="text-sm text-gray-500 mt-2">{processingProgress}% Complete</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
-    <div className="space-y-6">
-      <div className="text-center space-y-4">
-        <div className="flex items-center justify-center space-x-3">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-orange-600 flex items-center justify-center">
-            <BarChart3 className="w-6 h-6 text-white" />
+    <div className="max-w-4xl mx-auto p-6">
+      {/* Header */}
+      <div className="mb-8">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+            <BarChart3 className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Ad Performance Analyzer</h2>
-            <p className="text-gray-600">Analyze campaign effectiveness and optimize advertising performance</p>
+            <h1 className="text-3xl font-bold text-gray-900">Ad Performance Analyzer</h1>
+            <p className="text-gray-600">ROI analysis, performance optimization, and recommendations</p>
           </div>
         </div>
         
-        <div className="flex items-center justify-center space-x-8 text-sm text-gray-600">
-          <div className="flex items-center space-x-2">
-            <BarChart3 className="w-4 h-4" />
-            <span>Performance Analysis</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Target className="w-4 h-4" />
-            <span>Campaign Optimization</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <TrendingUp className="w-4 h-4" />
-            <span>ROI Improvement</span>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <Card className="border-l-4 border-l-green-500">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <DollarSign className="h-5 w-5 text-green-600" />
+                <div>
+                  <p className="font-semibold text-sm">ROI Analysis</p>
+                  <p className="text-xs text-gray-600">Return tracking</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="border-l-4 border-l-emerald-500">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5 text-emerald-600" />
+                <div>
+                  <p className="font-semibold text-sm">Performance Metrics</p>
+                  <p className="text-xs text-gray-600">Deep analysis</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="border-l-4 border-l-teal-500">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-teal-600" />
+                <div>
+                  <p className="font-semibold text-sm">Optimization</p>
+                  <p className="text-xs text-gray-600">Improvements</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="border-l-4 border-l-cyan-500">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <Target className="h-5 w-5 text-cyan-600" />
+                <div>
+                  <p className="font-semibold text-sm">Recommendations</p>
+                  <p className="text-xs text-gray-600">Action plans</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Ad Performance Analysis Setup</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="business-name">Business Name *</Label>
-                <Input
-                  id="business-name"
-                  value={formData.businessName}
-                  onChange={(e) => handleInputChange('businessName', e.target.value)}
-                  placeholder="Enter your business name"
-                  required
+      {propSessionId ? (
+        <BotChatInterface sessionId={propSessionId} botType="ad-performance" />
+      ) : (
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="h-5 w-5" />
+              Campaign Performance Details
+            </CardTitle>
+            <CardDescription>
+              Provide your campaign data for comprehensive performance analysis
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="businessName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Business Name *</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Enter your business name" 
+                            {...field} 
+                            data-testid="input-business-name"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="campaignName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Campaign Name *</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Name of your ad campaign" 
+                            {...field} 
+                            data-testid="input-campaign-name"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="platform"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Platform *</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger data-testid="select-platform">
+                              <SelectValue placeholder="Select ad platform" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {platformOptions.map((platform) => (
+                              <SelectItem key={platform} value={platform}>
+                                {platform}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="campaignType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Campaign Type *</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger data-testid="select-campaign-type">
+                              <SelectValue placeholder="Type of campaign" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {campaignTypeOptions.map((type) => (
+                              <SelectItem key={type} value={type}>
+                                {type}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="budget"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Budget *</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="e.g., $5,000/month or $100/day"
+                          {...field} 
+                          data-testid="input-budget"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="platforms">Advertising Platforms *</Label>
-                <Select onValueChange={(value) => handleInputChange('platforms', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select primary platform" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="google-ads">Google Ads</SelectItem>
-                    <SelectItem value="facebook-instagram">Facebook & Instagram</SelectItem>
-                    <SelectItem value="linkedin">LinkedIn Ads</SelectItem>
-                    <SelectItem value="twitter">Twitter Ads</SelectItem>
-                    <SelectItem value="tiktok">TikTok Ads</SelectItem>
-                    <SelectItem value="multiple-platforms">Multiple Platforms</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="ad-campaigns">Ad Campaigns *</Label>
-                <Textarea
-                  id="ad-campaigns"
-                  value={formData.adCampaigns}
-                  onChange={(e) => handleInputChange('adCampaigns', e.target.value)}
-                  placeholder="List your ad campaigns and their objectives (e.g., Brand Awareness Campaign, Lead Gen Campaign)"
-                  rows={3}
-                  required
+                <FormField
+                  control={form.control}
+                  name="currentMetrics"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Current Metrics *</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Share your current performance data (CTR, CPC, conversions, etc.)"
+                          {...field} 
+                          data-testid="textarea-metrics"
+                          rows={4}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="budget">Budget Information</Label>
-                <Input
-                  id="budget"
-                  value={formData.budget}
-                  onChange={(e) => handleInputChange('budget', e.target.value)}
-                  placeholder="Total ad spend or budget range (e.g., $5,000/month)"
+                <FormField
+                  control={form.control}
+                  name="goals"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Campaign Goals *</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="What are you trying to achieve with this campaign?"
+                          {...field} 
+                          data-testid="textarea-goals"
+                          rows={3}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="goals">Campaign Goals</Label>
-                <Select onValueChange={(value) => handleInputChange('goals', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="What are you trying to achieve?" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="brand-awareness">Brand Awareness</SelectItem>
-                    <SelectItem value="lead-generation">Lead Generation</SelectItem>
-                    <SelectItem value="sales-conversion">Sales Conversion</SelectItem>
-                    <SelectItem value="website-traffic">Website Traffic</SelectItem>
-                    <SelectItem value="app-installs">App Installs</SelectItem>
-                    <SelectItem value="multiple-goals">Multiple Goals</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="timeframe">Analysis Timeframe</Label>
-                <Select onValueChange={(value) => handleInputChange('timeframe', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select analysis period" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="last-week">Last Week</SelectItem>
-                    <SelectItem value="last-month">Last Month</SelectItem>
-                    <SelectItem value="last-quarter">Last Quarter</SelectItem>
-                    <SelectItem value="last-6-months">Last 6 Months</SelectItem>
-                    <SelectItem value="year-to-date">Year to Date</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="key-metrics">Key Metrics to Analyze</Label>
-                <Textarea
-                  id="key-metrics"
-                  value={formData.keyMetrics}
-                  onChange={(e) => handleInputChange('keyMetrics', e.target.value)}
-                  placeholder="Which metrics are most important? (e.g., CTR, CPA, ROAS, conversions)"
-                  rows={2}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="challenges">Current Challenges</Label>
-                <Textarea
-                  id="challenges"
-                  value={formData.challenges}
-                  onChange={(e) => handleInputChange('challenges', e.target.value)}
-                  placeholder="What issues are you experiencing? (e.g., high costs, low conversions, declining performance)"
-                  rows={2}
-                />
-              </div>
-            </div>
-
-            <Button type="submit" className="w-full" disabled={createAnalysisMutation.isPending}>
-              {createAnalysisMutation.isPending ? (
-                <span className="flex items-center">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                  Analyzing Performance...
-                </span>
-              ) : (
-                <span className="flex items-center">
-                  Analyze Ad Performance
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </span>
-              )}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+                <Button 
+                  type="submit" 
+                  size="lg" 
+                  className="w-full"
+                  disabled={isLoading || propIsLoading}
+                  data-testid="button-analyze-performance"
+                >
+                  {isLoading || propIsLoading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                      Analyzing Performance...
+                    </>
+                  ) : (
+                    <>
+                      <BarChart3 className="w-4 h-4 mr-2" />
+                      Analyze Ad Performance
+                    </>
+                  )}
+                </Button>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

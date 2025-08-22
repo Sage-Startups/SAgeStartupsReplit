@@ -41,13 +41,13 @@ export function BrandingBot({ sessionId, botName }: BrandingBotProps) {
   const { toast } = useToast();
 
   // Load existing session
-  const { data: messages = [] } = useQuery<any[]>({
+  const { data: messages = [] } = useQuery({
     queryKey: ['/api/sessions', sessionId, 'messages'],
     enabled: !!sessionId
   });
 
   useEffect(() => {
-    if (Array.isArray(messages) && messages.length > 0) {
+    if (messages && messages.length > 0) {
       const lastMessage = messages[messages.length - 1] as any;
       if (lastMessage.role === 'assistant') {
         try {
