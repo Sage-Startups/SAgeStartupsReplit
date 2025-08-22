@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Layout, Target, TrendingUp, Zap } from "lucide-react";
+import { Layout, Target, TrendingUp, Zap, Palette, MousePointer, Monitor } from "lucide-react";
 import { BotChatInterface } from "./BotChatInterface";
 import { useToast } from "@/hooks/use-toast";
 
@@ -36,9 +36,7 @@ interface LandingPageBuilderProps {
   isLoading?: boolean;
 }
 
-export function LandingPageBuilder({ sessionId: propSessionId, onSendMessage, isLoading: propIsLoading }: LandingPageBuilderProps = {}) {
-  const [sessionId, setSessionId] = useState<number | null>(propSessionId || null);
-  const [isLoading, setIsLoading] = useState(false);
+export function LandingPageBuilder({ sessionId, onSendMessage, isLoading }: LandingPageBuilderProps = {}) {
   const { toast } = useToast();
 
   const form = useForm<FormData>({
@@ -53,9 +51,8 @@ export function LandingPageBuilder({ sessionId: propSessionId, onSendMessage, is
   });
 
   const onSubmit = async (data: FormData) => {
-    setIsLoading(true);
     try {
-      const prompt = `Create a high-converting landing page strategy for ${data.businessName}.
+      const prompt = `Create a comprehensive landing page strategy for ${data.businessName}.
 
 **Project Brief:**
 - Primary Goal: ${data.primaryGoal}
@@ -63,208 +60,226 @@ export function LandingPageBuilder({ sessionId: propSessionId, onSendMessage, is
 - Value Proposition: ${data.valueProposition}
 - Design Style: ${data.designStyle}
 
-Please provide a comprehensive, actionable landing page strategy with:
+Please provide a detailed, modern landing page strategy covering:
 
-## 📝 **Page Structure & Copy**
-- Hero section with compelling headline and subheadline
-- Value proposition statement
-- Key benefits (3-5 bullet points)
-- Call-to-action buttons and placement
-- Social proof section
-- FAQ or objection handling
+## 🏗️ PAGE STRUCTURE
+- Hero section layout with compelling headline and subheadline
+- Above-the-fold content strategy and visual hierarchy
+- Section-by-section page flow and content organization
+- Navigation and user journey mapping
+- Mobile-first responsive design considerations
+- Call-to-action placement and frequency throughout the page
 
-## 🎨 **Visual Design & Layout**
-- Page layout wireframe description
-- Color scheme recommendations
-- Typography hierarchy
-- Visual elements and imagery suggestions
-- Mobile-responsive considerations
+## 🎯 CONVERSION OPTIMIZATION
+- High-converting headline formulas and examples
+- Trust signals and social proof placement strategies
+- CTA button design, copy, and optimization techniques
+- Form design best practices to reduce friction
+- Urgency and scarcity psychological triggers
+- Risk reversal and guarantee strategies
+- A/B testing elements and priority testing queue
 
-## 🚀 **Conversion Optimization**
-- CTA optimization strategies
-- Trust signals and credibility boosters
-- Urgency and scarcity tactics
-- Form design best practices
-- A/B testing recommendations
+## 🎨 UX DESIGN
+- Visual design principles and color psychology
+- Typography hierarchy and readability optimization
+- White space utilization and content density
+- Interactive elements and micro-interactions
+- Loading speed optimization techniques
+- Accessibility and inclusive design considerations
+- Mobile UX optimization and touch-friendly design
 
-## 📊 **Performance & Analytics**
-- Key metrics to track
-- Conversion tracking setup
-- Analytics implementation
-- Success benchmarks
+## ⚡ IMPLEMENTATION ROADMAP
+- Technical requirements and platform recommendations
+- Content creation checklist and copywriting guidelines
+- Design asset requirements and specifications
+- Analytics and tracking setup instructions
+- Launch checklist and quality assurance protocols
+- Post-launch optimization strategies and monitoring
 
-## 💡 **Implementation Tips**
-- Technical requirements
-- Timeline suggestions
-- Common pitfalls to avoid
-- Optimization opportunities
-
-Format each section with specific, actionable recommendations and include actual copy examples where possible.`;
+Format the response with specific examples, actionable recommendations, and modern design principles. Use emojis and clear sections to make it user-friendly and engaging.`;
 
       if (onSendMessage) {
         onSendMessage(prompt);
         toast({
-          title: "Landing Page Strategy Started",
-          description: "Creating conversion-focused design and UX optimization...",
-        });
-      } else {
-        toast({
-          title: "No active session",
-          description: "Please start a session from the bot page to use this tool.",
-          variant: "destructive",
+          title: "Landing Page Design Started",
+          description: "Creating conversion-focused page structure and UX optimization...",
         });
       }
     } catch (error) {
       console.error("Landing page builder error:", error);
       toast({
         title: "Error",
-        description: `Failed to start landing page design: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        description: "Failed to start landing page design",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
+  // If there's no active session, show the session creation interface
+  if (!sessionId) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center space-y-4">
+          <div className="flex items-center justify-center space-x-3">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
+              <Layout className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Landing Page Builder</h2>
+              <p className="text-gray-600">AI-powered page structure and conversion optimization</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center justify-center space-x-8 text-sm text-gray-600">
+            <div className="flex items-center space-x-2">
+              <Monitor className="w-4 h-4" />
+              <span>Page Structure</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Target className="w-4 h-4" />
+              <span>Conversion Optimization</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Palette className="w-4 h-4" />
+              <span>UX Design</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="border-l-4 border-l-orange-500 bg-gradient-to-br from-orange-50 to-red-50">
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-3 mb-3">
+                <div className="w-10 h-10 rounded-lg bg-orange-500 flex items-center justify-center">
+                  <Monitor className="w-5 h-5 text-white" />
+                </div>
+                <h3 className="font-semibold text-gray-900">Page Structure</h3>
+              </div>
+              <p className="text-sm text-gray-600">
+                Complete page layout with hero sections, content flow, and mobile-responsive design strategies
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-l-4 border-l-red-500 bg-gradient-to-br from-red-50 to-pink-50">
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-3 mb-3">
+                <div className="w-10 h-10 rounded-lg bg-red-500 flex items-center justify-center">
+                  <MousePointer className="w-5 h-5 text-white" />
+                </div>
+                <h3 className="font-semibold text-gray-900">Conversion Optimization</h3>
+              </div>
+              <p className="text-sm text-gray-600">
+                High-converting CTAs, trust signals, and psychological triggers to maximize conversions
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-l-4 border-l-pink-500 bg-gradient-to-br from-pink-50 to-rose-50">
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-3 mb-3">
+                <div className="w-10 h-10 rounded-lg bg-pink-500 flex items-center justify-center">
+                  <Palette className="w-5 h-5 text-white" />
+                </div>
+                <h3 className="font-semibold text-gray-900">UX Design</h3>
+              </div>
+              <p className="text-sm text-gray-600">
+                Modern design principles, visual hierarchy, and user experience optimization techniques
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card className="border-2 border-dashed border-gray-300 bg-gray-50">
+          <CardHeader className="text-center">
+            <CardTitle className="text-xl text-gray-900">Build Your Landing Page</CardTitle>
+            <CardDescription>
+              Create a session to access the page builder form and receive comprehensive design strategies
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="text-center">
+            <div className="space-y-4">
+              <div className="flex items-center justify-center space-x-6 text-sm text-gray-600">
+                <div className="flex items-center space-x-2">
+                  <Zap className="w-4 h-4" />
+                  <span>Quick Design</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Target className="w-4 h-4" />
+                  <span>High Converting</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <TrendingUp className="w-4 h-4" />
+                  <span>Results Focused</span>
+                </div>
+              </div>
+              <p className="text-sm text-gray-500">
+                Select a project and start a new session to access the landing page builder
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // If there's an active session, show the form or chat interface
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
-            <Layout className="h-6 w-6 text-white" />
+    <div className="space-y-6">
+      <div className="text-center space-y-4">
+        <div className="flex items-center justify-center space-x-3">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
+            <Layout className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Landing Page Builder</h1>
-            <p className="text-gray-600">Conversion-focused pages, UX design, and performance optimization</p>
+            <h2 className="text-2xl font-bold text-gray-900">Landing Page Builder</h2>
+            <p className="text-gray-600">AI-powered page structure and conversion optimization</p>
           </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <Card className="border-l-4 border-l-green-500">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2">
-                <Layout className="h-5 w-5 text-green-600" />
-                <div>
-                  <p className="font-semibold text-sm">Page Structure</p>
-                  <p className="text-xs text-gray-600">Optimal layout</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-l-4 border-l-emerald-500">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2">
-                <Target className="h-5 w-5 text-emerald-600" />
-                <div>
-                  <p className="font-semibold text-sm">Conversion Optimization</p>
-                  <p className="text-xs text-gray-600">CRO best practices</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-l-4 border-l-teal-500">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2">
-                <Zap className="h-5 w-5 text-teal-600" />
-                <div>
-                  <p className="font-semibold text-sm">UX Design</p>
-                  <p className="text-xs text-gray-600">User experience</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-l-4 border-l-cyan-500">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-cyan-600" />
-                <div>
-                  <p className="font-semibold text-sm">Performance Tracking</p>
-                  <p className="text-xs text-gray-600">Analytics & metrics</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        <div className="flex items-center justify-center space-x-8 text-sm text-gray-600">
+          <div className="flex items-center space-x-2">
+            <Monitor className="w-4 h-4" />
+            <span>Page Structure</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Target className="w-4 h-4" />
+            <span>Conversion Optimization</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Palette className="w-4 h-4" />
+            <span>UX Design</span>
+          </div>
         </div>
       </div>
 
-      {propSessionId ? (
-        <BotChatInterface sessionId={propSessionId} botType="landing-pages" />
-      ) : (
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Layout className="h-5 w-5" />
-              Landing Page Configuration
-            </CardTitle>
-            <CardDescription>
-              Tell us about your business and goals to create the perfect landing page strategy
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="businessName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Business Name *</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="Enter your business name" 
-                            {...field} 
-                            data-testid="input-business-name"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="primaryGoal"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Primary Goal *</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger data-testid="select-primary-goal">
-                              <SelectValue placeholder="What's your main objective?" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {goalOptions.map((goal) => (
-                              <SelectItem key={goal} value={goal}>
-                                {goal}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
+      {/* Form */}
+      <Card className="border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-red-50">
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2 text-orange-800">
+            <Layout className="w-5 h-5" />
+            <span>Landing Page Configuration</span>
+          </CardTitle>
+          <CardDescription className="text-orange-700">
+            Provide your project details for comprehensive page structure and conversion optimization
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
-                  name="targetAudience"
+                  name="businessName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Target Audience *</FormLabel>
+                      <FormLabel className="text-gray-800 font-medium">Business Name *</FormLabel>
                       <FormControl>
-                        <Textarea 
-                          placeholder="Describe your ideal customers (e.g., small business owners, tech professionals, young parents...)"
+                        <Input 
+                          placeholder="Enter your business name" 
                           {...field} 
-                          data-testid="textarea-target-audience"
-                          rows={3}
+                          data-testid="input-business-name"
+                          className="bg-white border-orange-200 focus:border-orange-400"
                         />
                       </FormControl>
                       <FormMessage />
@@ -274,16 +289,43 @@ Format each section with specific, actionable recommendations and include actual
 
                 <FormField
                   control={form.control}
-                  name="valueProposition"
+                  name="primaryGoal"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Value Proposition *</FormLabel>
+                      <FormLabel className="text-gray-800 font-medium">Primary Goal *</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="bg-white border-orange-200 focus:border-orange-400" data-testid="select-primary-goal">
+                            <SelectValue placeholder="Select primary goal" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {goalOptions.map((goal) => (
+                            <SelectItem key={goal} value={goal.toLowerCase().replace(/\s+/g, '-')}>
+                              {goal}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                  control={form.control}
+                  name="targetAudience"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-800 font-medium">Target Audience *</FormLabel>
                       <FormControl>
                         <Textarea 
-                          placeholder="What unique value do you offer? What problem do you solve?"
+                          placeholder="Describe your target audience (demographics, interests, pain points)..."
+                          className="min-h-[80px] bg-white border-orange-200 focus:border-orange-400"
                           {...field} 
-                          data-testid="textarea-value-proposition"
-                          rows={3}
+                          data-testid="textarea-target-audience"
                         />
                       </FormControl>
                       <FormMessage />
@@ -296,16 +338,16 @@ Format each section with specific, actionable recommendations and include actual
                   name="designStyle"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Design Style *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormLabel className="text-gray-800 font-medium">Design Style *</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <SelectTrigger data-testid="select-design-style">
-                            <SelectValue placeholder="Choose your preferred style" />
+                          <SelectTrigger className="bg-white border-orange-200 focus:border-orange-400" data-testid="select-design-style">
+                            <SelectValue placeholder="Select design style" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
                           {designStyleOptions.map((style) => (
-                            <SelectItem key={style} value={style}>
+                            <SelectItem key={style} value={style.toLowerCase().replace(/\//g, '-')}>
                               {style}
                             </SelectItem>
                           ))}
@@ -315,31 +357,52 @@ Format each section with specific, actionable recommendations and include actual
                     </FormItem>
                   )}
                 />
+              </div>
 
-                <Button 
-                  type="submit" 
-                  size="lg" 
-                  className="w-full"
-                  disabled={isLoading || propIsLoading}
-                  data-testid="button-build-page"
-                >
-                  {isLoading || propIsLoading ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                      Building Landing Page Strategy...
-                    </>
-                  ) : (
-                    <>
-                      <Layout className="w-4 h-4 mr-2" />
-                      Build Landing Page Strategy
-                    </>
-                  )}
-                </Button>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-      )}
+              <FormField
+                control={form.control}
+                name="valueProposition"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-800 font-medium">Value Proposition *</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="What unique value do you offer? What problem do you solve for your customers?"
+                        className="min-h-[100px] bg-white border-orange-200 focus:border-orange-400"
+                        {...field} 
+                        data-testid="textarea-value-proposition"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <Button 
+                type="submit" 
+                disabled={isLoading}
+                className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white font-medium py-3"
+                data-testid="button-build-page"
+              >
+                {isLoading ? (
+                  <>
+                    <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                    Building Page...
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-4 h-4 mr-2" />
+                    Build My Landing Page
+                  </>
+                )}
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+
+      {/* Chat Interface */}
+      <BotChatInterface sessionId={sessionId} botType="landing-page-builder" />
     </div>
   );
 }
