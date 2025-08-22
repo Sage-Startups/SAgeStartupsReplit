@@ -647,6 +647,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const imageUrl = response.data?.[0]?.url;
       
+      // Validate that the image URL comes from OpenAI's trusted domains
+      if (imageUrl && !imageUrl.startsWith('https://oaidalleapiprodscus.blob.core.windows.net/') && 
+          !imageUrl.startsWith('https://dalleprodsec.blob.core.windows.net/')) {
+        console.warn('Unexpected image URL domain from OpenAI:', imageUrl);
+        return res.status(500).json({ message: 'Invalid image URL received from OpenAI' });
+      }
+      
       // Save generated asset
       const asset = await storage.createGeneratedAsset({
         sessionId,
