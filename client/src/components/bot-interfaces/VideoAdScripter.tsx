@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Video, Film, PlayCircle, Clapperboard } from "lucide-react";
+import { Video, Film, PlayCircle, Clapperboard, Zap, Camera, Edit } from "lucide-react";
 import { BotChatInterface } from "./BotChatInterface";
 import { useToast } from "@/hooks/use-toast";
 
@@ -17,9 +17,7 @@ const formSchema = z.object({
   productName: z.string().min(1, "Product name is required"),
   videoDuration: z.string().min(1, "Video duration is required"),
   platform: z.string().min(1, "Platform is required"),
-  targetAudience: z.string().min(1, "Target audience is required"),
   keyMessage: z.string().min(1, "Key message is required"),
-  toneStyle: z.string().min(1, "Tone and style is required"),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -32,18 +30,13 @@ const platformOptions = [
   "YouTube", "Facebook", "Instagram", "TikTok", "LinkedIn", "Twitter", "Snapchat"
 ];
 
-const toneOptions = [
-  "Humorous", "Emotional", "Professional", "Energetic", "Inspirational", "Educational", "Dramatic"
-];
-
 interface VideoAdScripterProps {
   sessionId?: number | null;
   onSendMessage?: (message: string) => void;
   isLoading?: boolean;
 }
 
-export function VideoAdScripter({ sessionId: propSessionId, onSendMessage, isLoading: propIsLoading }: VideoAdScripterProps = {}) {
-  const [isLoading, setIsLoading] = useState(false);
+export function VideoAdScripter({ sessionId, onSendMessage, isLoading }: VideoAdScripterProps = {}) {
   const { toast } = useToast();
 
   const form = useForm<FormData>({
@@ -53,275 +46,241 @@ export function VideoAdScripter({ sessionId: propSessionId, onSendMessage, isLoa
       productName: "",
       videoDuration: "",
       platform: "",
-      targetAudience: "",
       keyMessage: "",
-      toneStyle: "",
     },
   });
 
   const onSubmit = async (data: FormData) => {
-    setIsLoading(true);
     try {
       const prompt = `Create an engaging video ad script for ${data.businessName}'s ${data.productName}.
 
 **Video Specifications:**
 - Duration: ${data.videoDuration}
 - Platform: ${data.platform}
-- Target Audience: ${data.targetAudience}
 - Key Message: ${data.keyMessage}
-- Tone & Style: ${data.toneStyle}
 
-Please provide a comprehensive video ad script with:
+Please provide a comprehensive, user-friendly video ad strategy covering:
 
-## 🎬 **Opening Hook (First 3 seconds)**
-- Attention-grabbing opening line
-- Visual description
-- Sound/music suggestions
-- Text overlay recommendations
+## 🎬 HOOK CREATION
+- Powerful opening hooks for the first 3 seconds to grab attention
+- Pattern interrupt techniques and curiosity gaps
+- Platform-specific hook strategies and formats
+- Visual hook elements and opening scenes
+- Sound and music recommendations for maximum impact
+- Hook A/B testing variations and alternatives
+- Psychological triggers and emotional hooks
 
-## 📝 **Main Script & Storyboard**
-- Scene-by-scene breakdown
-- Dialogue/voiceover script
-- Visual descriptions for each scene
-- Transition suggestions
-- On-screen text and graphics
+## 📝 VIDEO SCRIPT
+- Complete scene-by-scene script breakdown with timestamps
+- Natural dialogue and voiceover copy that flows seamlessly
+- Story arc structure with clear beginning, middle, and end
+- Character development and personality injection
+- Transition scripts and scene connections
+- On-screen text overlays and graphic callouts
+- Platform-optimized pacing and rhythm for ${data.platform}
 
-## 🎯 **Key Product Highlights**
-- Features to showcase
-- Benefits to emphasize
-- Visual demonstrations
-- Proof points and credibility
+## 🎯 STORYBOARDING
+- Detailed visual descriptions for each scene
+- Camera angle recommendations and shot types
+- Visual composition and framing guidelines  
+- Props, settings, and background requirements
+- Actor/presenter positioning and movement
+- Color palette and visual mood suggestions
+- Graphic elements and animation opportunities
 
-## 💥 **Call-to-Action**
-- Clear CTA script
-- Visual CTA treatment
-- Urgency elements
-- Next steps for viewers
+## ⚡ PRODUCTION GUIDE
+- Step-by-step filming instructions and shot list
+- Equipment recommendations and technical requirements
+- Lighting setup and cinematography tips
+- Audio recording and music integration guidelines
+- Editing workflow and post-production notes
+- Platform-specific formatting and export settings
+- Call-to-action placement and optimization strategies
 
-## 🎵 **Production Notes**
-- Music and sound effects suggestions
-- Pacing and timing guidelines
-- Camera angles and shots
-- Editing transitions
-- Color grading mood
-
-## 📊 **Platform Optimization**
-- Platform-specific best practices
-- Aspect ratio recommendations
-- Caption requirements
-- Hashtag suggestions
-
-Format with specific timestamps, actual dialogue, and detailed visual descriptions for easy production.`;
+Format the response with specific examples, actual dialogue, detailed visual descriptions, and actionable production tips. Use emojis and modern formatting to make it engaging and easy to follow for content creators.`;
 
       if (onSendMessage) {
         onSendMessage(prompt);
         toast({
-          title: "Video Script Generation Started",
-          description: "Creating engaging video content and storyboard...",
-        });
-      } else {
-        toast({
-          title: "No active session",
-          description: "Please start a session from the bot page to use this tool.",
-          variant: "destructive",
+          title: "Video Script Started",
+          description: "Creating engaging video script with hooks and storyboarding...",
         });
       }
     } catch (error) {
-      console.error("Video ad scripter error:", error);
+      console.error("Video script generation error:", error);
       toast({
         title: "Error",
-        description: `Failed to generate video script: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        description: "Failed to start video script generation",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
+  // If there's no active session, show the session creation interface
+  if (!sessionId) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center space-y-4">
+          <div className="flex items-center justify-center space-x-3">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+              <Video className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Video Ad Scripter</h2>
+              <p className="text-gray-600">AI-powered script creation with hooks and storyboarding</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center justify-center space-x-8 text-sm text-gray-600">
+            <div className="flex items-center space-x-2">
+              <PlayCircle className="w-4 h-4" />
+              <span>Hook Creation</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Film className="w-4 h-4" />
+              <span>Video Script</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Clapperboard className="w-4 h-4" />
+              <span>Storyboarding</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="border-l-4 border-l-blue-500 bg-gradient-to-br from-blue-50 to-indigo-50">
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-3 mb-3">
+                <div className="w-10 h-10 rounded-lg bg-blue-500 flex items-center justify-center">
+                  <PlayCircle className="w-5 h-5 text-white" />
+                </div>
+                <h3 className="font-semibold text-gray-900">Hook Creation</h3>
+              </div>
+              <p className="text-sm text-gray-600">
+                Powerful opening hooks and attention-grabbing techniques for the first 3 seconds
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-l-4 border-l-purple-500 bg-gradient-to-br from-purple-50 to-indigo-50">
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-3 mb-3">
+                <div className="w-10 h-10 rounded-lg bg-purple-500 flex items-center justify-center">
+                  <Edit className="w-5 h-5 text-white" />
+                </div>
+                <h3 className="font-semibold text-gray-900">Video Script</h3>
+              </div>
+              <p className="text-sm text-gray-600">
+                Complete scene-by-scene scripts with natural dialogue and platform optimization
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-l-4 border-l-indigo-500 bg-gradient-to-br from-indigo-50 to-blue-50">
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-3 mb-3">
+                <div className="w-10 h-10 rounded-lg bg-indigo-500 flex items-center justify-center">
+                  <Camera className="w-5 h-5 text-white" />
+                </div>
+                <h3 className="font-semibold text-gray-900">Storyboarding</h3>
+              </div>
+              <p className="text-sm text-gray-600">
+                Detailed visual descriptions, camera angles, and production guidelines
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card className="border-2 border-dashed border-gray-300 bg-gray-50">
+          <CardHeader className="text-center">
+            <CardTitle className="text-xl text-gray-900">Create Your Video Script</CardTitle>
+            <CardDescription>
+              Create a session to access the video scripter and receive comprehensive scripts with storyboards
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="text-center">
+            <div className="space-y-4">
+              <div className="flex items-center justify-center space-x-6 text-sm text-gray-600">
+                <div className="flex items-center space-x-2">
+                  <Zap className="w-4 h-4" />
+                  <span>Quick Scripts</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Video className="w-4 h-4" />
+                  <span>Platform Optimized</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Film className="w-4 h-4" />
+                  <span>Production Ready</span>
+                </div>
+              </div>
+              <p className="text-sm text-gray-500">
+                Select a project and start a new session to access the video ad scripter
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // If there's an active session, show the form or chat interface
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-xl flex items-center justify-center">
-            <Video className="h-6 w-6 text-white" />
+    <div className="space-y-6">
+      <div className="text-center space-y-4">
+        <div className="flex items-center justify-center space-x-3">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+            <Video className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Video Ad Scripter</h1>
-            <p className="text-gray-600">Engaging video content, script writing, storyboarding, and hook creation</p>
+            <h2 className="text-2xl font-bold text-gray-900">Video Ad Scripter</h2>
+            <p className="text-gray-600">AI-powered script creation with hooks and storyboarding</p>
           </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <Card className="border-l-4 border-l-red-500">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2">
-                <Film className="h-5 w-5 text-red-600" />
-                <div>
-                  <p className="font-semibold text-sm">Script Writing</p>
-                  <p className="text-xs text-gray-600">Compelling dialogue</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-l-4 border-l-pink-500">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2">
-                <Clapperboard className="h-5 w-5 text-pink-600" />
-                <div>
-                  <p className="font-semibold text-sm">Storyboarding</p>
-                  <p className="text-xs text-gray-600">Scene planning</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-l-4 border-l-rose-500">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2">
-                <PlayCircle className="h-5 w-5 text-rose-600" />
-                <div>
-                  <p className="font-semibold text-sm">Hook Creation</p>
-                  <p className="text-xs text-gray-600">Attention grabbing</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-l-4 border-l-fuchsia-500">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2">
-                <Video className="h-5 w-5 text-fuchsia-600" />
-                <div>
-                  <p className="font-semibold text-sm">Production Notes</p>
-                  <p className="text-xs text-gray-600">Technical guidance</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        <div className="flex items-center justify-center space-x-8 text-sm text-gray-600">
+          <div className="flex items-center space-x-2">
+            <PlayCircle className="w-4 h-4" />
+            <span>Hook Creation</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Film className="w-4 h-4" />
+            <span>Video Script</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Clapperboard className="w-4 h-4" />
+            <span>Storyboarding</span>
+          </div>
         </div>
       </div>
 
-      {propSessionId ? (
-        <BotChatInterface sessionId={propSessionId} botType="video-scripts" />
-      ) : (
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Video className="h-5 w-5" />
-              Video Ad Configuration
-            </CardTitle>
-            <CardDescription>
-              Tell us about your video project to create an engaging script
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="businessName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Business Name *</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="Enter your business name" 
-                            {...field} 
-                            data-testid="input-business-name"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="productName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Product/Service Name *</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="What are you promoting?" 
-                            {...field} 
-                            data-testid="input-product-name"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="videoDuration"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Video Duration *</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger data-testid="select-duration">
-                              <SelectValue placeholder="Select video length" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {videoDurationOptions.map((duration) => (
-                              <SelectItem key={duration} value={duration}>
-                                {duration}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="platform"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Platform *</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger data-testid="select-platform">
-                              <SelectValue placeholder="Where will it be shown?" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {platformOptions.map((platform) => (
-                              <SelectItem key={platform} value={platform}>
-                                {platform}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
+      {/* Form */}
+      <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-purple-50">
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2 text-blue-800">
+            <Video className="w-5 h-5" />
+            <span>Video Script Configuration</span>
+          </CardTitle>
+          <CardDescription className="text-blue-700">
+            Provide your video details for comprehensive script creation with hooks and storyboarding
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
-                  name="targetAudience"
+                  name="businessName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Target Audience *</FormLabel>
+                      <FormLabel className="text-gray-800 font-medium">Business Name *</FormLabel>
                       <FormControl>
-                        <Textarea 
-                          placeholder="Describe who will watch this video"
+                        <Input 
+                          placeholder="Enter your business name" 
                           {...field} 
-                          data-testid="textarea-target-audience"
-                          rows={3}
+                          data-testid="input-business-name"
+                          className="bg-white border-blue-200 focus:border-blue-400"
                         />
                       </FormControl>
                       <FormMessage />
@@ -331,39 +290,41 @@ Format with specific timestamps, actual dialogue, and detailed visual descriptio
 
                 <FormField
                   control={form.control}
-                  name="keyMessage"
+                  name="productName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Key Message *</FormLabel>
+                      <FormLabel className="text-gray-800 font-medium">Product/Service Name *</FormLabel>
                       <FormControl>
-                        <Textarea 
-                          placeholder="What's the main point you want to communicate?"
+                        <Input 
+                          placeholder="What are you promoting?" 
                           {...field} 
-                          data-testid="textarea-key-message"
-                          rows={3}
+                          data-testid="input-product-name"
+                          className="bg-white border-blue-200 focus:border-blue-400"
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+              </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
-                  name="toneStyle"
+                  name="videoDuration"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Tone & Style *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormLabel className="text-gray-800 font-medium">Video Duration *</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <SelectTrigger data-testid="select-tone">
-                            <SelectValue placeholder="Choose the video tone" />
+                          <SelectTrigger className="bg-white border-blue-200 focus:border-blue-400" data-testid="select-video-duration">
+                            <SelectValue placeholder="Select video length" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {toneOptions.map((tone) => (
-                            <SelectItem key={tone} value={tone}>
-                              {tone}
+                          {videoDurationOptions.map((duration) => (
+                            <SelectItem key={duration} value={duration.toLowerCase().replace(/\s+/g, '-')}>
+                              {duration}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -373,30 +334,76 @@ Format with specific timestamps, actual dialogue, and detailed visual descriptio
                   )}
                 />
 
-                <Button 
-                  type="submit" 
-                  size="lg" 
-                  className="w-full"
-                  disabled={isLoading || propIsLoading}
-                  data-testid="button-generate-script"
-                >
-                  {isLoading || propIsLoading ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                      Generating Video Script...
-                    </>
-                  ) : (
-                    <>
-                      <Video className="w-4 h-4 mr-2" />
-                      Generate Video Script
-                    </>
+                <FormField
+                  control={form.control}
+                  name="platform"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-800 font-medium">Target Platform *</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="bg-white border-blue-200 focus:border-blue-400" data-testid="select-platform">
+                            <SelectValue placeholder="Select platform" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {platformOptions.map((platform) => (
+                            <SelectItem key={platform} value={platform.toLowerCase()}>
+                              {platform}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
                   )}
-                </Button>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-      )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="keyMessage"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-800 font-medium">Key Message *</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="What's the main message you want to communicate? What problem do you solve or benefit do you provide?"
+                        className="min-h-[100px] bg-white border-blue-200 focus:border-blue-400"
+                        {...field} 
+                        data-testid="textarea-key-message"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <Button 
+                type="submit" 
+                disabled={isLoading}
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-3"
+                data-testid="button-create-script"
+              >
+                {isLoading ? (
+                  <>
+                    <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                    Creating Script...
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-4 h-4 mr-2" />
+                    Create My Video Script
+                  </>
+                )}
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+
+      {/* Chat Interface */}
+      <BotChatInterface sessionId={sessionId} botType="video-ad-scripter" />
     </div>
   );
 }
