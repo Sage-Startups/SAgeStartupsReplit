@@ -8,40 +8,30 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { RefreshCw, Users, MessageSquare, Clock } from "lucide-react";
+import { RefreshCw, Users, MessageSquare, Clock, Zap, Target, Layers } from "lucide-react";
 import { BotChatInterface } from "./BotChatInterface";
 import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
   businessName: z.string().min(1, "Business name is required"),
   productName: z.string().min(1, "Product name is required"),
-  customerJourney: z.string().min(1, "Customer journey stage is required"),
   audienceSegment: z.string().min(1, "Audience segment is required"),
   retargetingGoal: z.string().min(1, "Retargeting goal is required"),
   timeWindow: z.string().min(1, "Time window is required"),
-  platform: z.string().min(1, "Platform is required"),
 });
 
 type FormData = z.infer<typeof formSchema>;
 
-const journeyStageOptions = [
-  "Awareness (Top of Funnel)", "Consideration (Middle of Funnel)", "Decision (Bottom of Funnel)", "Post-Purchase", "Cart Abandonment"
-];
-
 const audienceSegmentOptions = [
-  "Website Visitors", "Cart Abandoners", "Product Viewers", "Past Purchasers", "Email Subscribers", "App Users", "Video Viewers"
+  "Website Visitors", "Cart Abandoners", "Product Viewers", "Past Purchasers", "Email Subscribers", "Video Viewers"
 ];
 
 const retargetingGoalOptions = [
-  "Complete Purchase", "Increase Brand Recall", "Drive App Downloads", "Generate Leads", "Upsell/Cross-sell", "Win Back Customers"
+  "Complete Purchase", "Increase Brand Recall", "Generate Leads", "Upsell/Cross-sell", "Win Back Customers"
 ];
 
 const timeWindowOptions = [
-  "1-3 days", "4-7 days", "8-14 days", "15-30 days", "31-60 days", "61-90 days"
-];
-
-const platformOptions = [
-  "Facebook/Instagram", "Google Ads", "LinkedIn", "Twitter", "TikTok", "YouTube", "Cross-Platform"
+  "1-7 days", "8-14 days", "15-30 days", "31-60 days", "61-90 days"
 ];
 
 interface RetargetingStrategistProps {
@@ -50,8 +40,7 @@ interface RetargetingStrategistProps {
   isLoading?: boolean;
 }
 
-export function RetargetingStrategist({ sessionId: propSessionId, onSendMessage, isLoading: propIsLoading }: RetargetingStrategistProps = {}) {
-  const [isLoading, setIsLoading] = useState(false);
+export function RetargetingStrategist({ sessionId, onSendMessage, isLoading }: RetargetingStrategistProps = {}) {
   const { toast } = useToast();
 
   const form = useForm<FormData>({
@@ -59,344 +48,287 @@ export function RetargetingStrategist({ sessionId: propSessionId, onSendMessage,
     defaultValues: {
       businessName: "",
       productName: "",
-      customerJourney: "",
       audienceSegment: "",
       retargetingGoal: "",
       timeWindow: "",
-      platform: "",
     },
   });
 
   const onSubmit = async (data: FormData) => {
-    setIsLoading(true);
     try {
       const prompt = `Create a comprehensive retargeting strategy for ${data.businessName}'s ${data.productName}.
 
 **Campaign Configuration:**
-- Customer Journey Stage: ${data.customerJourney}
 - Audience Segment: ${data.audienceSegment}
 - Retargeting Goal: ${data.retargetingGoal}
 - Time Window: ${data.timeWindow}
-- Platform: ${data.platform}
 
-Please provide a detailed retargeting strategy with:
+Please provide detailed, user-friendly retargeting campaign guidance covering:
 
-## 👥 **Audience Segmentation**
-- Detailed segment definitions
-- Behavioral triggers and criteria
-- Audience size estimates
-- Exclusion lists and rules
-- Lookalike audience opportunities
+## 👥 AUDIENCE SEGMENTATION
+- Detailed segment definitions with behavioral triggers and criteria
+- Advanced audience layering strategies for precise targeting
+- Custom audience creation guidelines and best practices
+- Exclusion lists and negative audience strategies
+- Lookalike audience opportunities and expansion tactics
+- Dynamic audience refresh strategies and automation rules
+- Audience size optimization and performance monitoring
 
-## 📨 **Message Sequencing**
-- Day-by-day message progression
-- Creative rotation strategy
-- Personalization elements
-- Dynamic content recommendations
-- Cross-channel coordination
+## 📨 MESSAGE SEQUENCING
+- Day-by-day message progression with strategic timing
+- Creative rotation strategies to prevent ad fatigue
+- Personalization elements based on user behavior and preferences
+- Dynamic content recommendations and automated messaging
+- Cross-channel coordination for consistent brand experience
+- Progressive messaging intensity and urgency escalation
+- Behavioral trigger-based message customization
 
-## ⏰ **Frequency Capping**
-- Optimal impression frequency
-- Daily/weekly/monthly caps
-- Platform-specific limits
-- Fatigue prevention strategies
-- Timing optimization
+## ⏰ FREQUENCY CAPPING
+- Optimal impression frequency recommendations by platform
+- Daily, weekly, and monthly cap strategies for maximum impact
+- Platform-specific frequency limits and best practices
+- Ad fatigue prevention techniques and creative refresh cycles
+- Timing optimization based on audience behavior patterns
+- Frequency testing frameworks and performance monitoring
+- Budget allocation strategies across different frequency levels
 
-## 🎯 **Campaign Structure**
-- Funnel stage alignment
-- Budget allocation by segment
-- Bid strategy recommendations
-- Campaign hierarchy
-- Attribution model
+## ⚡ IMPLEMENTATION STRATEGY
+- Step-by-step campaign setup and launch procedures
+- Platform-specific configuration guides (Facebook, Google, etc.)
+- Tracking pixel implementation and conversion setup
+- Campaign structure and hierarchy optimization
+- Budget allocation and bid strategy recommendations
+- Quality assurance checklist and testing protocols
+- Performance monitoring and optimization workflows
 
-## 💬 **Creative Strategy**
-- Message variations by segment
-- Visual treatment guidelines
-- Copy tone adjustments
-- Urgency and incentive tactics
-- Social proof integration
-
-## 📊 **Performance Tracking**
-- Key metrics to monitor
-- Conversion attribution
-- Segment performance analysis
-- A/B testing framework
-- Optimization triggers
-
-## 🔄 **Re-engagement Tactics**
-- Win-back campaigns
-- Loyalty program integration
-- Special offers and incentives
-- Content marketing support
-- Email coordination
-
-Format with specific timeframes, message examples, and implementation guidelines.`;
+Format the response with specific examples, actionable setup steps, and best practice recommendations. Use modern formatting and emojis to make it engaging and easy to follow for digital marketers.`;
 
       if (onSendMessage) {
         onSendMessage(prompt);
         toast({
           title: "Retargeting Strategy Started",
-          description: "Creating audience segmentation and message sequencing...",
-        });
-      } else {
-        toast({
-          title: "No active session",
-          description: "Please start a session from the bot page to use this tool.",
-          variant: "destructive",
+          description: "Creating comprehensive audience segmentation and message sequencing...",
         });
       }
     } catch (error) {
-      console.error("Retargeting strategist error:", error);
+      console.error("Retargeting strategy error:", error);
       toast({
         title: "Error",
-        description: `Failed to generate retargeting strategy: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        description: "Failed to start retargeting strategy",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
+  // If there's no active session, show the session creation interface
+  if (!sessionId) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center space-y-4">
+          <div className="flex items-center justify-center space-x-3">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
+              <RefreshCw className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Retargeting Strategist</h2>
+              <p className="text-gray-600">AI-powered retargeting with audience segmentation and message sequencing</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center justify-center space-x-8 text-sm text-gray-600">
+            <div className="flex items-center space-x-2">
+              <Users className="w-4 h-4" />
+              <span>Audience Segmentation</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <MessageSquare className="w-4 h-4" />
+              <span>Message Sequencing</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Clock className="w-4 h-4" />
+              <span>Frequency Capping</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="border-l-4 border-l-purple-500 bg-gradient-to-br from-purple-50 to-indigo-50">
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-3 mb-3">
+                <div className="w-10 h-10 rounded-lg bg-purple-500 flex items-center justify-center">
+                  <Users className="w-5 h-5 text-white" />
+                </div>
+                <h3 className="font-semibold text-gray-900">Audience Segmentation</h3>
+              </div>
+              <p className="text-sm text-gray-600">
+                Advanced audience layering with behavioral triggers and lookalike expansion strategies
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-l-4 border-l-pink-500 bg-gradient-to-br from-pink-50 to-rose-50">
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-3 mb-3">
+                <div className="w-10 h-10 rounded-lg bg-pink-500 flex items-center justify-center">
+                  <Layers className="w-5 h-5 text-white" />
+                </div>
+                <h3 className="font-semibold text-gray-900">Message Sequencing</h3>
+              </div>
+              <p className="text-sm text-gray-600">
+                Strategic message progression with personalization and cross-channel coordination
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-l-4 border-l-rose-500 bg-gradient-to-br from-rose-50 to-red-50">
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-3 mb-3">
+                <div className="w-10 h-10 rounded-lg bg-rose-500 flex items-center justify-center">
+                  <Target className="w-5 h-5 text-white" />
+                </div>
+                <h3 className="font-semibold text-gray-900">Frequency Capping</h3>
+              </div>
+              <p className="text-sm text-gray-600">
+                Optimal frequency strategies with fatigue prevention and timing optimization
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card className="border-2 border-dashed border-gray-300 bg-gray-50">
+          <CardHeader className="text-center">
+            <CardTitle className="text-xl text-gray-900">Build Your Retargeting Strategy</CardTitle>
+            <CardDescription>
+              Create a session to access the retargeting strategist and receive comprehensive campaign strategies
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="text-center">
+            <div className="space-y-4">
+              <div className="flex items-center justify-center space-x-6 text-sm text-gray-600">
+                <div className="flex items-center space-x-2">
+                  <Zap className="w-4 h-4" />
+                  <span>Smart Targeting</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RefreshCw className="w-4 h-4" />
+                  <span>Automated Sequences</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Target className="w-4 h-4" />
+                  <span>High Converting</span>
+                </div>
+              </div>
+              <p className="text-sm text-gray-500">
+                Select a project and start a new session to access the retargeting strategist
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // If there's an active session, show the form or chat interface
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl flex items-center justify-center">
-            <RefreshCw className="h-6 w-6 text-white" />
+    <div className="space-y-6">
+      <div className="text-center space-y-4">
+        <div className="flex items-center justify-center space-x-3">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
+            <RefreshCw className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Retargeting Strategist</h1>
-            <p className="text-gray-600">Audience segmentation, message sequencing, and frequency capping</p>
+            <h2 className="text-2xl font-bold text-gray-900">Retargeting Strategist</h2>
+            <p className="text-gray-600">AI-powered retargeting with audience segmentation and message sequencing</p>
           </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <Card className="border-l-4 border-l-orange-500">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-orange-600" />
-                <div>
-                  <p className="font-semibold text-sm">Audience Segmentation</p>
-                  <p className="text-xs text-gray-600">Precise targeting</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-l-4 border-l-amber-500">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2">
-                <MessageSquare className="h-5 w-5 text-amber-600" />
-                <div>
-                  <p className="font-semibold text-sm">Message Sequencing</p>
-                  <p className="text-xs text-gray-600">Timed messaging</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-l-4 border-l-yellow-500">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2">
-                <Clock className="h-5 w-5 text-yellow-600" />
-                <div>
-                  <p className="font-semibold text-sm">Frequency Capping</p>
-                  <p className="text-xs text-gray-600">Optimal exposure</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-l-4 border-l-lime-500">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2">
-                <RefreshCw className="h-5 w-5 text-lime-600" />
-                <div>
-                  <p className="font-semibold text-sm">Re-engagement</p>
-                  <p className="text-xs text-gray-600">Win-back tactics</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        <div className="flex items-center justify-center space-x-8 text-sm text-gray-600">
+          <div className="flex items-center space-x-2">
+            <Users className="w-4 h-4" />
+            <span>Audience Segmentation</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <MessageSquare className="w-4 h-4" />
+            <span>Message Sequencing</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Clock className="w-4 h-4" />
+            <span>Frequency Capping</span>
+          </div>
         </div>
       </div>
 
-      {propSessionId ? (
-        <BotChatInterface sessionId={propSessionId} botType="retargeting" />
-      ) : (
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <RefreshCw className="h-5 w-5" />
-              Retargeting Configuration
-            </CardTitle>
-            <CardDescription>
-              Define your retargeting campaign parameters for optimal re-engagement
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="businessName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Business Name *</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="Enter your business name" 
-                            {...field} 
-                            data-testid="input-business-name"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="productName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Product/Service Name *</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="What are you promoting?" 
-                            {...field} 
-                            data-testid="input-product-name"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="customerJourney"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Customer Journey Stage *</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger data-testid="select-journey">
-                              <SelectValue placeholder="Select funnel stage" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {journeyStageOptions.map((stage) => (
-                              <SelectItem key={stage} value={stage}>
-                                {stage}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="audienceSegment"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Audience Segment *</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger data-testid="select-segment">
-                              <SelectValue placeholder="Who to retarget?" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {audienceSegmentOptions.map((segment) => (
-                              <SelectItem key={segment} value={segment}>
-                                {segment}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="retargetingGoal"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Retargeting Goal *</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger data-testid="select-goal">
-                              <SelectValue placeholder="What's your objective?" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {retargetingGoalOptions.map((goal) => (
-                              <SelectItem key={goal} value={goal}>
-                                {goal}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="timeWindow"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Time Window *</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger data-testid="select-time">
-                              <SelectValue placeholder="Retargeting duration" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {timeWindowOptions.map((time) => (
-                              <SelectItem key={time} value={time}>
-                                {time}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+      {/* Form */}
+      <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50">
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2 text-purple-800">
+            <RefreshCw className="w-5 h-5" />
+            <span>Retargeting Campaign Configuration</span>
+          </CardTitle>
+          <CardDescription className="text-purple-700">
+            Provide your campaign details for comprehensive retargeting strategy with audience segmentation
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                  control={form.control}
+                  name="businessName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-800 font-medium">Business Name *</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="Enter your business name" 
+                          {...field} 
+                          data-testid="input-business-name"
+                          className="bg-white border-purple-200 focus:border-purple-400"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <FormField
                   control={form.control}
-                  name="platform"
+                  name="productName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Platform *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormLabel className="text-gray-800 font-medium">Product/Service Name *</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="What are you retargeting for?" 
+                          {...field} 
+                          data-testid="input-product-name"
+                          className="bg-white border-purple-200 focus:border-purple-400"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                  control={form.control}
+                  name="audienceSegment"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-800 font-medium">Primary Audience Segment *</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <SelectTrigger data-testid="select-platform">
-                            <SelectValue placeholder="Choose advertising platform" />
+                          <SelectTrigger className="bg-white border-purple-200 focus:border-purple-400" data-testid="select-audience-segment">
+                            <SelectValue placeholder="Select audience type" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {platformOptions.map((platform) => (
-                            <SelectItem key={platform} value={platform}>
-                              {platform}
+                          {audienceSegmentOptions.map((segment) => (
+                            <SelectItem key={segment} value={segment.toLowerCase().replace(/\s+/g, '-')}>
+                              {segment}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -406,30 +338,82 @@ Format with specific timeframes, message examples, and implementation guidelines
                   )}
                 />
 
-                <Button 
-                  type="submit" 
-                  size="lg" 
-                  className="w-full"
-                  disabled={isLoading || propIsLoading}
-                  data-testid="button-generate-strategy"
-                >
-                  {isLoading || propIsLoading ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                      Generating Retargeting Strategy...
-                    </>
-                  ) : (
-                    <>
-                      <RefreshCw className="w-4 h-4 mr-2" />
-                      Generate Retargeting Strategy
-                    </>
+                <FormField
+                  control={form.control}
+                  name="retargetingGoal"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-800 font-medium">Retargeting Goal *</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="bg-white border-purple-200 focus:border-purple-400" data-testid="select-retargeting-goal">
+                            <SelectValue placeholder="Select campaign goal" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {retargetingGoalOptions.map((goal) => (
+                            <SelectItem key={goal} value={goal.toLowerCase().replace(/\s+/g, '-')}>
+                              {goal}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
                   )}
-                </Button>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-      )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="timeWindow"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-800 font-medium">Retargeting Time Window *</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="bg-white border-purple-200 focus:border-purple-400" data-testid="select-time-window">
+                          <SelectValue placeholder="Select time window for retargeting" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {timeWindowOptions.map((window) => (
+                          <SelectItem key={window} value={window.toLowerCase().replace(/\s+/g, '-')}>
+                            {window}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <Button 
+                type="submit" 
+                disabled={isLoading}
+                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium py-3"
+                data-testid="button-create-strategy"
+              >
+                {isLoading ? (
+                  <>
+                    <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                    Creating Strategy...
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-4 h-4 mr-2" />
+                    Create Retargeting Strategy
+                  </>
+                )}
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+
+      {/* Chat Interface */}
+      <BotChatInterface sessionId={sessionId} botType="retargeting-strategist" />
     </div>
   );
 }
