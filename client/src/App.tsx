@@ -54,7 +54,7 @@ function Router() {
       
       {isLoading || !isAuthenticated ? (
         <>
-          <Route path="/" component={LandingPage2} />
+          <Route path="/" component={SoftLaunch} />
           <Route path="/signin" component={SignIn} />
           <Route path="/signup" component={SignUp} />
         </>
