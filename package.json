@@ -48,12 +48,17 @@
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
     "wouter": "^3.6.0",
+    "@sendgrid/mail": "^8.1.4",
+    "cookie-parser": "^1.4.7",
     "dotenv": "^16.4.7",
+    "openai": "^4.77.0",
+    "stripe": "^17.6.0",
     "ws": "^8.18.0",
     "zod": "^3.24.1"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
+    "@types/cookie-parser": "^1.4.8",
     "@types/connect-pg-simple": "^7.0.3",
     "@types/express": "^5.0.0",
     "@types/express-session": "^1.18.0",

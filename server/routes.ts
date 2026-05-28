@@ -1,34 +1,32 @@
 import type { Express, Request, Response } from "express";
+import express from "express";
 import { z } from "zod";
 import { authRouter } from "./authRoutes.js";
+import { botsRouter, botSessionsRouter } from "./routes/bots.js";
+import { waitlistRouter } from "./routes/waitlist.js";
+import { stripeRouter } from "./routes/stripe.js";
+import { webhooksRouter } from "./routes/webhooks.js";
 import { storage } from "./storage.js";
-import { requireAuth, getSessionUser, setSessionUser, safeUser } from "./auth.js";
-import { insertWaitlistSchema } from "../shared/schema.js";
+import { getSessionUser, setSessionUser } from "./auth.js";
 
 export async function registerRoutes(app: Express) {
+  // Stripe webhooks must receive raw body — register before express.json()
+  app.use("/api/webhooks", express.raw({ type: "application/json" }), webhooksRouter);
+
   // Auth routes
   app.use("/api/auth", authRouter);
 
-  // Waitlist
-  app.post("/api/waitlist", async (req: Request, res: Response) => {
-    const parsed = insertWaitlistSchema.safeParse(req.body);
-    if (!parsed.success) {
-      res.status(400).json({ message: "Invalid input", errors: parsed.error.flatten() });
-      return;
-    }
-    try {
-      const entry = await storage.addToWaitlist(parsed.data);
-      res.status(201).json({ id: entry.id });
-    } catch (err: any) {
-      if (err?.message?.includes("unique")) {
-        res.status(409).json({ message: "Already on the waitlist" });
-      } else {
-        throw err;
-      }
-    }
-  });
+  // Bot routes
+  app.use("/api/bots", botsRouter);
+  app.use("/api/bot-sessions", botSessionsRouter);
 
-  // Analytics event
+  // Waitlist
+  app.use("/api/waitlist", waitlistRouter);
+
+  // Stripe
+  app.use("/api/stripe", stripeRouter);
+
+  // Analytics event (client-side tracking)
   app.post("/api/analytics/event", async (req: Request, res: Response) => {
     const schema = z.object({
       sessionId: z.string(),
@@ -45,7 +43,6 @@ export async function registerRoutes(app: Express) {
     await storage.trackEvent({
       ...parsed.data,
       userId: user?.id ?? null,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       metadata: (parsed.data.metadata ?? null) as any,
       pagePath: parsed.data.pagePath ?? null,
       deviceType: parsed.data.deviceType ?? null,
@@ -54,28 +51,7 @@ export async function registerRoutes(app: Express) {
     res.status(204).end();
   });
 
-  // Bot sessions
-  app.get("/api/bots/sessions", requireAuth, async (req: Request, res: Response) => {
-    const user = getSessionUser(req)!;
-    const sessions = await storage.getBotSessions(user.id);
-    res.json(sessions);
-  });
-
-  app.post("/api/bots/sessions", requireAuth, async (req: Request, res: Response) => {
-    const schema = z.object({ botId: z.string(), title: z.string() });
-    const parsed = schema.safeParse(req.body);
-    if (!parsed.success) { res.status(400).json({ message: "Invalid input" }); return; }
-    const user = getSessionUser(req)!;
-    const session = await storage.createBotSession({ ...parsed.data, userId: user.id });
-    res.status(201).json(session);
-  });
-
-  app.get("/api/bots/sessions/:id/messages", requireAuth, async (req: Request, res: Response) => {
-    const messages = await storage.getBotMessages(String(req.params.id));
-    res.json(messages);
-  });
-
-  // Replit OIDC — set up only when env vars are present
+  // Replit OIDC — only when env vars are present
   if (process.env.REPL_ID && process.env.REPLIT_DOMAINS) {
     await setupReplitAuth(app);
   }

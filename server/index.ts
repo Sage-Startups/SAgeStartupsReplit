@@ -1,10 +1,12 @@
 import "dotenv/config";
 import express from "express";
+import cookieParser from "cookie-parser";
 import session from "express-session";
 import path from "path";
 import { fileURLToPath } from "url";
 import { hasDb } from "./db.js";
 import { registerRoutes } from "./routes.js";
+import { analyticsMiddleware } from "./middleware/analytics.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const isProd = process.env.NODE_ENV === "production";
@@ -15,8 +17,16 @@ const app = express();
 // Railway sits behind a proxy
 app.set("trust proxy", 1);
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+// Webhook routes need raw body for Stripe signature verification
+app.use((req, res, next) => {
+  if (req.path.startsWith("/api/webhooks")) return next();
+  express.json()(req, res, next);
+});
+app.use((req, res, next) => {
+  if (req.path.startsWith("/api/webhooks")) return next();
+  express.urlencoded({ extended: false })(req, res, next);
+});
+app.use(cookieParser());
 
 // Request logger
 app.use((req, _res, next) => {
@@ -53,6 +63,8 @@ app.use(
     },
   })
 );
+
+app.use(analyticsMiddleware);
 
 // Health check — must respond before routes so Railway deploy succeeds
 app.get("/api/health", (_req, res) => {

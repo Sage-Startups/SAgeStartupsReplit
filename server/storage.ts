@@ -1,4 +1,4 @@
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, count } from "drizzle-orm";
 import { getDb, hasDb } from "./db.js";
 import {
   users,
@@ -29,9 +29,11 @@ export interface IStorage {
   getBotSessions(userId: string): Promise<BotSession[]>;
   getBotSession(id: string): Promise<BotSession | undefined>;
   createBotSession(session: InsertBotSession): Promise<BotSession>;
+  deleteBotSession(id: string): Promise<void>;
   getBotMessages(sessionId: string): Promise<BotMessage[]>;
   createBotMessage(message: InsertBotMessage): Promise<BotMessage>;
   addToWaitlist(entry: InsertWaitlist): Promise<Waitlist>;
+  getWaitlistCount(): Promise<number>;
   trackEvent(event: InsertAnalyticsEvent): Promise<void>;
   trackVisit(visit: InsertSiteVisit): Promise<void>;
 }
@@ -122,6 +124,13 @@ export class MemStorage implements IStorage {
     return message;
   }
 
+  async deleteBotSession(id: string): Promise<void> {
+    this._botSessions.delete(id);
+    for (const [msgId, msg] of this._botMessages) {
+      if (msg.botSessionId === id) this._botMessages.delete(msgId);
+    }
+  }
+
   async addToWaitlist(data: InsertWaitlist): Promise<Waitlist> {
     const entry: Waitlist = {
       id: crypto.randomUUID(),
@@ -131,6 +140,10 @@ export class MemStorage implements IStorage {
     };
     this._waitlist.set(entry.id, entry);
     return entry;
+  }
+
+  async getWaitlistCount(): Promise<number> {
+    return this._waitlist.size;
   }
 
   async trackEvent(_event: InsertAnalyticsEvent) {}
@@ -193,6 +206,11 @@ export class DbStorage implements IStorage {
     return session;
   }
 
+  async deleteBotSession(id: string): Promise<void> {
+    await this.db.delete(botMessages).where(eq(botMessages.botSessionId, id));
+    await this.db.delete(botSessions).where(eq(botSessions.id, id));
+  }
+
   async getBotMessages(sessionId: string): Promise<BotMessage[]> {
     return this.db
       .select()
@@ -212,6 +230,11 @@ export class DbStorage implements IStorage {
   async addToWaitlist(data: InsertWaitlist): Promise<Waitlist> {
     const [entry] = await this.db.insert(waitlist).values(data).returning();
     return entry;
+  }
+
+  async getWaitlistCount(): Promise<number> {
+    const [row] = await this.db.select({ value: count() }).from(waitlist);
+    return row?.value ?? 0;
   }
 
   async trackEvent(event: InsertAnalyticsEvent) {
