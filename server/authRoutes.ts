@@ -83,9 +83,28 @@ authRouter.post("/logout", async (req, res) => {
 
 authRouter.get("/user", (req, res) => {
   const user = getSessionUser(req);
-  if (!user) {
-    res.status(401).json({ message: "Unauthorized" });
-    return;
-  }
+  if (!user) { res.status(401).json({ message: "Unauthorized" }); return; }
   res.json(safeUser(user));
+});
+
+// Alias used by the frontend
+authRouter.get("/me", (req, res) => {
+  const user = getSessionUser(req);
+  if (!user) { res.status(401).json({ message: "Unauthorized" }); return; }
+  res.json(safeUser(user));
+});
+
+authRouter.patch("/me", async (req, res) => {
+  const user = getSessionUser(req);
+  if (!user) { res.status(401).json({ message: "Unauthorized" }); return; }
+  const schema = z.object({
+    firstName: z.string().min(1).optional(),
+    lastName: z.string().optional(),
+    email: z.string().email().optional(),
+  });
+  const parsed = schema.safeParse(req.body);
+  if (!parsed.success) { res.status(400).json({ message: "Invalid input" }); return; }
+  const updated = await storage.updateUser(user.id, parsed.data);
+  setSessionUser(req, updated);
+  res.json(safeUser(updated));
 });
