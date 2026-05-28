@@ -715,17 +715,17 @@ export default function Bot() {
             )}
             
             {/* Trend Analyser */}
-            {bot.id === 'trend-analysis' && (
-              <TrendAnalyser 
+            {bot.id === 'trend-analyzer' && (
+              <TrendAnalyser
                 sessionId={activeSessionId}
                 onSendMessage={handleSendMessage}
                 isLoading={sendMessageMutation.isPending}
               />
             )}
-            
+
             {/* Customer Report Builder */}
-            {bot.id === 'customer-reports' && (
-              <CustomerReportBuilder 
+            {bot.id === 'custom-reports' && (
+              <CustomerReportBuilder
                 sessionId={activeSessionId}
                 onSendMessage={handleSendMessage}
                 isLoading={sendMessageMutation.isPending}
@@ -1051,7 +1051,7 @@ export default function Bot() {
 
                 
                 {/* Default Enhanced Bot Interface for others */}
-                {!['marketing-strategy', 'brand-identity', 'content-creator', 'blog-writer', 'social-media', 'seo-content', 'keyword-research', 'logo-design', 'brand-voice', 'ad-copy', 'creative-concept', 'email-marketing', 'content-calendar', 'competitor-analysis', 'influencer-outreach', 'product-launch', 'customer-journey', 'conversion-optimizer', 'budget-planner', 'blog-generator', 'topic-research', 'seo-optimizer', 'editorial-calendar', 'headline-generator', 'content-repurposer', 'proofreading', 'meta-descriptions', 'guest-posting', 'content-performance', 'color-palette', 'typography-selector', 'brand-guidelines', 'tagline-generator', 'brand-story', 'visual-identity', 'brand-positioning', 'rebranding-consultant', 'audience-targeting', 'budget-optimizer', 'ab-testing', 'landing-pages', 'video-scripts', 'display-ads', 'retargeting', 'performance-analyzer', 'performance-dashboard', 'insights-generator', 'roi-calculator', 'trend-analysis', 'customer-reports', 'competitor-benchmarking', 'predictive-analytics', 'attribution-modeling', 'audience-segmentation', 'data-visualization'].includes(bot.id) && (
+                {!['marketing-strategy', 'brand-identity', 'content-creator', 'blog-writer', 'social-media', 'seo-content', 'keyword-research', 'logo-design', 'brand-voice', 'ad-copy', 'creative-concept', 'email-marketing', 'content-calendar', 'competitor-analysis', 'influencer-outreach', 'product-launch', 'customer-journey', 'conversion-optimizer', 'budget-planner', 'blog-generator', 'topic-research', 'seo-optimizer', 'editorial-calendar', 'headline-generator', 'content-repurposer', 'proofreading', 'meta-descriptions', 'guest-posting', 'content-performance', 'color-palette', 'typography-selector', 'brand-guidelines', 'tagline-generator', 'brand-story', 'visual-identity', 'brand-positioning', 'rebranding-consultant', 'audience-targeting', 'budget-optimizer', 'ab-testing', 'landing-pages', 'video-scripts', 'display-ads', 'retargeting', 'performance-analyzer', 'performance-dashboard', 'insights-generator', 'roi-calculator', 'trend-analyzer', 'custom-reports', 'competitor-benchmarking', 'predictive-analytics', 'attribution-modeling', 'audience-segmentation', 'data-visualization'].includes(bot.id) && (
                   <EnhancedBotInterface 
                     sessionId={activeSessionId}
                     botName={bot.name}

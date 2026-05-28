@@ -160,7 +160,7 @@ router.post("/resend-verification", async (req: Request, res: Response) => {
     await storage.updateUser(user.id, { emailVerificationToken: newToken });
 
     // Resend verification email
-    await AuthService.sendWelcomeEmail(user.email, user.firstName || 'User', newToken);
+    await AuthService.sendWelcomeEmail(user.email, user.firstName || 'User');
 
     res.json({ message: "Verification email resent successfully" });
   } catch (error) {
@@ -178,7 +178,7 @@ router.post("/test-email", async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Email is required" });
     }
 
-    await AuthService.sendWelcomeEmail(email, "Test User", "test-token-123");
+    await AuthService.sendWelcomeEmail(email, "Test User");
     res.json({ message: "Test email sent successfully" });
   } catch (error) {
     console.error("Test email error:", error);

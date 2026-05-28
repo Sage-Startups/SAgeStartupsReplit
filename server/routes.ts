@@ -22,7 +22,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Enhanced video serving with proper headers and range support
   app.get('/website-video*.mp4', (req, res) => {
     const videoPath = path.join(process.cwd(), 'client/public', req.path);
-    const stat = fs.statSync(videoPath);
+    let stat: fs.Stats;
+    try {
+      stat = fs.statSync(videoPath);
+    } catch {
+      return res.status(404).json({ message: "Video not found" });
+    }
     const fileSize = stat.size;
     const range = req.headers.range;
 
@@ -379,12 +384,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/projects/:id", requireAuth, async (req, res) => {
+  app.get("/api/projects/:id", requireAuth, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
+      const userId = req.user.claims.sub;
       const project = await storage.getProject(id);
       if (!project) {
         return res.status(404).json({ message: "Project not found" });
+      }
+      if (project.userId !== userId) {
+        return res.status(403).json({ message: "Not authorized to access this project" });
       }
       res.json(project);
     } catch (error) {
@@ -428,21 +437,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const projectId = parseInt(req.params.projectId);
       const userId = req.user.claims.sub;
-      
-      // Check if user has access to this bot
+
+      // Verify user owns the project
+      const project = await storage.getProject(projectId);
+      if (!project) {
+        return res.status(404).json({ message: "Project not found" });
+      }
+      if (project.userId !== userId) {
+        return res.status(403).json({ message: "Not authorized to access this project" });
+      }
+
       const user = await storage.getUser(userId);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
 
       const { botId } = req.body;
-      // For now, allow access to all bots - subscription enforcement can be added later
-      // const userBots = await getUserAvailableBots(user.subscriptionTier);
-      // const hasAccess = userBots.some(bot => bot.id === botId);
-      
-      // if (!hasAccess) {
-      //   return res.status(403).json({ message: "Bot not available in your subscription plan" });
-      // }
+
+      // Enforce subscription tier access
+      const botSection = bots.find(b => b.id === botId)?.section;
+      const sectionBots = bots.filter(b => b.section === botSection);
+      const botIndexInSection = sectionBots.findIndex(b => b.id === botId);
+
+      if (user.subscriptionTier === 'free') {
+        if (botIndexInSection >= 2) {
+          return res.status(403).json({ message: "This bot requires a Pro or Premium subscription" });
+        }
+      } else if (user.subscriptionTier === 'pro') {
+        if (botIndexInSection >= Math.ceil(sectionBots.length / 2)) {
+          return res.status(403).json({ message: "This bot requires a Premium subscription" });
+        }
+      }
 
       const validatedData = insertBotSessionSchema.parse({
         ...req.body,
@@ -451,8 +476,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const session = await storage.createBotSession(validatedData);
       
       // Update analytics
+      const existingAnalytics = await storage.getUserAnalytics(userId);
       await storage.updateUserAnalytics(userId, {
-        totalSessions: (await storage.getUserAnalytics(userId))?.totalSessions || 0 + 1
+        totalSessions: (existingAnalytics?.totalSessions || 0) + 1
       });
       
       res.json(session);

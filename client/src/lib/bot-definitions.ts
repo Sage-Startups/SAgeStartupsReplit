@@ -521,22 +521,24 @@ export function getSectionById(sectionId: string) {
 
 // Function to get available bots based on subscription tier
 export function getAvailableBots(subscriptionTier: string): BotDefinition[] {
+  const uniqueSections = [...new Set(bots.map(b => b.section))];
+
   if (subscriptionTier === 'free') {
-    // Free tier: 8 bots (2 from each of the 4 sections)
-    const marketingBots = bots.filter(bot => bot.section === 'marketing').slice(0, 2);
-    const brandingBots = bots.filter(bot => bot.section === 'branding').slice(0, 2);
-    const advertisingBots = bots.filter(bot => bot.section === 'advertising').slice(0, 2);
-    const analyticsBots = bots.filter(bot => bot.section === 'analytics').slice(0, 2);
-    
-    return [...marketingBots, ...brandingBots, ...advertisingBots, ...analyticsBots];
+    // Free tier: 2 bots per section
+    return uniqueSections.flatMap(section =>
+      bots.filter(b => b.section === section).slice(0, 2)
+    );
   } else if (subscriptionTier === 'pro') {
-    // Pro tier: 30 bots (roughly 7-8 from each section)
-    return bots.slice(0, 30);
+    // Pro tier: first half of each section
+    return uniqueSections.flatMap(section => {
+      const sectionBots = bots.filter(b => b.section === section);
+      return sectionBots.slice(0, Math.ceil(sectionBots.length / 2));
+    });
   } else if (subscriptionTier === 'premium') {
-    // Premium tier: All 60+ bots
+    // Premium tier: all bots
     return bots;
   }
-  
+
   // Default to free tier if subscription tier not recognized
   return getAvailableBots('free');
 }

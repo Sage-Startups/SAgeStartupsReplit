@@ -38,21 +38,32 @@ import TermsOfServicePage from "@/pages/terms";
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-500 text-sm">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Switch>
       {/* Landing pages available to everyone */}
       <Route path="/landing-1" component={Landing} />
       <Route path="/softlaunch" component={SoftLaunch} />
       <Route path="/signup2" component={SignUp2} />
-      
+
       {/* Public pages available to everyone */}
       <Route path="/about" component={AboutPage} />
       <Route path="/blog" component={BlogPage} />
       <Route path="/contact" component={ContactPage} />
       <Route path="/privacy" component={PrivacyPolicyPage} />
       <Route path="/terms" component={TermsOfServicePage} />
-      
-      {isLoading || !isAuthenticated ? (
+
+      {!isAuthenticated ? (
         <>
           <Route path="/" component={SoftLaunch} />
           <Route path="/signin" component={SignIn} />
