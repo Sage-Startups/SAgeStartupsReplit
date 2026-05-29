@@ -9,7 +9,54 @@ import { webhooksRouter } from "./routes/webhooks.js";
 import { storage } from "./storage.js";
 import { getSessionUser, setSessionUser } from "./auth.js";
 
+const SITE_BASE = process.env.SITE_URL ?? "https://sage-startups.com";
+
 export async function registerRoutes(app: Express) {
+  // robots.txt
+  app.get("/robots.txt", (_req, res) => {
+    res.type("text/plain").send(
+      `User-agent: *\nAllow: /\nDisallow: /api/\nSitemap: ${SITE_BASE}/sitemap.xml`
+    );
+  });
+
+  // sitemap.xml
+  app.get("/sitemap.xml", (_req, res) => {
+    const staticUrls = ["/", "/signin", "/signup", "/waitlist-thanks"].map((path) => `
+  <url>
+    <loc>${SITE_BASE}${path}</loc>
+    <changefreq>weekly</changefreq>
+    <priority>${path === "/" ? "1.0" : "0.5"}</priority>
+  </url>`).join("");
+    res.type("application/xml").send(
+      `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${staticUrls}\n</urlset>`
+    );
+  });
+
+  // Analytics stats endpoint
+  app.get("/api/analytics/stats", async (_req, res) => {
+    try {
+      // Return stub stats; a full implementation would query analyticsEvents + siteVisits tables
+      res.json({
+        totalVisits: 0,
+        uniqueSessions: 0,
+        pageViews: 0,
+        topPages: [],
+        deviceBreakdown: [
+          { type: "desktop", count: 0 },
+          { type: "mobile", count: 0 },
+          { type: "tablet", count: 0 },
+        ],
+        visitsByDay: Array.from({ length: 7 }, (_, i) => {
+          const d = new Date();
+          d.setDate(d.getDate() - (6 - i));
+          return { date: d.toLocaleDateString("en-US", { month: "short", day: "numeric" }), visits: 0 };
+        }),
+      });
+    } catch {
+      res.status(500).json({ message: "Failed to load analytics" });
+    }
+  });
+
   // Stripe webhooks must receive raw body — register before express.json()
   app.use("/api/webhooks", express.raw({ type: "application/json" }), webhooksRouter);
 

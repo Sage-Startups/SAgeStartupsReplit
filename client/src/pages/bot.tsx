@@ -1,12 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { useParams, useSearch, useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import {
-  ArrowLeft, Loader2, ChevronDown, ChevronUp, Trash2
-} from "lucide-react";
+import { ArrowLeft, Loader2, ChevronDown, ChevronUp, Trash2, Bot, Sparkles } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,6 +12,20 @@ import { SEOHead } from "@/components/seo-head";
 import { BotResultDisplay } from "@/components/bot-result-display";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+// Showcase bot custom interfaces — lazy loaded
+const ShowcaseInterfaces = {
+  "logo-design-assistant": lazy(() => import("@/components/bot-interfaces/logo-design-assistant").then((m) => ({ default: m.LogoDesignAssistantInterface }))),
+  "color-palette-creator": lazy(() => import("@/components/bot-interfaces/color-palette-creator").then((m) => ({ default: m.ColorPaletteCreatorInterface }))),
+  "brand-voice-generator": lazy(() => import("@/components/bot-interfaces/brand-voice-generator").then((m) => ({ default: m.BrandVoiceGeneratorInterface }))),
+  "tagline-generator": lazy(() => import("@/components/bot-interfaces/tagline-generator").then((m) => ({ default: m.TaglineGeneratorInterface }))),
+  "ad-copy-generator": lazy(() => import("@/components/bot-interfaces/ad-copy-generator").then((m) => ({ default: m.AdCopyGeneratorInterface }))),
+} as const;
+
+type ShowcaseBotId = keyof typeof ShowcaseInterfaces;
 
 interface BotDef {
   id: string;
@@ -35,15 +44,6 @@ interface BotMessage {
   createdAt: string;
 }
 
-interface SessionWithMessages {
-  id: string;
-  botId: string;
-  title: string;
-  messages: BotMessage[];
-  createdAt: string;
-  updatedAt: string;
-}
-
 const CATEGORY_COLORS: Record<string, string> = {
   branding: "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300",
   marketing: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
@@ -52,6 +52,14 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 const inputSchema = z.object({ input: z.string().min(1, "Please describe what you need") });
+
+function ShowcaseInterfaceFallback() {
+  return (
+    <div className="flex items-center justify-center p-8">
+      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+    </div>
+  );
+}
 
 export default function BotPage() {
   const { botId } = useParams<{ botId: string }>();
@@ -67,23 +75,26 @@ export default function BotPage() {
   const [messages, setMessages] = useState<BotMessage[]>([]);
   const [historyOpen, setHistoryOpen] = useState(false);
 
+  const isShowcase = botId in ShowcaseInterfaces;
+
   const { data: bot, isLoading: botLoading } = useQuery<BotDef>({
     queryKey: [`/api/bots/${botId}`],
+    staleTime: 300_000,
   });
 
-  const { data: sessionData } = useQuery<SessionWithMessages>({
+  const { data: sessionData } = useQuery<{ id: string; messages: BotMessage[] }>({
     queryKey: [`/api/bot-sessions/${sessionId}`],
     enabled: !!sessionId,
+    staleTime: 30_000,
   });
 
-  const { data: allSessions } = useQuery<SessionWithMessages[]>({
+  const { data: allSessions } = useQuery<Array<{ id: string; botId: string; title: string; updatedAt: string }>>({
     queryKey: ["/api/bot-sessions"],
+    staleTime: 30_000,
   });
 
   useEffect(() => {
-    if (sessionData?.messages) {
-      setMessages(sessionData.messages);
-    }
+    if (sessionData?.messages) setMessages(sessionData.messages);
   }, [sessionData]);
 
   const form = useForm<z.infer<typeof inputSchema>>({
@@ -101,16 +112,17 @@ export default function BotPage() {
         setSessionId(result.sessionId);
         setLocation(`/bot/${botId}?session=${result.sessionId}`, { replace: true });
       }
+      const currentInput = form.getValues("input");
       setMessages((prev) => {
-        const withUser = prev.find((m) => m.role === "user" && m.content === form.getValues("input"))
-          ? prev
-          : [...prev, { id: `u-${Date.now()}`, role: "user" as const, content: form.getValues("input"), createdAt: new Date().toISOString() }];
+        const hasUser = prev.some((m) => m.role === "user" && m.content === currentInput);
+        const withUser = hasUser ? prev : [...prev, { id: `u-${Date.now()}`, role: "user" as const, content: currentInput, createdAt: new Date().toISOString() }];
         return [...withUser, result.message];
       });
       form.reset();
       qc.invalidateQueries({ queryKey: ["/api/bot-sessions"] });
     },
     onError: (err: Error) => {
+      setMessages((prev) => prev.filter((m) => !m.id.startsWith("optimistic-")));
       toast({ title: "Error", description: err.message, variant: "destructive" });
     },
   });
@@ -126,6 +138,16 @@ export default function BotPage() {
     },
   });
 
+  // Callback for showcase bots
+  function handleShowcaseResult(newSessionId: string, message: BotMessage) {
+    if (!sessionId) {
+      setSessionId(newSessionId);
+      setLocation(`/bot/${botId}?session=${newSessionId}`, { replace: true });
+    }
+    setMessages((prev) => [...prev, message]);
+    qc.invalidateQueries({ queryKey: ["/api/bot-sessions"] });
+  }
+
   const thisSessionSessions = allSessions?.filter((s) => s.botId === botId) ?? [];
 
   const iconName = bot?.icon
@@ -134,24 +156,24 @@ export default function BotPage() {
   const Icon = (LucideIcons as Record<string, any>)[iconName] ?? LucideIcons.Sparkles;
 
   function onSubmit(data: z.infer<typeof inputSchema>) {
-    const optimisticUser: BotMessage = {
+    const optimistic: BotMessage = {
       id: `optimistic-${Date.now()}`,
       role: "user",
       content: data.input,
       createdAt: new Date().toISOString(),
     };
-    setMessages((prev) => [...prev, optimisticUser]);
+    setMessages((prev) => [...prev, optimistic]);
     runMutation.mutate({ input: data.input, sessionId });
   }
 
   if (botLoading) {
     return (
-      <div className="min-h-screen bg-background p-6">
-        <Skeleton className="h-8 w-48 mb-4" />
-        <Skeleton className="h-4 w-72 mb-8" />
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Skeleton className="h-64" />
-          <Skeleton className="h-64" />
+      <div className="min-h-screen bg-background p-6 space-y-4">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-4 w-72" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <Skeleton className="h-80" />
+          <Skeleton className="h-80" />
         </div>
       </div>
     );
@@ -159,48 +181,49 @@ export default function BotPage() {
 
   if (!bot) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-muted-foreground">
-        <div className="text-center">
-          <p className="text-lg font-medium">Bot not found</p>
-          <Button variant="outline" className="mt-4" onClick={() => setLocation("/ai-suite")}>
-            Back to AI Suite
-          </Button>
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 text-muted-foreground p-4">
+        <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+          <Bot className="h-8 w-8 opacity-40" />
         </div>
+        <p className="text-lg font-medium">Bot not found</p>
+        <p className="text-sm text-center max-w-xs">
+          The bot <code className="bg-muted px-1.5 py-0.5 rounded text-xs">{botId}</code> doesn't exist.
+        </p>
+        <Button variant="outline" onClick={() => setLocation("/ai-suite")}>
+          Browse all bots
+        </Button>
       </div>
     );
   }
+
+  const ShowcaseComp = isShowcase ? ShowcaseInterfaces[botId as ShowcaseBotId] : null;
 
   return (
     <>
       <SEOHead title={`${bot.name} — Sage Startups`} description={bot.description} />
       <div className="min-h-screen bg-background flex flex-col">
         {/* Header */}
-        <div className="border-b bg-background px-4 sm:px-6 py-4">
-          <div className="mx-auto max-w-7xl flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => setLocation("/ai-suite")}>
+        <div className="border-b bg-background/95 backdrop-blur px-4 sm:px-6 py-3 sticky top-14 z-30">
+          <div className="mx-auto max-w-7xl flex items-center gap-3">
+            <Button variant="ghost" size="icon" onClick={() => setLocation("/ai-suite")} aria-label="Back to AI Suite">
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <div className="flex items-center gap-3 flex-1 min-w-0">
-              <div className={`p-2 rounded-lg shrink-0 ${CATEGORY_COLORS[bot.category]?.replace("text-", "bg-").replace("bg-", "bg-").split(" ")[0] ?? "bg-muted"}`}>
-                <Icon className="h-5 w-5" />
-              </div>
-              <div className="min-w-0">
-                <h1 className="font-bold text-lg leading-tight truncate">{bot.name}</h1>
-                <div className="flex items-center gap-2">
-                  <Badge className={`text-[10px] border-0 ${CATEGORY_COLORS[bot.category]}`}>
-                    {bot.category}
-                  </Badge>
-                  {sessionId && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-5 w-5 text-muted-foreground hover:text-destructive"
-                      onClick={() => deleteMutation.mutate(sessionId)}
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  )}
-                </div>
+            <div className={`p-2 rounded-lg shrink-0 ${CATEGORY_COLORS[bot.category] ?? "bg-muted text-muted-foreground"}`}>
+              <Icon className="h-4 w-4" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h1 className="font-bold leading-tight truncate">{bot.name}</h1>
+              <div className="flex items-center gap-2">
+                <Badge className={`text-[10px] border-0 ${CATEGORY_COLORS[bot.category]}`}>{bot.category}</Badge>
+                {sessionId && (
+                  <button
+                    onClick={() => deleteMutation.mutate(sessionId)}
+                    className="text-muted-foreground hover:text-destructive transition-colors"
+                    aria-label="Delete session"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -208,33 +231,39 @@ export default function BotPage() {
 
         {/* Main content */}
         <div className="flex-1 mx-auto w-full max-w-7xl px-4 sm:px-6 py-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Input pane */}
             <div className="flex flex-col gap-4">
               <p className="text-sm text-muted-foreground">{bot.description}</p>
 
-              <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="input">Your input</Label>
-                  <Textarea
-                    id="input"
-                    rows={8}
-                    placeholder="Describe your brand, product, or what you need help with…"
-                    {...form.register("input")}
-                    className="resize-none"
-                  />
-                  {form.formState.errors.input && (
-                    <p className="text-xs text-destructive">{form.formState.errors.input.message}</p>
-                  )}
-                </div>
-                <Button type="submit" disabled={runMutation.isPending} className="w-full sm:w-auto">
-                  {runMutation.isPending ? (
-                    <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Running…</>
-                  ) : (
-                    "Run bot"
-                  )}
-                </Button>
-              </form>
+              {ShowcaseComp ? (
+                <Suspense fallback={<ShowcaseInterfaceFallback />}>
+                  <ShowcaseComp onResult={handleShowcaseResult} sessionId={sessionId} />
+                </Suspense>
+              ) : (
+                <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="input">Your input</Label>
+                    <Textarea
+                      id="input"
+                      rows={8}
+                      placeholder="Describe your brand, product, or what you need help with…"
+                      {...form.register("input")}
+                      className="resize-none"
+                    />
+                    {form.formState.errors.input && (
+                      <p className="text-xs text-destructive">{form.formState.errors.input.message}</p>
+                    )}
+                  </div>
+                  <Button type="submit" disabled={runMutation.isPending}>
+                    {runMutation.isPending ? (
+                      <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Running…</>
+                    ) : (
+                      <><Sparkles className="h-4 w-4 mr-2" />Run bot</>
+                    )}
+                  </Button>
+                </form>
+              )}
 
               {/* Session history drawer */}
               {thisSessionSessions.length > 0 && (
@@ -242,6 +271,7 @@ export default function BotPage() {
                   <button
                     className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium hover:bg-muted/50 transition-colors"
                     onClick={() => setHistoryOpen(!historyOpen)}
+                    aria-expanded={historyOpen}
                   >
                     <span>Session history ({thisSessionSessions.length})</span>
                     {historyOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -268,11 +298,11 @@ export default function BotPage() {
             </div>
 
             {/* Result pane */}
-            <div className="border rounded-xl overflow-hidden bg-background min-h-[400px] flex flex-col">
+            <div className="border rounded-xl overflow-hidden bg-background min-h-[400px] lg:min-h-0 flex flex-col">
               <BotResultDisplay
                 outputType={bot.outputType}
                 messages={messages}
-                isLoading={runMutation.isPending && messages.length === 0}
+                isLoading={runMutation.isPending && messages.filter((m) => m.role === "assistant").length === 0}
               />
             </div>
           </div>

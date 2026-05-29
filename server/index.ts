@@ -90,8 +90,10 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
   res.status(500).json({ message: err.message ?? "Internal server error" });
 });
 
-app.listen(PORT, () => {
+const HOST = process.env.HOST ?? "0.0.0.0";
+
+app.listen(PORT, HOST, () => {
   console.log(
-    `Server running on http://localhost:${PORT} [${isProd ? "production" : "development"}] storage=${hasDb() ? "db" : "mem"}`
+    `Server running on http://${HOST}:${PORT} [${isProd ? "production" : "development"}] storage=${hasDb() ? "db" : "mem"}`
   );
 });

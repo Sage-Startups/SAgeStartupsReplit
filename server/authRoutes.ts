@@ -12,6 +12,9 @@ import {
 
 export const authRouter = Router();
 
+// Early bird cutoff — must match client/src/components/early-bird-banner.tsx
+const EARLY_BIRD_CUTOFF = new Date("2026-09-01T00:00:00Z");
+
 const registerSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
@@ -43,6 +46,8 @@ authRouter.post("/register", async (req, res) => {
   const trialEndsAt = new Date();
   trialEndsAt.setDate(trialEndsAt.getDate() + 7);
 
+  const isEarlyBird = new Date() < EARLY_BIRD_CUTOFF;
+
   const user = await storage.createUser({
     email,
     passwordHash,
@@ -51,6 +56,7 @@ authRouter.post("/register", async (req, res) => {
     subscriptionTier: "free",
     subscriptionStatus: "trialing",
     trialEndsAt,
+    isEarlyBird,
   });
 
   setSessionUser(req, user);
